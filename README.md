@@ -4,13 +4,13 @@ goals:
   3. Iss to emulate core(s), main memory, memory mapped device (uart),
      (probably non 'compliant') system timer, synchronization primitives(?).
   4. Run risc-v integer test suites.
-  5. Support for linux, mac os-x 'out of the box'.
+  5. Simulator binary to run on linux, mac os-x 'out of the box'.
   6. Iss features:
        + emulation of riscv core, memory, devices, memory 'monitors' (exclusive ops in arm-speak)
        + elf reader
        + disassembly
        + gdb support
-  7. development strategy:
+  7. Development strategy:
      * Reuse of windvane components:
        + physical memory, logical memory api, exclusive monitor(?)
        + elf reader
