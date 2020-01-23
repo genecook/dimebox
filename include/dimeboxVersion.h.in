@@ -1,0 +1,4 @@
+// the configured options and settings for dimebox
+#define dimebox_VERSION_MAJOR @dimebox_VERSION_MAJOR@
+#define dimebox_VERSION_MINOR @dimebox_VERSION_MINOR@
+

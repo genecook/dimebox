@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.13)
+
+project(dimebox VERSION 0.1)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+add_executable(dimebox src/main.C src/program_options.C src/sim_config.C)
+
+include_directories(include build/include tools/boost_1_72_0)
+
+add_library(libboost_program_options.a STATIC IMPORTED)
+
+find_library(BOOST_PGM_OPTS libboost_program_options.a PATHS ${CMAKE_SOURCE_DIR}/tools/boost_1_72_0/stage/lib)
+
+target_link_libraries(dimebox "${BOOST_PGM_OPTS}")
+
+configure_file(include/dimeboxVersion.h.in include/dimeboxVersion.h)
+
+install(TARGETS dimebox DESTINATION bin)
+
