@@ -12,11 +12,11 @@ dimebox tasks
 
 4. define/implement platform/backplace, top level tasks queue.
 
-5. integrate in (windvane) physical/logical memory.
+5. integrate in (windvane) physical/logical memory. - DONE
 
 6. system timer? (from windvane)
 
-7. uart. (windvane)
+7. uart. (morph windvane pla uart into ns...)
 
 8. implement app registers, PC, NOP instruction.
 
