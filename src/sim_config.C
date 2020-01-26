@@ -1,7 +1,9 @@
 #include <dimebox.h>
 
 void DimeboxSimConfig::AddSrcFile(std::string &_src_file) { load_files.push_back(_src_file); }
+
 void DimeboxSimConfig::SetResetAddress(unsigned long long _reset_address) { reset_address = _reset_address; }
+unsigned long long DimeboxSimConfig::ResetAddress() { return reset_address; };
 
 void DimeboxSimConfig::SetCoreCount(unsigned int _num_cores) { num_cores = _num_cores; }
 unsigned int DimeboxSimConfig::CoreCount() { return num_cores; } 

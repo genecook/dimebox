@@ -18,9 +18,13 @@ public:
   };
 
   void AddSrcFile(std::string &_src_file);
+  
   void SetResetAddress(unsigned long long _reset_address);
+  unsigned long long ResetAddress();
+  
   void SetCoreCount(unsigned int _num_cores);
   unsigned int CoreCount();
+  
   void SetAddressRange(unsigned long long _address_lo,unsigned long long _address_hi);
   void MapDevice(std::string _device,unsigned long long _device_base_address);
   void SetShowProgress(bool _sp);
