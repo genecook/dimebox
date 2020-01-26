@@ -1,7 +1,7 @@
 goals:
   1. Risc-v compliant iss.
   2. Integer only, machine mode only, 64(32?)-bit.
-  3. Iss to emulate core(s), main memory, memory mapped device (uart),
+  3. Iss to emulate core(s), main memory, memory mapped device (uart ns16550a?),
      (probably non 'compliant') system timer, synchronization primitives(?).
   4. Run risc-v integer test suites.
   5. Simulator binary to run on linux, mac os-x 'out of the box'.
@@ -15,7 +15,7 @@ goals:
        + physical memory, logical memory api, exclusive monitor(?)
        + elf reader
        + gdb interface
-       + (pla51) uart
+       + ns16550a uart (derive from existing pla011 implementation)
      * cmake
      * git
      * Test suite execution at check in?

@@ -1,36 +1,36 @@
 dime_box - is an unincorporated community in Lee County, Texas.
 
-dimebox tasks
-----------------
-1. libelf - implement script to download/build (elftoolchain) libelf. - DONE
+dimebox tasks (in no particular order)
+----------------------------------------
+ * libelf - implement script to download/build (elftoolchain) libelf. - DONE
    (is libelf the same as whats available in (ubuntu) libelf package?
 
-2. boost - implement script to download/build boost cmdline args lib. - DONE
+ * boost - implement script to download/build boost cmdline args lib. - DONE
 
-3. main.C - clone windvane main, breakout cmdline args as separate code
+ * main.C - clone windvane main, breakout cmdline args as separate code
     define config file format + code to parse. define config struct. - DONE
 
-4. define/implement platform/backplace, top level tasks queue.
+ * integrate in (windvane) physical/logical memory. - DONE
 
-5. integrate in (windvane) physical/logical memory. - DONE
+ * system timer? (from windvane)
 
-6. system timer? (from windvane)
+ * uart. (morph windvane pla uart into ns...)
 
-7. uart. (morph windvane pla uart into ns...)
+ * implement app registers, PC, SP. - DONE
 
-8. implement app registers, PC, SP, NOP instruction.
+ * implement 'top level' simulator class, simulation loop.
 
-8.5 implement 'top level' simulator class, simulation loop.
+ * NOP instruction.
 
-9. implement cmake file (CMakeLists.txt) - DONE
+ * implement cmake file (CMakeLists.txt) - DONE
 
-10. integrate in gdb 'server' code. (windvane) DONE
+ * integrate in gdb 'server' code. (windvane) DONE
 
-11. other integer instructions + tests - how to use open source test suites?
+ * other integer instructions + tests - how to use open source test suites?
 
-12. archive on github. - DONE
+ * archive on github. - DONE
 
-13. README.md
+ * README.md
 
-14. download/install risc-v tool chain.
+ * download/install risc-v tool chain.
 

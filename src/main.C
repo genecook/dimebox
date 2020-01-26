@@ -8,7 +8,7 @@
 // used by main only:
 
 int process_options(DimeboxSimConfig my_sim_cfg,int argc,char **argv);
-int run_simulation(DimeboxSimConfig &my_sim_cfg);
+int run_simulation(DimeboxSimConfig *my_sim_cfg);
 
 //*******************************************************************************
 // main entry point...
@@ -26,7 +26,7 @@ int main(int argc,char **argv) {
     return -1;
   }
 
-  return run_simulation(my_sim_cfg);
+  return run_simulation(&my_sim_cfg);
 }
 
 
@@ -34,7 +34,7 @@ int main(int argc,char **argv) {
 // given a simulator config, run a simulation...
 //*******************************************************************************
 
-int run_simulation(DimeboxSimConfig &my_sim_cfg) {
+int run_simulation(DimeboxSimConfig *my_sim_cfg) {
   int rcode = 0;
   
   try {
