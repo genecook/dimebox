@@ -151,7 +151,7 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
   int byte_count       = number_of_bytes - spill_byte_count;   // count for 1st page access
 
   int rcode = 0;
-  SIM_EXCEPTION_CLASS region_access_exc = NO_SIM_EXCEPTION;
+  SIM_EXCEPTIONS region_access_exc = NO_SIM_EXCEPTION;
 
   #pragma omp critical
   {
@@ -160,7 +160,7 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
 #ifdef MEM_DEBUG
       printf("[ReadMemoryBlock] rcode = %d, spill count = %d\n",rcode,spill_byte_count);
 #endif
-    } catch(SIM_EXCEPTION_CLASS eclass) {
+    } catch(SIM_EXCEPTIONS eclass) {
       region_access_exc = eclass;
     }
 
@@ -173,7 +173,7 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
       trans2 = mmu.LA2PA(LA + byte_count,NS,privileged,is_data,false,spill_byte_count,false);
       try {
         rcode2 = RegionAccess(&buffer[byte_count],cpu->GetID(),trans2->LA(),trans2->PA(),is_data,FOR_READ,spill_byte_count,packet->ForTest(),init_if_free);
-      } catch(SIM_EXCEPTION_CLASS eclass) {
+      } catch(SIM_EXCEPTIONS eclass) {
         region_access_exc = eclass;
       }
       if (rcode2 == rcode) {
@@ -232,7 +232,7 @@ int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,boo
 #endif
   
   int rcode = 0;
-  SIM_EXCEPTION_CLASS region_access_exc = NO_SIM_EXCEPTION;
+  SIM_EXCEPTIONS region_access_exc = NO_SIM_EXCEPTION;
 
   #pragma omp critical
   {
@@ -241,7 +241,7 @@ int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,boo
 #ifdef MEM_DEBUG
       printf("[WriteMemoryBlock] rcode = %d, spill count: %d\n",rcode,spill_byte_count);
 #endif
-    } catch(SIM_EXCEPTION_CLASS eclass) {
+    } catch(SIM_EXCEPTIONS eclass) {
       region_access_exc = eclass;
     }
 
@@ -252,7 +252,7 @@ int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,boo
       int rcode2 = 0;
       try {
 	rcode2 = RegionAccess(&buffer[byte_count],cpu->GetID(),trans2->LA(),trans2->PA(),is_data,FOR_WRITE,spill_byte_count,packet->ForTest());
-      } catch(SIM_EXCEPTION_CLASS eclass) {
+      } catch(SIM_EXCEPTIONS eclass) {
         region_access_exc = eclass;
       }
       if (rcode2 == rcode) {

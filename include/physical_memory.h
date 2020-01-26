@@ -89,7 +89,7 @@ class PhysicalMemory {
 
   void ReadInitialState(unsigned long long address,unsigned char *buffer, bool is_data);
 
-  void AddressList(vector<unsigned long long> &all_mem_addresses,bool skip_empty_blocks);
+  void AddressList(std::vector<unsigned long long> &all_mem_addresses,bool skip_empty_blocks);
 
  protected:
   int BlockWrite(unsigned long long address,unsigned char *buffer,int number_of_bytes,bool initial_values);
@@ -98,9 +98,9 @@ class PhysicalMemory {
  private:
   int block_size;
   bool verbose;
-  unordered_map<unsigned long long,unsigned char> physical_memory;
+  std::unordered_map<unsigned long long,unsigned char> physical_memory;
 
-  unordered_map<unsigned long long,MemBlock> physical_memory_by_block;
+  std::unordered_map<unsigned long long,MemBlock> physical_memory_by_block;
 
 #ifdef DO_TRACE
   scaffold_SAPI::Memory *mt;

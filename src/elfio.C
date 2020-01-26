@@ -318,7 +318,7 @@ int ELFIO::Load(Memory &mem, string &elf_file, unsigned long long load_address, 
     for (int i = 1; i <= num_blocks; i++) {
        try {
 	 mem.WritePhysicalMemory(address + block_offset,PM_BLOCK_SIZE,&section_data[block_offset],false,true);
-       } catch(SIM_EXCEPTION_CLASS eclass) {
+       } catch(SIM_EXCEPTIONS eclass) {
 	 fprintf(stderr,"Load failed (on memory block write): section: '%s', address: 0x%llx size: %d\n",
                  section_name,address + block_offset,PM_BLOCK_SIZE);
          rcode = -1;
@@ -345,7 +345,7 @@ int ELFIO::Load(Memory &mem, string &elf_file, unsigned long long load_address, 
     if (extra_bytes > 0) {
       try {
 	mem.WritePhysicalMemory(address + block_offset,extra_bytes,&section_data[block_offset],false);
-       } catch(SIM_EXCEPTION_CLASS eclass) {
+       } catch(SIM_EXCEPTIONS eclass) {
 	 fprintf(stderr,"Load failed (on memory block write): section: '%s', address: 0x%llx size: %d\n",
                  section_name,address + block_offset,PM_BLOCK_SIZE);
          rcode = -1;

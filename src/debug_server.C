@@ -759,7 +759,7 @@ std::string DebugServer::WriteMemory() {
   try {
      // at least for now all memory writes are to physical memory...
     my_memory->WritePhysicalMemory(maddr,msize,mbytes,false);
-  } catch(SIM_EXCEPTION_CLASS eclass) {
+  } catch(SIM_EXCEPTIONS eclass) {
      my_response = "E2"; // problems writing memory???    
   }
 

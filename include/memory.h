@@ -2,6 +2,10 @@
 
 #include <unordered_set>
 
+using namespace std;
+
+enum { FOR_READ, FOR_WRITE, FOR_PREFETCH };
+
 // memory makes use of mmu and tlb...
 
 enum WORD_SIZES { BYTE=0, HWORD=1, WORD=2, DWORD=3, QWORD=4 };
