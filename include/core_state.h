@@ -11,12 +11,20 @@ public:
   exclMonitor &LocalMonitor() { return local_monitor; };
   unsigned int Asid() { return asid; };
   unsigned long long Clock() { return clock; };
-  unsigned long long GP(unsigned int rindex) { return 0; /* GP[rindex].Value(); */ };
-  unsigned long long PC() { return 0; /* PC.Value(); */ };
-  unsigned long long SP() { return 0; };
-  void setGP(unsigned int rindex,unsigned long long rval) { /* GP[rindex].Value(rval); */ };
-  void setPC(unsigned long long rval) { /* PC.Value(rval); */ };
-  void setSP(unsigned long long rval) { /* Register SP(rval); UpdateSP(SP); */ };
+  unsigned long long GP(unsigned int rindex) {
+    if (rindex == 0)
+      return 0;
+    return X[rindex].Value();
+  };
+  void setGP(unsigned int rindex,unsigned long long rval) {
+    if (rindex > 0)
+      X[rindex].Value(rval);
+  };
+  unsigned long long SP() { return X[2].Value(); };
+  void setSP(unsigned long long rval) { X[2].Value(rval); };
+  
+  unsigned long long PC() { return _PC.Value(); };
+  void setPC(unsigned long long rval) { _PC.Value(rval); };
 
 private:
   unsigned int id;
@@ -24,6 +32,9 @@ private:
   bool is_secure;
   exclMonitor local_monitor; // each CPU has a local monitor (holdover from another simulator)
   unsigned long long clock;
+
+  GPRegister X[32];    // general purpose registers X1 thru X31
+  ProgramCounter _PC;  // PC
 };
 
 #endif
