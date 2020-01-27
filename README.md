@@ -24,5 +24,21 @@ goals:
        + boost program options
      * Ubuntu 18, g++ 8.3
      * (gnu?) risc-v toolchain - asm, ld, c, ulib(?). elf reader, etc.
-     
+
+TO BUILD*:
+  '
+  sudo apt-get install bison build-essential flex libarchive-dev m4 bmake zlib1g-dev
+  cd tools;./get_boost.sh
+  cd tools;./get_elftoolchain.sh
+  mkdir build
+  cd build
+  cmake ..
+  cmake --build .
+  make install
+'
+
+
+*NOTE: the *apt-get install* used to install linux utilities required for libelf build.
+
+
        

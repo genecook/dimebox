@@ -22,21 +22,11 @@ wget -c http://tetworks.opengroup.org/downloads/38/software/Sources/3.8/tet3.8-s
 cd ${ELFTOOLCHAIN}/test/tet; tar xzfv ${TOOLS_DIR}/tet3.8-src.tar.gz
 
 
-echo Insure other linux dependencies are present...
-
-sudo apt-get install bison build-essential flex libarchive-dev m4 bmake zlib1g-dev
-
-
-echo build elf tool chain...
+echo build elf tool chain to yield libelf.a...
 
 cd ${TOOLS_DIR}/${ELFTOOLCHAIN}
-export CFLAGS='-O2 -Wno-format-truncation'
+export CFLAGS='-O2 -Wno-format-truncation -Wno-stringop-truncation -Wno-stringop-overflow'
 pmake
-
-
-echo install elf tool chain...
-
-echo OPTIONAL: to install elf tool chain use: 'pmake install'.
 
 
 

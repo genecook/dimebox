@@ -23,5 +23,5 @@ target_link_libraries(dimebox "${BOOST_PGM_OPTS}" "${LIBELF}" )
 
 configure_file(include/dimeboxVersion.h.in include/dimeboxVersion.h)
 
-install(TARGETS dimebox DESTINATION bin)
+install(TARGETS dimebox DESTINATION ${CMAKE_SOURCE_DIR}/bin)
 
