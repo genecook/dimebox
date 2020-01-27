@@ -3,7 +3,6 @@ dime_box - is an unincorporated community in Lee County, Texas.
 dimebox tasks (in no particular order)
 ----------------------------------------
  * libelf - implement script to download/build (elftoolchain) libelf. - DONE
-   (is libelf the same as whats available in (ubuntu) libelf package?
 
  * boost - implement script to download/build boost cmdline args lib. - DONE
 
