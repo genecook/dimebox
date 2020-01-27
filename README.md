@@ -1,4 +1,5 @@
-goals:
+Goals
+-----
   1. Risc-v compliant iss.
   2. Integer only, machine mode only, 64(32?)-bit.
   3. Iss to emulate core(s), main memory, memory mapped device (uart ns16550a?),
@@ -25,8 +26,9 @@ goals:
      * Ubuntu 18, g++ 8.3
      * (gnu?) risc-v toolchain - asm, ld, c, ulib(?). elf reader, etc.
 
-TO BUILD*:
-  '
+TO BUILD
+--------
+```
   sudo apt-get install bison build-essential flex libarchive-dev m4 bmake zlib1g-dev
   cd tools;./get_boost.sh
   cd tools;./get_elftoolchain.sh
@@ -35,10 +37,8 @@ TO BUILD*:
   cmake ..
   cmake --build .
   make install
-'
+```
 
-
-*NOTE: the *apt-get install* used to install linux utilities required for libelf build.
 
 
        
