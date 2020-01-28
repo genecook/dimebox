@@ -29,6 +29,7 @@ public:
   void MapDevice(std::string _device,unsigned long long _device_base_address);
   void SetShowProgress(bool _sp);
   void SetMaxInstrs(int max_count);
+  int MaxInstrs() { return max_instr_count; };
   void SetDebugServerParms(unsigned int port,unsigned int core_id);
 
 private:

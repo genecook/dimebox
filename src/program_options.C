@@ -98,10 +98,6 @@ int process_options(SimConfig my_sim_cfg,int argc,char **argv) {
 
       if (vm.count("num_cores")) {
 	unsigned int num_cores = vm["num_cores"].as<unsigned int>();
-	if (num_cores > MAX_CPUS) {
-	  fprintf(stderr,"The number of cores specified (%u) exceeds the current (hardcoded) maximum # of cores (%u). Program aborted.\n",num_cores,MAX_CPUS);
-          return COMMAND_LINE_ERROR;      
-	}	  
 	my_sim_cfg.SetCoreCount(num_cores);
       }
 
