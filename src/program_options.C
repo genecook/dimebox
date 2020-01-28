@@ -12,6 +12,14 @@
 #include <dimebox.h>
 #include <dimeboxVersion.h>
 
+using namespace std;
+
+int process_config_file(SimConfig my_sim_cfg,std::string cfg_file);
+
+//********************************************************************************
+// process command line options...
+//********************************************************************************
+
 namespace 
 {
   const size_t COMMAND_LINE_ERROR = 1;
@@ -19,11 +27,7 @@ namespace
   const size_t ERROR_UNHANDLED_EXCEPTION = 2;
 }
 
-using namespace std;
-
-int process_config_file(DimeboxSimConfig my_sim_cfg,std::string cfg_file);
-
-int process_options(DimeboxSimConfig my_sim_cfg,int argc,char **argv) {
+int process_options(SimConfig my_sim_cfg,int argc,char **argv) {
   try {
     namespace po = boost::program_options;
     po::options_description desc("Options");
@@ -212,9 +216,13 @@ int process_options(DimeboxSimConfig my_sim_cfg,int argc,char **argv) {
   return SUCCESS;
 }
 
+//********************************************************************************
+// process simulation config file...
+//********************************************************************************
+
 namespace pt = boost::property_tree;
 
-int process_config_file(DimeboxSimConfig my_sim_cfg,std::string cfg_file) {
+int process_config_file(SimConfig my_sim_cfg,std::string cfg_file) {
     // using boost ptree, info parser (simplified json format sort of)...
 
     pt::ptree tree;

@@ -4,9 +4,9 @@
 #include <vector>
 #include <unordered_map>
 
-class DimeboxSimConfig {
+class SimConfig {
 public:
-  DimeboxSimConfig() : reset_address(0), num_cores(1), disasm_enable(true), max_instr_count(1000),gdb_port(0),gdb_core_id(0) {};
+  SimConfig() : reset_address(0), num_cores(1), disasm_enable(true), max_instr_count(1000),gdb_port(0),gdb_core_id(0) {};
   
   struct addr_range {
     addr_range(unsigned long long _address_lo,unsigned long long _address_hi) {

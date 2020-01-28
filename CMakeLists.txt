@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(dimebox src/main.C src/program_options.C src/sim_config.C src/memory.C
                src/physical_memory.C src/elfio.C src/libelf_interface.c
-               src/rsp.C src/tcp_server.C src/debug_server.C)
+               src/rsp.C src/tcp_server.C src/debug_server.C src/simulator.C
+	       src/uart.C src/uart_pl011.C)
 
 include_directories(include build/include tools/boost_1_72_0 tools/elftoolchain-0.7.1/libelf tools/elftoolchain-0.7.1/common )
 

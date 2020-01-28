@@ -7,8 +7,8 @@
 
 // used by main only:
 
-int process_options(DimeboxSimConfig my_sim_cfg,int argc,char **argv);
-int run_simulation(DimeboxSimConfig *my_sim_cfg);
+int process_options(SimConfig my_sim_cfg,int argc,char **argv);
+int run_simulation(SimConfig *my_sim_cfg);
 
 //*******************************************************************************
 // main entry point...
@@ -19,7 +19,7 @@ int main(int argc,char **argv) {
 	    << dimebox_VERSION_MINOR << ". Tuleta Software Co. Copyright 2020."
 	    << " All rights reserved.\n" << std::endl;
 
-  DimeboxSimConfig my_sim_cfg;
+  SimConfig my_sim_cfg;
 
   if (process_options(my_sim_cfg,argc,argv) ) {
     std::cerr << "One or more errors occurred, simulation aborted." << std::endl;
@@ -34,11 +34,11 @@ int main(int argc,char **argv) {
 // given a simulator config, run a simulation...
 //*******************************************************************************
 
-int run_simulation(DimeboxSimConfig *my_sim_cfg) {
+int run_simulation(SimConfig *my_sim_cfg) {
   int rcode = 0;
   
   try {
-     DimeboxSimulator my_simulator(my_sim_cfg);
+     Simulator my_simulator(my_sim_cfg);
      
      std::cout << "\nStarting simulation..." << std::endl;
 
@@ -56,7 +56,7 @@ int run_simulation(DimeboxSimConfig *my_sim_cfg) {
 
      std::cout << "\nElapsed time: " << elapsed_time << " ms.\n";
 
-     int total_instrs = my_simulator.SimulatedCount();
+     int total_instrs = my_simulator.InstrCount();
 
      if (total_instrs > 0) {
        long instrs_per_seconds = (long)((double) total_instrs * 1000.0 / elapsed_time);
