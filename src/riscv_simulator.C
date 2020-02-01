@@ -1,4 +1,5 @@
 #include <dimebox.h>
+#include <iostream>
 #include <vector>
 #include <algorithm>
 
@@ -23,10 +24,36 @@ void RiscvSimulator::Fini() {
 }
 
 //****************************************************************************
+// load test image(s), ie, elf files...
+//****************************************************************************
+
+int RiscvSimulator::LoadTestImage() {
+  int rcode = 0;
+
+  std::vector<std::string> elf_files;
+
+  sim_cfg->SrcFiles(elf_files);
+
+  for (auto ef = elf_files.begin(); ef != elf_files.end(); ef++) {
+     ELFIO elf_helper;
+     rcode = elf_helper.Load(memory,*ef,true);
+     if (rcode)
+       break;
+  }
+
+  return rcode;
+}
+
+//****************************************************************************
 // run a simulation...
 //****************************************************************************
 
 int RiscvSimulator::Go() {
+  rcode = LoadTestImage();
+
+  if (rcode)
+    return rcode;
+  
   cores_are_running = true; // we'll ASSUME at least one core is alive...
 
   rcode = 0; // 'master' error code

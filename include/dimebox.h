@@ -9,6 +9,7 @@
 #include <packet.h>
 #include <mmu.h>
 #include <memory.h>
+#include <elfio.h>
 #include <core_control.h>
 #include <uart.h>
 #include <uart_pl011.h>

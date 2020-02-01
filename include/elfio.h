@@ -1,3 +1,5 @@
+#ifndef __ELFIO__
+
 #include <string>
 #include <vector>
 
@@ -18,3 +20,6 @@ class ELFIO {
   bool ChooseFileBlockSize(int &block_size_in_bits, unsigned int &resulting_block_count,vector<unsigned long long> &test_block_addresses,
 			   bool verbose);
 };
+
+#endif
+#define __ELFIO__ 1

@@ -1,6 +1,15 @@
 #include <dimebox.h>
+#include <iostream>
 
-void SimConfig::AddSrcFile(std::string &_src_file) { load_files.push_back(_src_file); }
+void SimConfig::AddSrcFile(std::string &_src_file) {
+  load_files.push_back(_src_file);
+}
+
+void SimConfig::SrcFiles(std::vector<std::string> &elf_files) {
+  for (auto f = load_files.begin(); f != load_files.end(); f++) {
+     elf_files.push_back(*f);
+  }
+}
 
 void SimConfig::SetResetAddress(unsigned long long _reset_address) { reset_address = _reset_address; }
 unsigned long long SimConfig::ResetAddress() { return reset_address; };

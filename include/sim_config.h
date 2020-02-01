@@ -18,6 +18,7 @@ public:
   };
 
   void AddSrcFile(std::string &_src_file);
+  void SrcFiles(std::vector<std::string> &elf_files);
   
   void SetResetAddress(unsigned long long _reset_address);
   unsigned long long ResetAddress();

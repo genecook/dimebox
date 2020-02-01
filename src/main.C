@@ -7,7 +7,7 @@
 
 // used by main only:
 
-int process_options(SimConfig my_sim_cfg,int argc,char **argv);
+int process_options(SimConfig &my_sim_cfg,int argc,char **argv);
 int run_simulation(SimConfig *my_sim_cfg);
 
 //*******************************************************************************

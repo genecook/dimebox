@@ -9,6 +9,7 @@ class RiscvSimulator {
   RiscvSimulator(SimConfig *_sim_cfg)
     : sim_cfg(_sim_cfg), clock(0),instr_count(0), rcode(0),
       cores_are_running(false) {
+    sim_cfg = _sim_cfg;
     Init();
   };
   ~RiscvSimulator() { Fini(); };
@@ -16,6 +17,8 @@ class RiscvSimulator {
   void Init(); // allocate riscv-specific resources
   void Fini(); // free       "      "        "
 
+  int LoadTestImage();
+  
   int Go();
   
   int InstrCount() { return instr_count; };

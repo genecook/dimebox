@@ -27,7 +27,7 @@ namespace
   const size_t ERROR_UNHANDLED_EXCEPTION = 2;
 }
 
-int process_options(SimConfig my_sim_cfg,int argc,char **argv) {
+int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
   try {
     namespace po = boost::program_options;
     po::options_description desc("Options");
