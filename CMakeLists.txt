@@ -7,14 +7,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(dimebox src/main.C src/program_options.C src/sim_config.C src/memory.C
                src/physical_memory.C src/elfio.C src/libelf_interface.c
-               src/rsp.C src/tcp_server.C src/debug_server.C src/simulator.C
-	       src/uart.C src/uart_pl011.C)
+               src/rsp.C src/tcp_server.C src/debug_server.C src/core_control.C 
+	       src/uart.C src/uart_pl011.C
+	       src/riscv_core_control.C src/riscv_simulator.C)
 
-include_directories(include build/include tools/boost_1_72_0 tools/elftoolchain-0.7.1/libelf tools/elftoolchain-0.7.1/common )
+include_directories(include build/include tools/boost_1_72_0 tools/elftoolchain-0.7.1/libelf
+	       tools/elftoolchain-0.7.1/common )
 
 add_library(libboost_program_options.a STATIC IMPORTED)
 
-find_library(BOOST_PGM_OPTS libboost_program_options.a PATHS ${CMAKE_SOURCE_DIR}/tools/boost_1_72_0/stage/lib)
+find_library(BOOST_PGM_OPTS libboost_program_options.a PATHS
+             ${CMAKE_SOURCE_DIR}/tools/boost_1_72_0/stage/lib)
 
 add_library(libelf.a STATIC IMPORTED)
 

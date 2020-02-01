@@ -3,10 +3,30 @@
 #include <algorithm>
 
 //****************************************************************************
+// allocate/initialize cores, timers, devices, etc...
+//****************************************************************************
+
+void RiscvSimulator::Init() {
+  // allocate state for each configured core...
+  if (sim_cfg != NULL) {
+    for (auto i = 0; i < sim_cfg->CoreCount(); i++) {
+       cores.push_back(new RiscvState(sim_cfg));
+    }
+  }
+}
+
+void RiscvSimulator::Fini() {
+  // release (cores) memory...
+  for (auto ci = cores.begin(); ci != cores.end(); ci++) {
+     delete *ci;
+  }
+}
+
+//****************************************************************************
 // run a simulation...
 //****************************************************************************
 
-int Simulator::Go() {
+int RiscvSimulator::Go() {
   cores_are_running = true; // we'll ASSUME at least one core is alive...
 
   rcode = 0; // 'master' error code
@@ -33,8 +53,8 @@ int Simulator::Go() {
 // step all ready cores...
 //****************************************************************************
 
-void Simulator::StepCores() {
-  std::vector<State *> ready_cores;
+void RiscvSimulator::StepCores() {
+  std::vector<RiscvState *> ready_cores;
   
   cores_are_running = GetReadyCpus(ready_cores);
   
@@ -51,7 +71,7 @@ void Simulator::StepCores() {
 //  halted or in a wait state...
 //****************************************************************************
 
-bool Simulator::GetReadyCpus(std::vector<RiscvState *> &ready_cores) {
+bool RiscvSimulator::GetReadyCpus(std::vector<RiscvState *> &ready_cores) {
   int ready_count = 0;
   
   for (auto ci = cores.begin(); ci != cores.end(); ci++) {
@@ -62,8 +82,18 @@ bool Simulator::GetReadyCpus(std::vector<RiscvState *> &ready_cores) {
   }
 
   if (ready_count > 0)
-    random_shuffle(ready_core_indices.begin(), ready_core_indices.end());
+    random_shuffle(ready_cores.begin(), ready_cores.end());
 
   return (ready_count > 0);
 }
+
+//****************************************************************************
+// on each clock 'tick' service any devices...
+//****************************************************************************
+
+void RiscvSimulator::ServiceDevices() {
+  // add code to uart to track clock...
+}
+
+
 

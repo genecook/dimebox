@@ -37,7 +37,7 @@ Memory::~Memory() {
 //***********************************************************************************************************
 
 int Memory::ReadMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_data,bool privileged,
-		       int number_of_bytes,bool is_aligned,unsigned char *buffer,bool init_if_free) {
+		       int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test,bool init_if_free) {
 
 #ifdef MEM_DEBUG
   printf("[Memory::ReadMemory] LA: 0x%llx, data? %d, privileged? %d, size: %d, aligned? %d,init if free? %d\n",
@@ -78,10 +78,11 @@ int Memory::ReadMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_d
 }
 
 int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_data,bool privileged,
-			int number_of_bytes,bool is_aligned,unsigned char *buffer) {
+			int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test) {
 
 #ifdef MEM_DEBUG
-  printf("[Memory::WriteMemory] LA: 0x%llx, data? %d, privileged? %d, aligned? %d, size: %d\n",LA,is_data,privileged,is_aligned,number_of_bytes);
+  printf("[Memory::WriteMemory] LA: 0x%llx, data? %d, privileged? %d, aligned? %d, size: %d\n",
+	 LA,is_data,privileged,is_aligned,number_of_bytes);
 #endif
   
   // sanity-check: instructions are never mis-aligned...
@@ -95,7 +96,7 @@ int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_
   // short circuit as most of the internal simulator memory accesses are less than a memory block size...
   
   if (number_of_bytes <= PM_BLOCK_SIZE)
-    return WriteMemoryBlock(cpu,packet,LA,is_data,privileged,number_of_bytes,is_aligned,buffer);
+    return WriteMemoryBlock(cpu,packet,LA,is_data,privileged,number_of_bytes,is_aligned,buffer,for_test);
 
   int rcode = 0;
 
@@ -105,12 +106,14 @@ int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_
   int block_offset = 0;
 
   for (int i = 1; (i <= num_blocks) && !rcode; i++) {
-    rcode = WriteMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,&buffer[block_offset]);
+    rcode = WriteMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,
+			     &buffer[block_offset],for_test);
      block_offset += PM_BLOCK_SIZE;
   }
 
   if ( (extra_bytes > 0) && !rcode)
-    rcode = WriteMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,&buffer[block_offset]);
+    rcode = WriteMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,
+			     &buffer[block_offset],for_test);
 
    return rcode;
 }
@@ -123,7 +126,8 @@ int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_
 //******************************************************************************************
 
 int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool is_data,
-                       bool privileged,int number_of_bytes,bool is_aligned,unsigned char *buffer,bool init_if_free) {
+			    bool privileged,int number_of_bytes,bool is_aligned,
+			    unsigned char *buffer,bool for_test,bool init_if_free) {
 #ifdef MEM_DEBUG
   printf("[Memory::ReadMemoryBlock] LA: 0x%llx #bytes: %d, init? %d\n",LA,number_of_bytes,init_if_free);
 #endif
@@ -156,7 +160,8 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
   #pragma omp critical
   {
     try {
-      rcode = RegionAccess(buffer,cpu->GetID(),trans->LA(),trans->PA(),is_data,FOR_READ,byte_count,packet->ForTest(),init_if_free);
+      rcode = RegionAccess(buffer,cpu->GetID(),trans->LA(),trans->PA(),is_data,FOR_READ,byte_count,
+			   for_test,init_if_free);
 #ifdef MEM_DEBUG
       printf("[ReadMemoryBlock] rcode = %d, spill count = %d\n",rcode,spill_byte_count);
 #endif
@@ -172,7 +177,8 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
       // NOTE: access to 2nd page will be aligned
       trans2 = mmu.LA2PA(LA + byte_count,NS,privileged,is_data,false,spill_byte_count,false);
       try {
-        rcode2 = RegionAccess(&buffer[byte_count],cpu->GetID(),trans2->LA(),trans2->PA(),is_data,FOR_READ,spill_byte_count,packet->ForTest(),init_if_free);
+        rcode2 = RegionAccess(&buffer[byte_count],cpu->GetID(),trans2->LA(),trans2->PA(),is_data,
+			      FOR_READ,spill_byte_count,for_test,init_if_free);
       } catch(SIM_EXCEPTIONS eclass) {
         region_access_exc = eclass;
       }
@@ -191,7 +197,8 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
 
   if (region_access_exc != NO_SIM_EXCEPTION) {
 #ifdef MEM_DEBUG
-    printf("[Memory::ReadMemoryBlock WARNING: possible region violation: LA: 0x%llx PA: 0x%llx rcode: %d\n",LA,trans->PA(),rcode);
+    printf("[Memory::ReadMemoryBlock WARNING: possible region violation: LA: 0x%llx PA: 0x%llx rcode: %d\n",
+	   LA,trans->PA(),rcode);
 #endif
     throw region_access_exc;
   }
@@ -203,7 +210,9 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
   return rcode;
 }
 
-int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool is_data,bool privileged,int number_of_bytes,bool is_aligned,unsigned char *buffer) {
+int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool is_data,
+			     bool privileged,int number_of_bytes,bool is_aligned,unsigned char *buffer,
+			     bool for_test) {
 #ifdef MEM_DEBUG
   printf("[Memory::WriteMemory] LA: 0x%llx #bytes: %d\n",LA,number_of_bytes);
 #endif
@@ -237,7 +246,7 @@ int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,boo
   #pragma omp critical
   {
     try {
-      rcode = RegionAccess(buffer,cpu->GetID(),trans->LA(),trans->PA(),is_data,FOR_WRITE,byte_count,packet->ForTest());
+      rcode = RegionAccess(buffer,cpu->GetID(),trans->LA(),trans->PA(),is_data,FOR_WRITE,byte_count,for_test);
 #ifdef MEM_DEBUG
       printf("[WriteMemoryBlock] rcode = %d, spill count: %d\n",rcode,spill_byte_count);
 #endif
@@ -251,7 +260,7 @@ int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,boo
       trans2 = mmu.LA2PA(LA + byte_count,NS,privileged,is_data,false,spill_byte_count,true);
       int rcode2 = 0;
       try {
-	rcode2 = RegionAccess(&buffer[byte_count],cpu->GetID(),trans2->LA(),trans2->PA(),is_data,FOR_WRITE,spill_byte_count,packet->ForTest());
+	rcode2 = RegionAccess(&buffer[byte_count],cpu->GetID(),trans2->LA(),trans2->PA(),is_data,FOR_WRITE,spill_byte_count,for_test);
       } catch(SIM_EXCEPTIONS eclass) {
         region_access_exc = eclass;
       }

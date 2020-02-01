@@ -25,9 +25,10 @@ class Memory {
   void AddDevice(memmap_device *memory_mapped_device) { devices.push_back(memory_mapped_device); };
   
   int ReadMemory(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
-		 int number_of_bytes,bool is_aligned,unsigned char *buffer,bool init_if_free=true);
+		 int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test=false,bool init_if_free=true);
+  
   int WriteMemory(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
-		  int number_of_bytes,bool is_aligned,unsigned char *buffer);
+		  int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test=false);
   
   // endianness is applied when transferring data to/from registers/memory or when reading the next instruction...
 
@@ -63,9 +64,9 @@ class Memory {
 
 protected:
   int ReadMemoryBlock(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
-		      int number_of_bytes,bool is_aligned,unsigned char *buffer,bool init_if_free=true);
+		      int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test=false,bool init_if_free=true);
   int WriteMemoryBlock(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
-		       int number_of_bytes,bool is_aligned,unsigned char *buffer);
+		       int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test);
   
  private:
   int RegionAccess(unsigned char *buffer,unsigned int cpu_id,unsigned long long LA,unsigned long long PA,bool instr_vs_data,

@@ -38,7 +38,7 @@ int run_simulation(SimConfig *my_sim_cfg) {
   int rcode = 0;
   
   try {
-     Simulator my_simulator(my_sim_cfg);
+     RiscvSimulator my_simulator(my_sim_cfg);
      
      std::cout << "\nStarting simulation..." << std::endl;
 

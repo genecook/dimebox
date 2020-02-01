@@ -6,40 +6,36 @@ class State {
 public:
   State() : id(0), asid(0), is_secure(false), clock(0) {};
   State(SimConfig *sim_cfg) : id(0), asid(0), is_secure(false), clock(0) { Init(sim_cfg); };
-  ~State() {};
+  virtual ~State() {};
 
-  void Init(SimConfig *sim_cfg) { _PC.Value(0); };
+  virtual void Init(SimConfig *sim_cfg) { _PC.Value(0); };
+  
   unsigned int GetID() { return id; };
-  bool IsSecure() { return is_secure; };
-  bool Ready() { return true; };
-  bool Halted() { return false; };
-  void *ITLB() { return NULL; };
-  void *DTLB() { return NULL; };
-  exclMonitor &LocalMonitor() { return local_monitor; };
   unsigned int Asid() { return asid; };
   void AdvanceClock() { clock++; };
   unsigned long long Clock() { return clock; };
-  unsigned long long GP(unsigned int rindex) {
-    if (rindex == 0)
-      return 0;
-    return X[rindex].Value();
-  };
-  void setGP(unsigned int rindex,unsigned long long rval) {
-    if (rindex > 0)
-      X[rindex].Value(rval);
-  };
-  unsigned long long SP() { return X[2].Value(); };
-  void setSP(unsigned long long rval) { X[2].Value(rval); };
-  
   unsigned long long PC() { return _PC.Value(); };
-  void setPC(unsigned long long rval) { _PC.Value(rval); };
+  void SetPC(unsigned long long rval) { _PC.Value(rval); };
+  exclMonitor &LocalMonitor() { return local_monitor; };
+  
+  virtual unsigned long long GP(unsigned int rindex) = 0;
+  virtual void SetGP(unsigned int rindex,unsigned long long rval) = 0;
 
-private:
+  virtual unsigned long long SP() = 0;
+  virtual void SetSP(unsigned long long rval) = 0;
+
+  virtual bool IsSecure() { return is_secure; };
+  virtual bool Ready() { return true; };
+  virtual bool Halted() { return false; };
+  virtual bool Privileged() { return false; };
+  virtual void *ITLB() { return NULL; };
+  virtual void *DTLB() { return NULL; };
+
+protected:
   unsigned int id;
   unsigned int asid;
   bool is_secure;
   unsigned long long clock;
-  GPRegister X[32];    // general purpose registers X1 thru X31
   ProgramCounter _PC;  // PC
 
   exclMonitor local_monitor; // each CPU has a local monitor (holdover from another simulator)

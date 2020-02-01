@@ -612,14 +612,14 @@ std::string DebugServer::WriteRegister() {
     switch(RegType(rindex)) {
        case GPREG:  // set GP register...
 	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval))
-                      my_cpu->setGP(rindex,rval);
+                      my_cpu->SetGP(rindex,rval);
 		    else
                       my_response = "E2"; // malformed write-register packet...
                     break;
 		    
       case SPREG:   // set current SP...
 	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval)) {
-                      my_cpu->setSP(rval); //<---updates current SP
+                      my_cpu->SetSP(rval); //<---updates current SP
 	            } else
                       my_response = "E2"; // malformed write-register packet...
                     break;
@@ -636,7 +636,7 @@ std::string DebugServer::WriteRegister() {
 */
       case PCREG:   // set PC...
 	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval)) 
-                      my_cpu->setPC(rval);
+                      my_cpu->SetPC(rval);
 		    else
                       my_response = "E2"; // malformed write-register packet...
                     break;
