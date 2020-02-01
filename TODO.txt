@@ -17,7 +17,7 @@ dimebox tasks (in no particular order)
 
  * implement app registers, PC, SP. - DONE
 
- * implement 'top level' simulator class, simulation loop.
+ * implement 'top level' simulator class, simulation loop. - DONE.
 
  * NOP instruction.
 
