@@ -86,10 +86,22 @@ void RiscvSimulator::StepCores() {
   cores_are_running = GetReadyCpus(ready_cores);
   
   for (auto ci = ready_cores.begin(); ci != ready_cores.end(); ci++) {
-     RiscvPacket updates(*ci);
-     RiscvCoreControl ctrl(&updates,*ci,&memory,&signals);
-     ctrl.Step();
+     unsigned int pc = (*ci)->PC();
+     union {
+       unsigned char buf[4];
+       unsigned int encoding;
+     } opcode;
+     memory.ReadMemory(*ci,pc,false,false,4,true,opcode.buf);
+     memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
+     RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(*ci,&memory,&signals,opcode.encoding);
+     instr->Step();
+     instr->Writeback(*ci,&memory,&signals);
+     char tbuf[128];
+     sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
+     std::cout << tbuf << std::endl;
+     delete instr;
      instr_count++;
+     (*ci)->SetEndTest((*ci)->PC() == pc);  // apparent jump to self instruction triggers end-test     
   }
 }
 

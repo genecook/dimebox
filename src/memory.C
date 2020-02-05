@@ -36,7 +36,7 @@ Memory::~Memory() {
 // allow for an arbitrary # of bytes to be read or written.
 //***********************************************************************************************************
 
-int Memory::ReadMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_data,bool privileged,
+int Memory::ReadMemory(State *cpu,unsigned long long LA,bool is_data,bool privileged,
 		       int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test,bool init_if_free) {
 
 #ifdef MEM_DEBUG
@@ -55,7 +55,7 @@ int Memory::ReadMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_d
   // short circuit as most of the internal simulator memory accesses are less than a memory block size...
   
   if (number_of_bytes <= PM_BLOCK_SIZE)
-    return ReadMemoryBlock(cpu,packet,LA,is_data,privileged,number_of_bytes,is_aligned,buffer,init_if_free);
+    return ReadMemoryBlock(cpu,LA,is_data,privileged,number_of_bytes,is_aligned,buffer,init_if_free);
 
   int rcode = 0;
 
@@ -67,17 +67,17 @@ int Memory::ReadMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_d
   // NOTE: will ASSUME if 1st block access is mis-aligned, then ALL blocks accessed are mis-aligned...
   
   for (int i = 1; (i <= num_blocks) && !rcode; i++) {
-     rcode = ReadMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,&buffer[block_offset],init_if_free);
+     rcode = ReadMemoryBlock(cpu,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,&buffer[block_offset],init_if_free);
      block_offset += PM_BLOCK_SIZE;
   }
 
   if ( (extra_bytes > 0) && !rcode)
-    rcode = ReadMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,&buffer[block_offset],init_if_free);
+    rcode = ReadMemoryBlock(cpu,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,&buffer[block_offset],init_if_free);
 
   return rcode;
 }
 
-int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_data,bool privileged,
+int Memory::WriteMemory(State *cpu,unsigned long long LA,bool is_data,bool privileged,
 			int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test) {
 
 #ifdef MEM_DEBUG
@@ -96,7 +96,7 @@ int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_
   // short circuit as most of the internal simulator memory accesses are less than a memory block size...
   
   if (number_of_bytes <= PM_BLOCK_SIZE)
-    return WriteMemoryBlock(cpu,packet,LA,is_data,privileged,number_of_bytes,is_aligned,buffer,for_test);
+    return WriteMemoryBlock(cpu,LA,is_data,privileged,number_of_bytes,is_aligned,buffer,for_test);
 
   int rcode = 0;
 
@@ -106,13 +106,13 @@ int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_
   int block_offset = 0;
 
   for (int i = 1; (i <= num_blocks) && !rcode; i++) {
-    rcode = WriteMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,
+    rcode = WriteMemoryBlock(cpu,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,
 			     &buffer[block_offset],for_test);
      block_offset += PM_BLOCK_SIZE;
   }
 
   if ( (extra_bytes > 0) && !rcode)
-    rcode = WriteMemoryBlock(cpu,packet,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,
+    rcode = WriteMemoryBlock(cpu,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,
 			     &buffer[block_offset],for_test);
 
    return rcode;
@@ -125,14 +125,14 @@ int Memory::WriteMemory(State *cpu,Packet *packet,unsigned long long LA,bool is_
 // NOTE: translation(s) retained even if a region access is invalid...
 //******************************************************************************************
 
-int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool is_data,
+int Memory::ReadMemoryBlock(State *cpu,unsigned long long LA,bool is_data,
 			    bool privileged,int number_of_bytes,bool is_aligned,
 			    unsigned char *buffer,bool for_test,bool init_if_free) {
 #ifdef MEM_DEBUG
   printf("[Memory::ReadMemoryBlock] LA: 0x%llx #bytes: %d, init? %d\n",LA,number_of_bytes,init_if_free);
 #endif
   
-  MMU mmu(cpu,this,packet,cpu->ITLB(),cpu->DTLB());
+  MMU mmu(cpu,this,cpu->ITLB(),cpu->DTLB());
 
   bool NS = !cpu->IsSecure();
 
@@ -210,14 +210,14 @@ int Memory::ReadMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool
   return rcode;
 }
 
-int Memory::WriteMemoryBlock(State *cpu,Packet *packet,unsigned long long LA,bool is_data,
+int Memory::WriteMemoryBlock(State *cpu,unsigned long long LA,bool is_data,
 			     bool privileged,int number_of_bytes,bool is_aligned,unsigned char *buffer,
 			     bool for_test) {
 #ifdef MEM_DEBUG
   printf("[Memory::WriteMemory] LA: 0x%llx #bytes: %d\n",LA,number_of_bytes);
 #endif
   
-  MMU mmu(cpu,this,packet,cpu->ITLB(),cpu->DTLB());
+  MMU mmu(cpu,this,cpu->ITLB(),cpu->DTLB());
 
   bool NS = !cpu->IsSecure();
 
@@ -678,8 +678,8 @@ bool Memory::AccessGlobalMonitor(MMU *mmu,Translation *trans) {
 
 // set local/global monitor...
 
-void Memory::SetExclusiveMonitor(State *cpu,Packet *packet,unsigned long long logical_address,int num_bytes,bool privileged) {
-  MMU mmu(cpu,this,packet,cpu->ITLB(),cpu->DTLB());
+void Memory::SetExclusiveMonitor(State *cpu,unsigned long long logical_address,int num_bytes,bool privileged) {
+  MMU mmu(cpu,this,cpu->ITLB(),cpu->DTLB());
   Translation *trans = mmu.LA2PA(logical_address,!cpu->IsSecure(),privileged,true,true /*wasaligned*/,num_bytes,false);
 
   bool set_global_monitor = AccessGlobalMonitor(&mmu,trans);
@@ -695,8 +695,8 @@ void Memory::SetExclusiveMonitor(State *cpu,Packet *packet,unsigned long long lo
 }
   
 // IsExclusive - use to see if an access is exclusive. does NOT change state...
-bool Memory::IsExclusive(State *cpu,Packet *packet,unsigned long long logical_address,int num_bytes,bool privileged) {
-  MMU mmu(cpu,this,packet,cpu->ITLB(),cpu->DTLB());
+bool Memory::IsExclusive(State *cpu,unsigned long long logical_address,int num_bytes,bool privileged) {
+  MMU mmu(cpu,this,cpu->ITLB(),cpu->DTLB());
   Translation *trans = mmu.LA2PA(logical_address,!cpu->IsSecure(),privileged,true,true /*wasaligned*/,num_bytes,false);
 
   bool check_global_monitor = AccessGlobalMonitor(&mmu,trans);
@@ -718,12 +718,12 @@ bool Memory::IsExclusive(State *cpu,Packet *packet,unsigned long long logical_ad
 }
 
 // ExclusiveMonitorsPass - use to see if an access is exclusive. If global exclusive op, then local exclusive op is cleared...
-bool Memory::ExclusiveMonitorsPass(State *cpu,Packet *packet,unsigned long long logical_address,int num_bytes,bool is_aligned, bool privileged, bool for_test) {
+bool Memory::ExclusiveMonitorsPass(State *cpu,unsigned long long logical_address,int num_bytes,bool is_aligned, bool privileged, bool for_test) {
 #ifdef MEM_DEBUG
   printf("[Memory::ExclusiveMonitorsPass] entered...\n");
 #endif
   
-  MMU mmu(cpu,this,packet,cpu->ITLB(),cpu->DTLB());
+  MMU mmu(cpu,this,cpu->ITLB(),cpu->DTLB());
   Translation *trans = mmu.LA2PA(logical_address,!cpu->IsSecure(),privileged,true,is_aligned,num_bytes,false);
 
   ValidatePhysicalMemoryAddress(trans->PA(), for_test); // will use as 'quick' check on exclusive monitor address...

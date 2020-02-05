@@ -12,6 +12,15 @@ enum SIM_EXCEPTIONS { NO_SIM_EXCEPTION,    // used in general processing of try 
 		      GENERATION_ERROR     // could be useful for test 'generators'
 };
 
+class Signals {
+public:
+  Signals() {};
+  Signals(Signals &rhs) {};
+  Signals(Signals *rhs) {};
+  
+private:
+};
+
 #endif
 #define __EXCEPTIONS__ 1
 

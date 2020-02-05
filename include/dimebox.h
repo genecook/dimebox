@@ -10,13 +10,12 @@
 #include <mmu.h>
 #include <memory.h>
 #include <elfio.h>
-#include <core_control.h>
 #include <uart.h>
 #include <uart_pl011.h>
 
 #include <riscv_core_state.h>
-#include <riscv_packet.h>
-#include <riscv_core_control.h>
+#include <riscv_instruction.h>
+#include <rv32i_instrs.h>
 #include <riscv_simulator.h>
 
 

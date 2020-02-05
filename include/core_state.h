@@ -4,8 +4,8 @@
 
 class State {
 public:
-  State() : id(0), asid(0), is_secure(false), clock(0) {};
-  State(SimConfig *sim_cfg) : id(0), asid(0), is_secure(false), clock(0) { Init(sim_cfg); };
+  State() : id(0), asid(0), is_secure(false), clock(0), end_test(false) {};
+  State(SimConfig *sim_cfg) : id(0), asid(0), is_secure(false), clock(0), end_test(false) { Init(sim_cfg); };
   virtual ~State() {};
 
   virtual void Init(SimConfig *sim_cfg) { _PC.Value(0); };
@@ -25,9 +25,13 @@ public:
   virtual void SetSP(unsigned long long rval) = 0;
 
   virtual bool IsSecure() { return is_secure; };
-  virtual bool Ready() { return true; };
+  virtual bool Ready() { return !EndTest(); };
   virtual bool Halted() { return false; };
   virtual bool Privileged() { return false; };
+
+  bool EndTest() { return end_test; };
+  void SetEndTest(bool _end_test) { end_test = _end_test; };
+
   virtual void *ITLB() { return NULL; };
   virtual void *DTLB() { return NULL; };
 
@@ -36,6 +40,7 @@ protected:
   unsigned int asid;
   bool is_secure;
   unsigned long long clock;
+  bool end_test;
   ProgramCounter _PC;  // PC
 
   exclMonitor local_monitor; // each CPU has a local monitor (holdover from another simulator)

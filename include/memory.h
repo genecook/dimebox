@@ -24,10 +24,10 @@ class Memory {
 
   void AddDevice(memmap_device *memory_mapped_device) { devices.push_back(memory_mapped_device); };
   
-  int ReadMemory(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
+  int ReadMemory(State *state,unsigned long long address,bool is_data,bool privileged,
 		 int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test=false,bool init_if_free=true);
   
-  int WriteMemory(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
+  int WriteMemory(State *state,unsigned long long address,bool is_data,bool privileged,
 		  int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test=false);
   
   // endianness is applied when transferring data to/from registers/memory or when reading the next instruction...
@@ -41,9 +41,9 @@ class Memory {
   bool AccessGlobalMonitor(MMU *mmu,Translation *trans);
   void ClearExclusiveMonitor(State *cpu);
   bool AccessExclusiveMonitor(MMU *mmu,Translation *trans);
-  void SetExclusiveMonitor(State *cpu,Packet *packet,unsigned long long logical_address,int num_bytes,bool privileged);
-  bool IsExclusive(State *cpu,Packet *packet,unsigned long long logical_address,int num_bytes,bool privileged);
-  bool ExclusiveMonitorsPass(State *cpu,Packet *packet,unsigned long long logical_address,int num_bytes,
+  void SetExclusiveMonitor(State *cpu,unsigned long long logical_address,int num_bytes,bool privileged);
+  bool IsExclusive(State *cpu,unsigned long long logical_address,int num_bytes,bool privileged);
+  bool ExclusiveMonitorsPass(State *cpu,unsigned long long logical_address,int num_bytes,
 			     bool is_aligned,bool privileged, bool for_test);
 
   void TestBlockAddresses(vector<unsigned long long> &test_block_addresses,bool verbose);
@@ -63,9 +63,9 @@ class Memory {
   bool ReadDeviceMemory(int &rcode,unsigned long long address_in,int number_of_bytes,unsigned char *buffer,bool for_test);
 
 protected:
-  int ReadMemoryBlock(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
+  int ReadMemoryBlock(State *state,unsigned long long address,bool is_data,bool privileged,
 		      int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test=false,bool init_if_free=true);
-  int WriteMemoryBlock(State *state,Packet *packet,unsigned long long address,bool is_data,bool privileged,
+  int WriteMemoryBlock(State *state,unsigned long long address,bool is_data,bool privileged,
 		       int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test);
   
  private:

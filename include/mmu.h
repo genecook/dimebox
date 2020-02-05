@@ -31,8 +31,8 @@ class Memory;
 
 class MMU {
 public:
-  MMU(State *_cpu, Memory *_memory, Packet *_packet, void *_itlb, void *_dtlb)
-    :cpu(_cpu),memory(_memory),packet(_packet),itlb(itlb),dtlb(_dtlb) {};
+  MMU(State *_cpu, Memory *_memory, void *_itlb, void *_dtlb)
+    :cpu(_cpu),memory(_memory),itlb(itlb),dtlb(_dtlb) {};
   ~MMU() {};
   Translation *LA2PA(unsigned long long _la,bool _ns,bool _privileged, bool _is_data, bool _aligned, int _size, bool _is_write) {
     bool trans_endian = _is_data ? BigEndian() : false; // endianness insofar as a translation goes is only relevent for data...
@@ -44,7 +44,6 @@ public:
 private:
   State  *cpu;
   Memory *memory;
-  Packet *packet;
   void   *itlb;
   void   *dtlb;
 };

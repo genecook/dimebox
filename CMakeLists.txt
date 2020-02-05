@@ -7,9 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(dimebox src/main.C src/program_options.C src/sim_config.C src/memory.C
                src/physical_memory.C src/elfio.C src/libelf_interface.c
-               src/rsp.C src/tcp_server.C src/debug_server.C src/core_control.C 
+               src/rsp.C src/tcp_server.C src/debug_server.C
 	       src/uart.C src/uart_pl011.C
-	       src/riscv_core_control.C src/riscv_simulator.C)
+	       src/rv32i_instrs.C src/riscv_instruction.C
+	       src/riscv_simulator.C include/rv32i_instrs.h)
+
+add_custom_command(OUTPUT include/rv32i_instrs.h
+  COMMAND ${CMAKE_SOURCE_DIR}/utils/make_rv32i_iclasses.pl > include/rv32i_instrs.h)
 
 include_directories(include build/include tools/boost_1_72_0 tools/elftoolchain-0.7.1/libelf
 	       tools/elftoolchain-0.7.1/common )
