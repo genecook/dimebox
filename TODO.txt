@@ -19,7 +19,7 @@ dimebox tasks (in no particular order)
 
  * implement 'top level' simulator class, simulation loop. - DONE.
 
- * NOP instruction.
+ * implement rv32i instruction 'starter set'. - DONE. 
 
  * implement cmake file (CMakeLists.txt) - DONE
 
@@ -31,5 +31,7 @@ dimebox tasks (in no particular order)
 
  * README.md
 
+ * Debug simulator. - compiles, but NOT debugged!
+ 
  * download/install risc-v tool chain.
 
