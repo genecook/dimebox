@@ -1,7 +1,7 @@
 Goals
 -----
   1. Risc-v compliant iss.
-  2. Integer only, machine mode only, 64(32?)-bit.
+  2. Integer only, machine mode only, 32-bit.
   3. Iss to emulate core(s), main memory, memory mapped device (uart ns16550a?),
      (probably non 'compliant') system timer, synchronization primitives(?).
   4. Run risc-v integer test suites.
