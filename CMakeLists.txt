@@ -5,6 +5,9 @@ project(dimebox VERSION 0.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_C_FLAGS "-O0 -g")
+set(CMAKE_CXX_FLAGS "-O0 -g")
+
 add_executable(dimebox src/main.C src/program_options.C src/sim_config.C src/memory.C
                src/physical_memory.C src/elfio.C src/libelf_interface.c
                src/rsp.C src/tcp_server.C src/debug_server.C

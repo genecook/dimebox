@@ -9,7 +9,8 @@
 class RiscvInstruction {
 public:
  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-   : encoding(_encoding), state(_state), memory(_memory), signals(_signals) { OPCODE; Decode(); };
+   : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
+     load_store(false),jal(false) { OPCODE; Decode(); };
   virtual ~RiscvInstruction() {};
  
   const int Size = 4;            // instruction size in bytes
@@ -49,6 +50,18 @@ public:
     return (long long int) op;
   };
 
+  const char *RegAlias(int reg_index, bool frame_ptr=false) {
+    if ( (reg_index == 8) && frame_ptr)
+      return "fp";
+    const char *reg_aliases[] = {
+     "0","ra","sp","gp","tp","t0","t1","t2","s0","s1",
+     "a1","a2","a3","a4","a5","a6","a7",
+     "s2","s3","s4","s5","s6","s7","s8","s9","s10","s11",
+     "t3","t4","t5","t6",NULL
+    };
+    return reg_aliases[reg_index];
+  }
+
   unsigned long long MEMORY_READ(unsigned long long address,int size) {
     return 0;
   };
@@ -70,8 +83,9 @@ protected:
   unsigned int funct3;                  //
   unsigned int rd;                      //
   unsigned int imm;                     //
-  
- private:
+
+  bool load_store;                      // used
+  bool jal;                             //  in disassembly
 };
 
 //*******************************************************************************
@@ -92,7 +106,7 @@ class RtypeInstruction : public RiscvInstruction {
   virtual void Decode() { _FUNCT7; _RS2; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s x%d,x%d,x%d",InstrName().c_str(),rd,rs2,rs1);
+    sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),RegAlias(rd),RegAlias(rs2),RegAlias(rs1));
     return std::string(tbuf);
   };
 };
@@ -107,7 +121,10 @@ class ItypeInstruction : public RiscvInstruction {
   virtual void Decode() { _ITYPE_IMM; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s x%d,x%d,#0x%x",InstrName().c_str(),rd,rs1,imm);
+    if (load_store)
+      sprintf(tbuf,"%s %s,#0x%x(%s)",InstrName().c_str(),RegAlias(rd),imm,RegAlias(rs1));
+    else
+      sprintf(tbuf,"%s %s,%s,#0x%x",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),imm);
     return std::string(tbuf);
   };
 };
@@ -122,7 +139,7 @@ class StypeInstruction : public RiscvInstruction {
   virtual void Decode() { _STYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s x%d,x%d,#0x%x",InstrName().c_str(),rs2,rs1,imm);
+    sprintf(tbuf,"%s %s,%s,#0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
     return std::string(tbuf);
   };
 };
@@ -137,7 +154,7 @@ class BtypeInstruction : public RiscvInstruction {
   virtual void Decode() { _BTYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s x%d,x%d,#0x%x",InstrName().c_str(),rs2,rs1,imm);
+    sprintf(tbuf,"%s %s,%s,#0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
     return std::string(tbuf);
   };
 };
@@ -152,7 +169,7 @@ class UtypeInstruction : public RiscvInstruction {
   virtual void Decode() { _UTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s x%d,#0x%x",InstrName().c_str(),rd,imm);
+    sprintf(tbuf,"%s %s,#0x%x",InstrName().c_str(),RegAlias(rd),imm);
     return std::string(tbuf);
   };
 };
@@ -167,21 +184,12 @@ class JtypeInstruction : public RiscvInstruction {
   virtual void Decode() { _JTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s x%d,#0x%x",InstrName().c_str(),rd,imm);
+    if (jal)
+      sprintf(tbuf,"%s #0x%x,%s",InstrName().c_str(),imm * 2,RegAlias(rd));
+    else
+      sprintf(tbuf,"%s %s,#0x%x",InstrName().c_str(),RegAlias(rd),imm);
     return std::string(tbuf);
   };
-};
-
-//*******************************************************************************
-// one sub-class per riscv instruction:
-//*******************************************************************************
-
-class LUI_instruction : public UtypeInstruction {
-  LUI_instruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : UtypeInstruction(_state,_memory,_signals,_encoding) {};
- public:
-  std::string InstrName() { return std::string("lui"); };  
-  void Step();
 };
 
 //*******************************************************************************
