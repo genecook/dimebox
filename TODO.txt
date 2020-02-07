@@ -31,7 +31,7 @@ dimebox tasks (in no particular order)
 
  * README.md
 
- * Debug simulator. - compiles, but NOT debugged!
+ * Debug simulator. - runs, loads elf file, simulates a few instructions.
  
- * download/install risc-v tool chain.
+ * download/install risc-v tool chain. - DONE
 
