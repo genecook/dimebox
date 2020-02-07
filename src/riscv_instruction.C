@@ -102,5 +102,10 @@ RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Mem
     default: break;
   }
 
-  return instruction; // NULL if unknown encoding...
+  if (instruction == NULL) {
+    signals->Exception(UNIMPLEMENTED_INSTRUCTION);
+    throw EXCEPTION;
+  }
+  
+  return instruction;
 }

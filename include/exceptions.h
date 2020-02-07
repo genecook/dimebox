@@ -12,13 +12,18 @@ enum SIM_EXCEPTIONS { NO_SIM_EXCEPTION,    // used in general processing of try 
 		      GENERATION_ERROR     // could be useful for test 'generators'
 };
 
+enum EXCEPTION_TYPES { NO_EXCEPTION,
+		       UNIMPLEMENTED_INSTRUCTION=1  // unimplemented or unknown instruction encoding
+};
+
 class Signals {
 public:
-  Signals() {};
+  Signals() : flags(0) {};
   Signals(Signals &rhs) {};
   Signals(Signals *rhs) {};
-  
+  void Exception(unsigned int _exc_flag) { flags |= _exc_flag; };
 private:
+  unsigned int flags;
 };
 
 #endif

@@ -35,7 +35,9 @@ public:
   
   unsigned int PC() { return state->PC(); };
   void PC(unsigned int rval) { state->SetPC(rval); };
-  
+
+  void BumpPC() { state->SetPC(PC() + Size); };
+
   unsigned int FUNCT7() { return funct7; };
   unsigned int IMM() { return imm; };
 

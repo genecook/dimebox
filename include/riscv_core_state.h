@@ -7,6 +7,7 @@ public:
   };
   RiscvState(SimConfig *sim_cfg) : State(sim_cfg) {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
+    SetPC(sim_cfg->ResetAddress());
   };
   RiscvState(RiscvState *rhs) {
     for (auto i = 0; i < 32; i++) {

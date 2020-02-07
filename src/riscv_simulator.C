@@ -9,10 +9,16 @@
 
 void RiscvSimulator::Init() {
   // allocate state for each configured core...
-  if (sim_cfg != NULL) {
-    for (auto i = 0; i < sim_cfg->CoreCount(); i++) {
-       cores.push_back(new RiscvState(sim_cfg));
-    }
+  for (auto i = 0; i < sim_cfg->CoreCount(); i++) {
+     cores.push_back(new RiscvState(sim_cfg));
+  }
+  // setup ram...
+  unsigned long long address_lo,address_hi;
+  if (sim_cfg->DefaultAddressRange(address_lo,address_hi)) {
+    memory.SetPhysicalSize(32);
+    memory.SetPhysicalAddressRange(address_lo,address_hi);
+  } else {
+    // no memory range specified???
   }
 }
 
@@ -84,24 +90,36 @@ void RiscvSimulator::StepCores() {
   std::vector<RiscvState *> ready_cores;
   
   cores_are_running = GetReadyCpus(ready_cores);
-  
-  for (auto ci = ready_cores.begin(); ci != ready_cores.end(); ci++) {
+
+  for (auto ci = ready_cores.begin(); ci != ready_cores.end() && !rcode; ci++) {
      unsigned int pc = (*ci)->PC();
      union {
        unsigned char buf[4];
        unsigned int encoding;
      } opcode;
-     memory.ReadMemory(*ci,pc,false,false,4,true,opcode.buf);
-     memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
-     RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(*ci,&memory,&signals,opcode.encoding);
-     instr->Step();
-     instr->Writeback(*ci,&memory,&signals);
-     char tbuf[128];
-     sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
-     std::cout << tbuf << std::endl;
-     delete instr;
-     instr_count++;
-     (*ci)->SetEndTest((*ci)->PC() == pc);  // apparent jump to self instruction triggers end-test     
+     try {
+        memory.ReadMemory(*ci,pc,false,false,4,true,opcode.buf);
+        memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
+     } catch(SIM_EXCEPTIONS sim_exception) {
+       std::cerr << "Problems reading memory at (PC) 0x" << std::hex << pc << std::dec << "???" << std::endl;
+       rcode = -1;
+       continue;
+     }
+     try {
+        RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(*ci,&memory,&signals,opcode.encoding);
+        instr->Step();
+        instr->Writeback(*ci,&memory,&signals);
+        char tbuf[128];
+        sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
+        std::cout << tbuf << std::endl;
+        delete instr;
+        instr_count++;
+        (*ci)->SetEndTest((*ci)->PC() == pc);  // apparent jump to self instruction triggers end-test
+     } catch(SIM_EXCEPTIONS sim_exception) {
+       std::cerr << "Problems decoding instruction, encoded instruction: 0x"
+		 << std::hex << opcode.encoding << std::dec << "???" << std::endl;
+       rcode = -1;
+     }
   }
 }
 

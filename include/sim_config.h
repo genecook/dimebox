@@ -27,6 +27,11 @@ public:
   unsigned int CoreCount();
   
   void SetAddressRange(unsigned long long _address_lo,unsigned long long _address_hi);
+  bool DefaultAddressRange(unsigned long long &address_lo,unsigned long long &address_hi) {
+    address_lo = 0;
+    address_hi = 0xffffffff;
+    return true;
+  }
   void MapDevice(std::string _device,unsigned long long _device_base_address);
   void SetShowProgress(bool _sp);
   void SetMaxInstrs(int max_count);
