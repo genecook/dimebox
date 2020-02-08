@@ -106,7 +106,8 @@ void RiscvSimulator::StepCores() {
        continue;
      }
      try {
-        RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(*ci,&memory,&signals,opcode.encoding);
+        RiscvState state_updates(*ci);
+        RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,&signals,opcode.encoding);
         instr->Step();
         instr->Writeback(*ci,&memory,&signals);
         char tbuf[128];

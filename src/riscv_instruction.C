@@ -2,6 +2,83 @@
 #include <vector>
 #include <dimebox.h>
 
+//**************************************************************************
+// simplified memory access methods - will Byte me later...
+//**************************************************************************
+
+void RiscvInstruction::MEMORY_WRITE(unsigned long long address,int size,unsigned long long rval) {
+  // don't write memory directly. instead 'queue up' a memory access. This way, if top-level
+  // simulator or test generator elects to abort instruction, memory is unaffected...
+
+  // for now only accept 'aligned' data accesses of no more than 8 bytes...
+  switch(size) {
+  case 1: case 2: case 4: case 8: break;
+  default: throw std::runtime_error("Internal error: MEMORY_WRITE invalid byte count"); break;
+  }
+
+  // put input (assumed register) value directly into write buffer... 
+  for (int i = 0; i < size; i++)
+     mbuf[i] = (rval>>(i * 8)) & 0xff;
+  // apply memory endianness...
+  bool big_endian = false;
+  int access_size = size;
+  memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
+  // record memory access...
+  mOpsMemory.push_back(MemoryAccess(address,
+				    size,
+				    DATA,
+				    false,  // exclusive?
+				    1,      // data
+				    0,      // big-endian
+				    size,   // word size
+				    false,  // sign extend
+				    32,     // word size for (unused) sign extend
+				    false,  // paired
+				    false   // privileged
+				    )
+		       );
+}
+
+unsigned long long RiscvInstruction::MEMORY_READ(unsigned long long address,int size) {
+  // for now only accept 'aligned' data accesses of no more than 8 bytes...
+  switch(size) {
+  case 1: case 2: case 4: case 8: break;
+  default: throw std::runtime_error("Internal error: MEMORY_READ invalid byte count"); break;
+  }
+
+  // for memory reads however, go ahead and access memory. will ignore side effects of the memory access
+  // should an instruction need to be aborted...
+  bool is_data    = true;
+  bool privileged = false;
+  bool aligned    = true;
+  bool for_test   = false;
+  bool initialize = true;
+  int rcode = memory->ReadMemory(state,address,is_data,privileged,size,aligned,mbuf,for_test,initialize);
+  if (!rcode) {
+    bool big_endian = false;
+    int access_size = size;
+    memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
+  }
+  unsigned long long rval = 0;
+  for (int i = 0; i < size; i++)
+     rval = (rval << 8) | mbuf[i];
+  return rval;
+}
+
+void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,Signals *_signals) {
+  // after (successfully) stepping an instruction, update (core) register state, memory, signals...
+  _state = state;
+  for (auto mop = mOpsMemory.begin(); mop != mOpsMemory.end(); mop++) {
+     if (mop->IsWrite())
+       memory->WriteMemory(state,mop->Address(),mop->IsData(),mop->Privileged(),
+			   mop->Size(),mop->Aligned(),mop->Buffer());
+  }
+  *_signals = signals;
+}
+
+//**************************************************************************
+//**************************************************************************
+
 #define INSTR_INST(X) new X(state,memory,signals,encoding)
 
 RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Memory *memory,

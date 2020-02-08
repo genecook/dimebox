@@ -34,6 +34,8 @@ class MemoryAccess {
     return rwidth;
   }
 
+  unsigned char *Buffer() { return membuffer; };
+
   void ClearBuffer() { for (int i = 0; i < size; i++) { membuffer[i] = 0; } };
 
   unsigned long long Address() { return address; };
@@ -41,7 +43,11 @@ class MemoryAccess {
   int WordSize() { return word_size; };
 
   bool Aligned() { return (word_size==1) || ( ((word_size - 1) & address) == 0 ); };
-  
+
+  bool IsWrite() { return direction==1; };
+  bool IsData() { return type != INSTRUCTION; };
+  bool Privileged() { return privileged; };
+
   unsigned long long address;     // memory address
   int  size;                      // size of access in bytes
   int  type;                      // see ACCESS_TYPE

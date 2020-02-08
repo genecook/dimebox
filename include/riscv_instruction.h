@@ -21,8 +21,7 @@ public:
   virtual void Step() = 0;    // execute the instruction
   
   // after instruction executes, update simulator state:
-  virtual void Writeback(RiscvState *_state,Memory *_memory,Signals *_signals) {
-  };
+  virtual void Writeback(RiscvState *_state,Memory *_memory,Signals *_signals);
 
   virtual std::string Disassembly() = 0;
   virtual std::string InstrName() = 0;
@@ -64,14 +63,11 @@ public:
     return reg_aliases[reg_index];
   }
 
-  unsigned long long MEMORY_READ(unsigned long long address,int size) {
-    return 0;
-  };
-  void MEMORY_WRITE(unsigned long long address,int size,unsigned long long rval) {
-  };
+  unsigned long long MEMORY_READ(unsigned long long address,int size);
+  void MEMORY_WRITE(unsigned long long address,int size,unsigned long long rval);
   
 protected:
-  unsigned char mbuf[80];               // hold instruction bytes read from memory
+  unsigned char mbuf[80];               // hold bytes read-from/written-to memory
   unsigned int encoding;                // instruction encoding read from memory
   unsigned int opcode;                  //     "       main opcode
   char disassembly[256];                // record disassembly

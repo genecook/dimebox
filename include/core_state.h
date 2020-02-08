@@ -6,6 +6,14 @@ class State {
 public:
   State() : id(0), asid(0), is_secure(false), clock(0), end_test(false) {};
   State(SimConfig *sim_cfg) : id(0), asid(0), is_secure(false), clock(0), end_test(false) { Init(sim_cfg); };
+  State(State *rhs) {
+    id = rhs->id;
+    asid = rhs->asid;
+    is_secure = rhs->is_secure;
+    clock = rhs->clock;
+    end_test = rhs->end_test;
+    SetPC(rhs->PC());
+  };
   virtual ~State() {};
 
   virtual void Init(SimConfig *sim_cfg) { _PC.Value(0); };

@@ -89,6 +89,7 @@ void BGE::Step() {
 void BGEU::Step() { 
   PC( PC() + (RS1() >= RS2() ? SignExtend(IMM(),12) : 4)); 
 };
+
 void LB::Step() {
   RD( SignExtend(MEMORY_READ(RS1() + SignExtend(IMM(),12), 1),8) ); BumpPC();
 };
@@ -104,6 +105,7 @@ void LBU::Step() {
 void LHU::Step() { 
   RD( MEMORY_READ(RS1() + SignExtend(IMM(),12), 2) ); BumpPC();
 };
+
 void SB::Step() { 
   MEMORY_WRITE( RS1() + SignExtend(IMM(),12), 1, RS2() ); BumpPC();
 };

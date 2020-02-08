@@ -9,11 +9,15 @@ public:
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(sim_cfg->ResetAddress());
   };
-  RiscvState(RiscvState *rhs) {
+  RiscvState(RiscvState *rhs) : State(rhs) {
     for (auto i = 0; i < 32; i++) {
       if (X[i].Value() != rhs->X[i].Value())
         X[i] = rhs->X[i];
     }
+    SetPC(rhs->PC());
+  };
+  RiscvState operator = (RiscvState &rhs) {
+    return RiscvState(rhs);
   };
   
   unsigned long long GP(unsigned int rindex) {
