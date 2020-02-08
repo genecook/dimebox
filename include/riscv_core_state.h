@@ -14,10 +14,14 @@ public:
       if (X[i].Value() != rhs->X[i].Value())
         X[i] = rhs->X[i];
     }
-    SetPC(rhs->PC());
   };
-  RiscvState operator = (RiscvState &rhs) {
-    return RiscvState(rhs);
+  
+  void Update(RiscvState *rhs) {
+    State::Update((State *) rhs);
+    for (auto i = 0; i < 32; i++) {
+      if (X[i].Value() != rhs->X[i].Value())
+        X[i] = rhs->X[i];
+    } 
   };
   
   unsigned long long GP(unsigned int rindex) {

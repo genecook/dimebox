@@ -42,7 +42,7 @@ int RiscvSimulator::LoadTestImage() {
 
   for (auto ef = elf_files.begin(); ef != elf_files.end(); ef++) {
      ELFIO elf_helper;
-     rcode = elf_helper.Load(memory,*ef,true);
+     rcode = elf_helper.Load(memory,*ef,/* verbose= */ false);
      if (rcode)
        break;
   }
