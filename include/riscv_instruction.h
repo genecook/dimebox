@@ -1,5 +1,7 @@
 #ifndef __RISCV_INSTRUCTION__
 
+#include <iostream>
+
 //*******************************************************************************
 // common to all riscv instructions...
 //*******************************************************************************
@@ -10,15 +12,15 @@ class RiscvInstruction {
 public:
  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
    : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
-     load_store(false),jal(false) { OPCODE; Decode(); };
+     load_store(false),jal(false),uaui(false) { OPCODE; };
   virtual ~RiscvInstruction() {};
  
   const int Size = 4;            // instruction size in bytes
   const int AccessSize = 4;      // memory access size
   const bool Endianness = false; // true for big-endian
   
-  virtual void Decode() {};   // decode instruction encoding
-  virtual void Step() = 0;    // execute the instruction
+  virtual void Decode() = 0;   // decode instruction encoding
+  virtual void Step() = 0;     // execute the instruction
   
   // after instruction executes, update simulator state:
   virtual void Writeback(RiscvState *_state,Memory *_memory,Signals *_signals);
@@ -40,6 +42,8 @@ public:
   unsigned int FUNCT7() { return funct7; };
   unsigned int IMM() { return imm; };
 
+  long long SIGNED_IMM(int sign_bit) { long long tl = SignExtend(imm,sign_bit); imm = tl; return tl; };
+  
   long long SignExtend(unsigned long long op,int field_width,int rwidth=64) {
     int sign_bit = field_width - 1;
     bool sbit_set = ( (op>>sign_bit) & 1 ) == 1;
@@ -52,17 +56,27 @@ public:
   };
 
   const char *RegAlias(int reg_index, bool frame_ptr=false) {
-    if ( (reg_index == 8) && frame_ptr)
-      return "fp";
+    if ( (reg_index == 8) && frame_ptr) return "fp";
     const char *reg_aliases[] = {
      "0","ra","sp","gp","tp","t0","t1","t2","s0","s1",
-     "a1","a2","a3","a4","a5","a6","a7",
+     "a0","a1","a2","a3","a4","a5","a6","a7",
      "s2","s3","s4","s5","s6","s7","s8","s9","s10","s11",
      "t3","t4","t5","t6",NULL
     };
     return reg_aliases[reg_index];
   }
-
+  const char *RegAliasFloat(int reg_index) {
+    const char *reg_aliases_float[] = {
+       "ft0","ft1","ft2","ft3","ft4","ft5","ft6","ft7",
+       "fs0","fs1",
+       "fa0","fa1","fa2","fa3","fa4","fa5","fa6","fa7",
+       "fs2","fs3","fs4","fs5","fs6","fs7","fs8","fs9","fs10","fs11",
+       "ft8","ft3","ft4","ft5","ft6","ft7","ft8","ft9","ft10","ft11",
+       NULL
+    };
+    return reg_aliases_float[reg_index];
+  };
+  
   unsigned long long MEMORY_READ(unsigned long long address,int size);
   void MEMORY_WRITE(unsigned long long address,int size,unsigned long long rval);
   
@@ -84,6 +98,7 @@ protected:
 
   bool load_store;                      // used
   bool jal;                             //  in disassembly
+  bool uaui;                            //
 };
 
 //*******************************************************************************
@@ -94,17 +109,17 @@ protected:
 #define _RS2 rs2 = (encoding >> 20) & 0x1f
 #define _RS1 rs1 = (encoding >> 15) & 0x1f
 #define _FUNCT3 funct3 = (encoding >> 12) & 0x7
-#define _RD rd = (encoding >>  7) & 0x1f
+#define _RD rd = (encoding >> 7) & 0x1f
 
 class RtypeInstruction : public RiscvInstruction {
  public:
   RtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) {};
+    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
   ~RtypeInstruction() {};  
   virtual void Decode() { _FUNCT7; _RS2; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),RegAlias(rd),RegAlias(rs2),RegAlias(rs1));
+    sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),RegAlias(rs2));
     return std::string(tbuf);
   };
 };
@@ -114,15 +129,16 @@ class RtypeInstruction : public RiscvInstruction {
 class ItypeInstruction : public RiscvInstruction {
  public:
   ItypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) {};
+    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
   ~ItypeInstruction() {};
   virtual void Decode() { _ITYPE_IMM; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (load_store)
-      sprintf(tbuf,"%s %s,#0x%x(%s)",InstrName().c_str(),RegAlias(rd),imm,RegAlias(rs1));
+      sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),RegAlias(rd),(int) imm,RegAlias(rs1));
     else
-      sprintf(tbuf,"%s %s,%s,#0x%x",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),imm);
+      sprintf(tbuf,"%s %s,%s,%d",
+	      InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(int) imm);
     return std::string(tbuf);
   };
 };
@@ -132,12 +148,12 @@ class ItypeInstruction : public RiscvInstruction {
 class StypeInstruction : public RiscvInstruction {
  public:
   StypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) {};
+    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
   ~StypeInstruction() {};  
   virtual void Decode() { _STYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%s,#0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
+    sprintf(tbuf,"%s %s,%s,0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
     return std::string(tbuf);
   };
 };
@@ -147,12 +163,12 @@ class StypeInstruction : public RiscvInstruction {
 class BtypeInstruction : public RiscvInstruction {
  public:
   BtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) {};
+    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
   ~BtypeInstruction() {};
   virtual void Decode() { _BTYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%s,#0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
+    sprintf(tbuf,"%s %s,%s,0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
     return std::string(tbuf);
   };
 };
@@ -162,12 +178,15 @@ class BtypeInstruction : public RiscvInstruction {
 class UtypeInstruction : public RiscvInstruction {
  public:
   UtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) {};
+    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
   ~UtypeInstruction() {};  
   virtual void Decode() { _UTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,#0x%x",InstrName().c_str(),RegAlias(rd),imm);
+    if (uaui)
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm>>12);
+    else
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm);
     return std::string(tbuf);
   };
 };
@@ -177,15 +196,15 @@ class UtypeInstruction : public RiscvInstruction {
 class JtypeInstruction : public RiscvInstruction {
  public:
   JtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) {};
+    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
   ~JtypeInstruction() {};  
   virtual void Decode() { _JTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (jal)
-      sprintf(tbuf,"%s #0x%x,%s",InstrName().c_str(),imm * 2,RegAlias(rd));
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm * 2);
     else
-      sprintf(tbuf,"%s %s,#0x%x",InstrName().c_str(),RegAlias(rd),imm);
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm);
     return std::string(tbuf);
   };
 };

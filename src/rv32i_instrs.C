@@ -1,7 +1,8 @@
 #include <dimebox.h>
+#include <iostream>
 
 void ADDI::Step() {
-  RD( RS1() + SignExtend(IMM(),12) ); BumpPC();
+  RD( RS1() + SIGNED_IMM(12) ); BumpPC();
 };
 void SLTI::Step() {
   RD( (long) RS1() < (long) SignExtend(IMM(),12) ? 1 : 0 ); BumpPC();
@@ -31,7 +32,7 @@ void LUI::Step() {
   RD( IMM()<<12 ); BumpPC();
 };
 void AUIPC::Step() {
-  RD( PC() + (IMM()<<12) ); BumpPC();
+  RD( PC() + IMM() ); BumpPC();
 };
 void ADD::Step() {
   RD( RS1() + RS2() ); BumpPC();
