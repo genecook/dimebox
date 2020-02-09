@@ -36,7 +36,10 @@ public:
   void SetShowProgress(bool _sp);
   void SetMaxInstrs(int max_count);
   int MaxInstrs() { return max_instr_count; };
+
   void SetDebugServerParms(unsigned int port,unsigned int core_id);
+  unsigned int DebugPort() { return gdb_port; };
+  unsigned int DebugCoreID() { return gdb_core_id; };
 
 private:
   std::vector<std::string> load_files;

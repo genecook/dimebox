@@ -4,10 +4,7 @@
 #include <vector>
 #include <string.h>
 
-#include <debug_server.h>
-#include <memmap_device.h>
-#include <physical_memory.h>
-#include <memory.h>
+#include <dimebox.h>
 
 //***************************************************************************************
 // constructor, destructor...
@@ -78,7 +75,7 @@ void DebugServer::Fini() {
 //        We poll user for debug commands at the start of instruction cycle.
 //***************************************************************************************
 
-bool DebugServer::RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC, Packet *ipkt) {
+bool DebugServer::RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC) {
   
   //printf("[DebugServer::RunPreStepChecks] PC: 0x%llx\n",PC);
   
@@ -106,7 +103,7 @@ bool DebugServer::RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned lo
   //if (do_poll)
   //  printf("\tpolling at the start of instruction execution cycle - PC has NOT advanced...\n");
   
-  bool rcode = (do_poll) ? Poll(my_cpu,my_memory,PC,ipkt): true;
+  bool rcode = (do_poll) ? Poll(my_cpu,my_memory,PC): true;
 
   //printf("[DebugServer::RunPreStepChecks] exited.\n");
 
@@ -122,7 +119,7 @@ bool DebugServer::RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned lo
 //       we check for and acknowledge a watchpoint at the end of an instruction execution.
 //***************************************************************************************
 
-bool DebugServer::RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC, Packet *ipkt) {
+bool DebugServer::RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC) {
 
   //printf("[DebugServer::RunPostStepChecks] PC: 0x%llx, next PC: 0x%llx\n",PC,ipkt->NextPC.Value());
   
@@ -138,6 +135,7 @@ bool DebugServer::RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned l
     AcknowledgeBreakpoint(my_cpu,PC);
   } else {
     // go thru packet memory accesses looking for match...
+    /*
     unsigned long long matched_address = 0;
     bool have_match = false;
     for (vector<MemoryAccess>::iterator mem_acc = ipkt->mOpsMemory.begin(); (mem_acc != ipkt->mOpsMemory.end()) && !have_match; mem_acc++) {
@@ -148,6 +146,7 @@ bool DebugServer::RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned l
       AcknowledgeWatchpoint(my_cpu,matched_address);
       setSingleStep();
     }
+    */
   }
 
   //printf("[DebugServer::RunPostStepChecks] exited.\n");
@@ -258,14 +257,13 @@ void DebugServer::AcknowledgeWatchpoint(State *my_cpu, unsigned long long data_a
 // Poll - field/process user commands...
 //***************************************************************************************
 
-bool DebugServer::Poll(State *_my_cpu, Memory *_my_memory, unsigned long long _PC, Packet *_ipkt) {
+bool DebugServer::Poll(State *_my_cpu, Memory *_my_memory, unsigned long long _PC) {
   if (verbose)
     printf("[DebugServer::Poll] polling, PC: 0x%llx...\n",_PC);
   
   my_cpu    = _my_cpu;     //
   my_memory = _my_memory;  // to allow inherited methods
   PC        = _PC;         //   access to current simulator state...
-  ipkt      = _ipkt;       //
   
   listening = true; // will 'listen' until step or continue initialiated, or 'kill server'
                     //   exception occurs...
@@ -774,7 +772,7 @@ std::string DebugServer::WriteMemory() {
 void DebugServer::show_reg_updates() {
   // for debug...
 }
-void DebugServer::show_memory_updates(Packet &ipkt) {
+void DebugServer::show_memory_updates() {
   // for debug...
 }
 

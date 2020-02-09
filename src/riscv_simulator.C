@@ -20,6 +20,7 @@ void RiscvSimulator::Init() {
   } else {
     // no memory range specified???
   }
+  SetupDebugServer(sim_cfg->DebugPort(),sim_cfg->DebugCoreID());
 }
 
 void RiscvSimulator::Fini() {
@@ -106,6 +107,10 @@ void RiscvSimulator::StepCores() {
        continue;
      }
      try {
+        if (!DebugPreStepChecks(*ci,&memory,pc)) {
+          (*ci)->SetEndTest(true);
+	  return;
+        }
         RiscvState state_updates(*ci);
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,&signals,opcode.encoding);
         instr->Step();
@@ -116,6 +121,9 @@ void RiscvSimulator::StepCores() {
         delete instr;
         instr_count++;
         (*ci)->SetEndTest((*ci)->PC() == pc);  // apparent jump to self instruction triggers end-test
+        if (!DebugPostStepChecks(*ci,&memory,pc)) {
+          (*ci)->SetEndTest(true);
+        }
      } catch(SIM_EXCEPTIONS sim_exception) {
        std::cerr << "Problems decoding instruction, encoded instruction: 0x"
 		 << std::hex << opcode.encoding << std::dec << "???" << std::endl;

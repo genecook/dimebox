@@ -3,10 +3,6 @@
 #include <string>
 #include <vector>
 
-#include <rsp.h>
-#include <tcp_server.h>
-#include <dimebox.h>
-
 using namespace std;
 
 //***************************************************************************************
@@ -21,25 +17,28 @@ class DebugServer : public RSP {
   
    bool Enabled() { return server_socket != NULL; };
    
-   bool RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC, Packet *ipkt);
-   bool RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC, Packet *ipkt);
+   bool RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC);
+   bool RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC);
 
  protected:
    void Init();
    void Fini();
 
-   bool Poll(State *my_cpu, Memory *my_memory, unsigned long long PC, Packet *ipkt);
+   bool Poll(State *my_cpu, Memory *my_memory, unsigned long long PC);
 
    void AcknowledgeBreakpoint(State *my_cpu, unsigned long long PC);
    void AcknowledgeWatchpoint(State *my_cpu, unsigned long long data_address);
-   
+   std::string ReadGPRegisters();
+   std::string ReadRegister();
+   std::string WriteRegister();
+   int RegType(unsigned int rindex);
+   void show_reg_updates();
+   void show_memory_updates();
+     
    std::string Continue();
    std::string Step();
    std::string KillTarget();
    
-   std::string ReadGPRegisters();
-   std::string ReadRegister();
-   std::string WriteRegister();
    std::string ReadMemory();
    std::string WriteMemory();
 
@@ -55,10 +54,6 @@ class DebugServer : public RSP {
      unsigned long long address_hi;
    };
    
-   int RegType(unsigned int rindex);
-   void show_reg_updates();
-   void show_memory_updates(Packet &ipkt);
-
    void reset_breakpoints();
 
    bool core_match(unsigned int _core) { return core == _core; };
@@ -67,7 +62,8 @@ class DebugServer : public RSP {
    int watchpoint_count() { return (int) data_breakpoints.size();  };
    
    bool breakpoint_hit(unsigned long long PC);
-   bool watchpoint_hit(unsigned long long &matched_address, unsigned long long start_address, int access_size);
+   bool watchpoint_hit(unsigned long long &matched_address, unsigned long long start_address,
+		       int access_size);
 
    void _add_breakpoint(vector<struct breakpoint_range> &_breakpoints,
 			unsigned long long _address_lo, unsigned long long _address_hi);
@@ -107,7 +103,6 @@ class DebugServer : public RSP {
    State *my_cpu;              // public pre/post step
    Memory *my_memory;          //   methods set
    unsigned long long PC;      //     these parms...
-   Packet *ipkt;               //
 
    vector<struct breakpoint_range> instr_breakpoints;
    vector<struct breakpoint_range> data_breakpoints;
