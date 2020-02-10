@@ -8,7 +8,6 @@
 #include <mmu.h>
 #include <memory.h>
 #include <memory_access.h>
-#include <packet.h>
 #include <elfio.h>
 #include <uart.h>
 #include <uart_pl011.h>
