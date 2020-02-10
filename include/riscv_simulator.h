@@ -36,14 +36,14 @@ class RiscvSimulator {
     if (debug_port > 0) {
       printf("configuring debug server on port %d, attached to core %u...\n",
 	     debug_port,debug_core_id);
-      debug_server = new DebugServer(debug_port,debug_core_id);
+      debug_server = new RiscvDebugServer(debug_port,debug_core_id);
     }
   };
-  bool DebugPreStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC) {
+  bool DebugPreStepChecks(RiscvState *my_cpu, Memory *my_memory, unsigned long long PC) {
     // only return false if debug server aborts or exits...
     return DebugServerEnabled() ? debug_server->RunPreStepChecks(my_cpu,my_memory,PC) : true;
   }
-  bool DebugPostStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC) {
+  bool DebugPostStepChecks(RiscvState *my_cpu, Memory *my_memory, unsigned long long PC) {
     // only return false if debug server aborts or exits...
     return DebugServerEnabled() ? debug_server->RunPostStepChecks(my_cpu,my_memory,PC) : true;
   }
@@ -58,7 +58,7 @@ protected:
   bool cores_are_running;
   Signals signals;   // timers, interrupts update signals
   UART_pl011 uart1;
-  DebugServer *debug_server;
+  RiscvDebugServer *debug_server;
 };
 
 

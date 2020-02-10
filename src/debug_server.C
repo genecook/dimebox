@@ -68,16 +68,16 @@ void DebugServer::Fini() {
 }
 
 //***************************************************************************************
-// RunPreStepChecks - called before each instruction step. Return true as long as
-//                    debug session lasts...
+// PreStepChecks - called before each instruction step. Return true as long as
+//                 debug session lasts...
 //
 //  NOTE: We check for a breakpoint at the start of instruction cycle.
 //        We poll user for debug commands at the start of instruction cycle.
 //***************************************************************************************
 
-bool DebugServer::RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC) {
+bool DebugServer::PreStepChecks() {
   
-  //printf("[DebugServer::RunPreStepChecks] PC: 0x%llx\n",PC);
+  //printf("[DebugServer::RunPreStepChecks] PC: 0x%llx\n",PC());
   
   bool do_poll = false;
 
@@ -93,17 +93,17 @@ bool DebugServer::RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned lo
     // clear single-stepping flag, do poll. do NOT acknowledge as instruction has yet to be executed...
     clearSingleStep();
     do_poll = true;
-  } else if (breakpoint_hit(PC)) {
+  } else if (breakpoint_hit(PC())) {
     // we ASSUME at least one instruction has executed when checking for breakpoint...
     // a breakpoint was reached, so we do need to poll...
-    AcknowledgeBreakpoint(my_cpu,PC);
+    AcknowledgeBreakpoint(PC());
     do_poll = true; 
   }
 
   //if (do_poll)
   //  printf("\tpolling at the start of instruction execution cycle - PC has NOT advanced...\n");
   
-  bool rcode = (do_poll) ? Poll(my_cpu,my_memory,PC): true;
+  bool rcode = (do_poll) ? Poll(): true;
 
   //printf("[DebugServer::RunPreStepChecks] exited.\n");
 
@@ -111,17 +111,17 @@ bool DebugServer::RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned lo
 }
 
 //***************************************************************************************
-// RunPostStepChecks - called after each instruction step, to acknowledge stepped
-//                     instruction or breakpoint/watchpoint. Always returns true...
+// PostStepChecks - called after each instruction step, to acknowledge stepped
+//                  instruction or breakpoint/watchpoint. Always returns true...
 //
 // NOTE: we acknowledge the completion of a single-stepped instruction at the end of
 //       an instruction execution.
 //       we check for and acknowledge a watchpoint at the end of an instruction execution.
 //***************************************************************************************
 
-bool DebugServer::RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC) {
+bool DebugServer::PostStepChecks() {
 
-  //printf("[DebugServer::RunPostStepChecks] PC: 0x%llx, next PC: 0x%llx\n",PC,ipkt->NextPC.Value());
+  //printf("[DebugServer::RunPostStepChecks] PC: 0x%llx, next PC: 0x%llx\n",PC(),ipkt->NextPC.Value());
   
   if (!Enabled()) {
     // debug not enabled...
@@ -132,7 +132,7 @@ bool DebugServer::RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned l
     // not core of interest...
   } else if (SingleStep()) {
     // single-step 'breakpoint' reached. acknowledge...
-    AcknowledgeBreakpoint(my_cpu,PC);
+    AcknowledgeBreakpoint(PC());
   } else {
     // go thru packet memory accesses looking for match...
     /*
@@ -158,12 +158,12 @@ bool DebugServer::RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned l
 // format/send breakpoint response string...
 //***************************************************************************************
 
-void DebugServer::AcknowledgeBreakpoint(State *my_cpu, unsigned long long PC) {
+void DebugServer::AcknowledgeBreakpoint(unsigned long long PC) {
   if (SingleStep()) {
     // we do need to send acknowledge to the debug client, but since single-stepping
     // no need for excess verbage to console...
   } else {
-    std::cout << "\tBreakpoint on core: " << my_cpu->GetID() << ", clock: " << my_cpu->Clock()
+    std::cout << "\tBreakpoint on core: " << CoreID() << ", clock: " << Clock()
 	      << ", PC: 0x" << std::hex << PC << std::dec << std::endl;
   }
   
@@ -171,22 +171,22 @@ void DebugServer::AcknowledgeBreakpoint(State *my_cpu, unsigned long long PC) {
     
     std::string my_response = "T02"; // response: signal 2 (SIGINT)...
 
-    // add updated X29 (frame pointer), SP, PC value to response...
+    // add updated FP (frame pointer), SP, PC value to response...
 
     char tbuf[128];
 
     my_response += "1d:";   // see RegType method for list of gdb-aarch64 register indices
-    le8(tbuf,my_cpu->GP(29));
+    le8(tbuf,FP());
     my_response += tbuf;
     my_response += ";";
   
     my_response += "1f:";
-    le8(tbuf,my_cpu->SP());
+    le8(tbuf,SP());
     my_response += tbuf;
     my_response += ";";
   
     my_response += "20:";
-    le8(tbuf,my_cpu->PC());
+    le8(tbuf,PC);
     my_response += tbuf;
     my_response += ";";
 
@@ -210,29 +210,29 @@ void DebugServer::AcknowledgeBreakpoint(State *my_cpu, unsigned long long PC) {
 //***************************************************************************************
 //***************************************************************************************
 
-void DebugServer::AcknowledgeWatchpoint(State *my_cpu, unsigned long long data_address) {
+void DebugServer::AcknowledgeWatchpoint(unsigned long long data_address) {
     std::cout << "\tWatchpoint at address: 0x" << std::hex << data_address << std::dec << std::endl;
 
     // form server response...
     
     std::string my_response = "T02"; // response: signal 2 (SIGINT)...
 
-    // add updated X29 (frame pointer), SP, PC value to response...
+    // add updated FP (frame pointer), SP, PC value to response...
 
     char tbuf[128];
 
     my_response += "1d:";   // see RegType method for list of gdb-aarch64 register indices
-    le8(tbuf,my_cpu->GP(29));
+    le8(tbuf,FP());
     my_response += tbuf;
     my_response += ";";
   
     my_response += "1f:";
-    le8(tbuf,my_cpu->SP());
+    le8(tbuf,SP());
     my_response += tbuf;
     my_response += ";";
   
     my_response += "20:";
-    le8(tbuf,my_cpu->PC());
+    le8(tbuf,PC());
     my_response += tbuf;
     my_response += ";";
 
@@ -242,7 +242,7 @@ void DebugServer::AcknowledgeWatchpoint(State *my_cpu, unsigned long long data_a
     
     // send server response...
     
-    //std::cout << "Breakpoint response (encoded): '" << my_response << "'" << std::endl;
+    //std::cout << "Watchpoint response (encoded): '" << my_response << "'" << std::endl;
     
     try {
        server_socket->Write((unsigned char *) my_response.c_str(),my_response.size());
@@ -257,13 +257,9 @@ void DebugServer::AcknowledgeWatchpoint(State *my_cpu, unsigned long long data_a
 // Poll - field/process user commands...
 //***************************************************************************************
 
-bool DebugServer::Poll(State *_my_cpu, Memory *_my_memory, unsigned long long _PC) {
+bool DebugServer::Poll() {
   if (verbose)
-    printf("[DebugServer::Poll] polling, PC: 0x%llx...\n",_PC);
-  
-  my_cpu    = _my_cpu;     //
-  my_memory = _my_memory;  // to allow inherited methods
-  PC        = _PC;         //   access to current simulator state...
+    printf("[DebugServer::Poll] polling, PC: 0x%llx...\n",PC());
   
   listening = true; // will 'listen' until step or continue initialiated, or 'kill server'
                     //   exception occurs...
@@ -397,7 +393,7 @@ std::string DebugServer::Continue() {
 
 std::string DebugServer::Step() {
   if (verbose)
-    printf("[DebugServer::Step] PC: 0x%llx, (assumed) next PC: 0x%llx\n",PC, PC + 4);
+    printf("[DebugServer::Step] PC: 0x%llx, (assumed) next PC: 0x%llx\n",PC(), PC() + 4);
   
   defer_response = true;
 
@@ -438,14 +434,14 @@ std::string DebugServer::ReadGPRegisters() {
   char tbuf[128];
 
   for (int i = 0; i < 31; i++) {
-     le8(tbuf,my_cpu->GP(i));
+     le8(tbuf,GP(i));
      my_response += tbuf;
   }
 
-  le8(tbuf,my_cpu->SP());
+  le8(tbuf,SP());
   my_response += tbuf;
 
-  le8(tbuf,my_cpu->PC());
+  le8(tbuf,PC());
   my_response += tbuf;
 
 /*
@@ -471,35 +467,6 @@ std::string DebugServer::ReadGPRegisters() {
 */
   
   return my_response;
-}
-
-
-//*******************************************************************************
-// RegType - convenience method used by ReadRegister/WriteRegister - return
-//           reg type from reg index...
-//*******************************************************************************
-
-// not sure what the register indices are for risc-V:
-
-enum REG_TYPES { GPREG, SPREG, QREG, PCREG, CPSRREG, FPSRREG, FPCRREG, BADREG };
-
-// Qreg indices range from 34 to 65...
-
-#define QREG_START_INDEX 34
-
-int DebugServer::RegType(unsigned int rindex) {
-  int reg_type = BADREG;
-
-  //                                           // range       size
-  if (rindex < 31)       reg_type = GPREG;     // 0..30        64
-  else if (rindex == 31) reg_type = SPREG;     // 31           64
-  else if (rindex == 32) reg_type = PCREG;     // 32           64
-  else if (rindex == 33) reg_type = CPSRREG;   // 33           32
-  else if (rindex < 66)  reg_type = QREG;      // 34..65       128
-  else if (rindex == 66) reg_type = FPSRREG;   // 66           32
-  else if (rindex == 67) reg_type = FPCRREG;   // 67           32
-
-  return reg_type;
 }
 
 
@@ -533,11 +500,11 @@ std::string DebugServer::ReadRegister() {
 
     switch(RegType(rindex)) {
       case GPREG:     // return GP register...
-	              le8(tbuf,my_cpu->GP(rindex));
+	              le8(tbuf,GP(rindex));
                       my_response = tbuf;
                       break;
       case SPREG:     // return (current) SP...
-                      le8(tbuf,my_cpu->SP());
+                      le8(tbuf,SP());
                       my_response = tbuf;    
                       break;
 /*
@@ -552,7 +519,7 @@ std::string DebugServer::ReadRegister() {
                       break;
 */
       case PCREG:     // return PC...
-                      le8(tbuf,my_cpu->PC());
+                      le8(tbuf,PC());
                       my_response += tbuf;
                       break;
 /*
@@ -610,14 +577,14 @@ std::string DebugServer::WriteRegister() {
     switch(RegType(rindex)) {
        case GPREG:  // set GP register...
 	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval))
-                      my_cpu->SetGP(rindex,rval);
+                      SetGP(rindex,rval);
 		    else
                       my_response = "E2"; // malformed write-register packet...
                     break;
 		    
       case SPREG:   // set current SP...
 	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval)) {
-                      my_cpu->SetSP(rval); //<---updates current SP
+                      SetSP(rval); //<---updates current SP
 	            } else
                       my_response = "E2"; // malformed write-register packet...
                     break;
@@ -634,7 +601,7 @@ std::string DebugServer::WriteRegister() {
 */
       case PCREG:   // set PC...
 	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval)) 
-                      my_cpu->SetPC(rval);
+                      SetPC(rval);
 		    else
                       my_response = "E2"; // malformed write-register packet...
                     break;
@@ -695,10 +662,9 @@ std::string DebugServer::ReadMemory() {
   int rcode = 0;
   
   try {
-     // at least for now, memory reads are from physical memory...
-     rcode = my_memory->ReadPhysicalMemory(maddr,msize,mbuf,false);
+     rcode = ReadMemory(maddr,msize,mbuf);
   } catch(...) {
-     my_response = "E0"; // memory address did not validate (exceeded size of physical memory)
+     my_response = "E0"; // memory address did not validate
      return my_response;
   }
   
@@ -755,25 +721,12 @@ std::string DebugServer::WriteMemory() {
   }
 
   try {
-     // at least for now all memory writes are to physical memory...
-    my_memory->WritePhysicalMemory(maddr,msize,mbytes,false);
+    WriteMemory(maddr,msize,mbytes);
   } catch(SIM_EXCEPTIONS eclass) {
      my_response = "E2"; // problems writing memory???    
   }
 
   return my_response;
-}
-
-
-//***************************************************************************************
-// some internal debug methods - stubs for now...
-//***************************************************************************************
-
-void DebugServer::show_reg_updates() {
-  // for debug...
-}
-void DebugServer::show_memory_updates() {
-  // for debug...
 }
 
 

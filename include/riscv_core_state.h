@@ -36,6 +36,9 @@ public:
   unsigned long long SP() { return X[2].Value(); };
   void SetSP(unsigned long long rval) { X[2].Value(rval); };
 
+  unsigned long long FP() { return X[8].Value(); };
+  void SetFP(unsigned long long rval) { X[8].Value(rval); };
+
 private:
   GPRegister X[32]; // general purpose registers
 };

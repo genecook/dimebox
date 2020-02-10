@@ -17,23 +17,38 @@ class DebugServer : public RSP {
   
    bool Enabled() { return server_socket != NULL; };
    
-   bool RunPreStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC);
-   bool RunPostStepChecks(State *my_cpu, Memory *my_memory, unsigned long long PC);
+   bool PreStepChecks();
+   bool PostStepChecks();
 
+   virtual unsigned long long GP(int reg_index) = 0; // value - gp register
+   virtual unsigned long long SP()              = 0; //  "      stack pointer
+   virtual unsigned long long FP()              = 0; //  "      frame pointer
+   virtual unsigned long long PC()              = 0; //  "      PC
+   virtual unsigned           CoreID()          = 0; // current core ID
+   virtual unsigned long long Clock()           = 0; // current clock value
+
+   virtual void SetGP(int rindex,unsigned long long rval) = 0;
+   virtual void SetSP(unsigned long long rval) = 0;
+   virtual void SetPC(unsigned long long rval) = 0;
+
+   virtual bool ReadMemory(unsigned long long address,int size,unsigned char *mbuf) = 0;
+   virtual bool WriteMemory(unsigned long long address,int size,unsigned char *mbuf) = 0;
+
+   enum REG_TYPES { GPREG, SPREG, QREG, PCREG, CPSRREG, FPSRREG, FPCRREG, BADREG };
+
+   virtual int RegType(unsigned int rindex) = 0;
+  
  protected:
    void Init();
    void Fini();
 
-   bool Poll(State *my_cpu, Memory *my_memory, unsigned long long PC);
+   bool Poll();
 
-   void AcknowledgeBreakpoint(State *my_cpu, unsigned long long PC);
-   void AcknowledgeWatchpoint(State *my_cpu, unsigned long long data_address);
+   void AcknowledgeBreakpoint(unsigned long long PC);
+   void AcknowledgeWatchpoint(unsigned long long data_address);
    std::string ReadGPRegisters();
    std::string ReadRegister();
    std::string WriteRegister();
-   int RegType(unsigned int rindex);
-   void show_reg_updates();
-   void show_memory_updates();
      
    std::string Continue();
    std::string Step();
@@ -78,8 +93,6 @@ class DebugServer : public RSP {
    void clearSingleStep() { do_step = false; };
    bool SingleStep() { return do_step; };
    
-   void RecordNextPC(unsigned long long NextPC) { PC = NextPC; };
-
    // endian-ness related utilities...
    
    void le8(char *encoded_rv,unsigned long long rv);
@@ -100,10 +113,6 @@ class DebugServer : public RSP {
 
    bool do_step;               // set by Step method. cleared in post-step
    
-   State *my_cpu;              // public pre/post step
-   Memory *my_memory;          //   methods set
-   unsigned long long PC;      //     these parms...
-
    vector<struct breakpoint_range> instr_breakpoints;
    vector<struct breakpoint_range> data_breakpoints;
 };

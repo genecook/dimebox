@@ -13,11 +13,12 @@
 #include <uart_pl011.h>
 #include <rsp.h>
 #include <tcp_server.h>
+#include <debug_server.h>
 
 #include <riscv_core_state.h>
 #include <riscv_instruction.h>
 #include <rv32i_instrs.h>
-#include <debug_server.h>
+#include <riscv_debug_server.h>
 #include <riscv_simulator.h>
 
 
