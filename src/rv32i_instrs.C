@@ -66,6 +66,7 @@ void SRA::Step() {
 };
 void JAL::Step() {
   RD( PC() + 4 );
+  std::cout << "JAL IMM: " << IMM() << std::endl;
   PC( PC() + SignExtend(IMM(),20) );
 };
 void JALR::Step() { 

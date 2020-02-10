@@ -12,7 +12,10 @@ class RiscvInstruction {
 public:
  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
    : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
-     load_store(false),jal(false),uaui(false) { OPCODE; };
+     load_store(false),jal(false),uaui(false) {
+   instr_pc = state->PC();
+   OPCODE;
+ };
   virtual ~RiscvInstruction() {};
  
   const int Size = 4;            // instruction size in bytes
@@ -99,6 +102,7 @@ protected:
   bool load_store;                      // used
   bool jal;                             //  in disassembly
   bool uaui;                            //
+  unsigned int instr_pc;                //
 };
 
 //*******************************************************************************
@@ -191,7 +195,7 @@ class UtypeInstruction : public RiscvInstruction {
   };
 };
 
-#define _JTYPE_IMM imm = (((encoding>>31) & 1) << 20) | (((encoding>>11) & 0x3ff) << 1) | (((encoding>>10) & 1) << 11) | (((encoding>>12) & 0xff) << 12)
+#define _JTYPE_IMM imm = ( ((encoding>>12) & 0xff) << 12) | ( ((encoding>>20) & 1) << 11) | ( ((encoding>>25) & 0x3f) << 5) | ( ((encoding>>21) & 0xf) << 1)
 
 class JtypeInstruction : public RiscvInstruction {
  public:
@@ -202,7 +206,7 @@ class JtypeInstruction : public RiscvInstruction {
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (jal)
-      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm * 2);
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),instr_pc + imm);
     else
       sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm);
     return std::string(tbuf);
