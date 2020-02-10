@@ -9,29 +9,30 @@ dimebox tasks (in no particular order)
  * main.C - clone windvane main, breakout cmdline args as separate code
     define config file format + code to parse. define config struct. - DONE
 
- * integrate in (windvane) physical/logical memory. - DONE
+ * Integrate in (windvane) physical/logical memory. - DONE
 
  * system timer? (from windvane)
 
  * uart. (morph windvane pla uart into ns...)
 
- * implement app registers, PC, SP. - DONE
+ * Implement app registers, PC, SP. - DONE
 
- * implement 'top level' simulator class, simulation loop. - DONE.
+ * Implement 'top level' simulator class, simulation loop. - DONE.
 
- * implement rv32i instruction 'starter set'. - DONE. 
+ * Implement rv32i instruction 'starter set'. - DONE. 
 
- * implement cmake file (CMakeLists.txt) - DONE
+ * Implement cmake file (CMakeLists.txt) - DONE
 
- * integrate in gdb 'server' code. (windvane) DONE
+ * Integrate in gdb 'server' code. (windvane) DONE
 
- * other integer instructions + tests - how to use open source test suites?
+ * Other integer instructions + tests - how to use open source test suites?
 
- * archive on github. - DONE
+ * Archive on github. - DONE
 
  * README.md
 
  * Debug simulator. - runs, loads elf file, simulates a few instructions.
  
- * download/install risc-v tool chain. - DONE
+ * Download/install risc-v tool chain. - DONE
 
+ * Debug simulator gdb(server) code.
