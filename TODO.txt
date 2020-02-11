@@ -19,20 +19,24 @@ dimebox tasks (in no particular order)
 
  * Implement 'top level' simulator class, simulation loop. - DONE.
 
- * Implement rv32i instruction 'starter set'. - DONE. 
-
  * Implement cmake file (CMakeLists.txt) - DONE
 
- * Integrate in gdb 'server' code. (windvane) DONE
+ * Download/install risc-v tool chain. - DONE
+ 
+ * Implement rv32i instructions (other then control & status). - DONE. 
 
- * Other integer instructions + tests - how to use open source test suites?
+ * Integrate in gdb 'server' code. (windvane) - DONE.
 
- * Archive on github. - DONE
+ * Implement rv32i control & status instructions.
 
- * README.md
-
+ * Debug gdb server.
+ 
  * Debug simulator. - runs, loads elf file, simulates a few instructions.
  
- * Download/install risc-v tool chain. - DONE
+ * Other integer instructions + tests - how to use open source test suites?
 
- * Debug simulator gdb(server) code.
+ * Archive on github. - DONE.
+
+ * README.md - ONGOING.
+
+
