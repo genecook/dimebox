@@ -1,24 +1,26 @@
 #include <dimebox.h>
 #include <iostream>
 
+// Itype:
 void ADDI::Step() {
-  RD( RS1() + SIGNED_IMM(12) ); BumpPC();
+  RD( RS1() + SIGN_EXTEND_IMM(12) ); BumpPC();
 };
 void SLTI::Step() {
-  RD( (long) RS1() < (long) SignExtend(IMM(),12) ? 1 : 0 ); BumpPC();
+  RD( (long) RS1() < (long) SIGN_EXTEND_IMM(12) ? 1 : 0 ); BumpPC();
 };
 void SLTIU::Step() { 
-  RD( RS1() < (unsigned int) SignExtend(IMM(),12) ? 1 : 0 ); BumpPC();
+  RD( (unsigned int) RS1() < (unsigned int) UNSIGNED_SIGN_EXTEND_IMM(12) ? 1 : 0 ); BumpPC();
 };
 void ANDI::Step() { 
-  RD( RS1() & (unsigned int) SignExtend(IMM(),12) ); BumpPC();
+  RD( RS1() & (unsigned int) SIGN_EXTEND_IMM(12) ); BumpPC();
 };
 void ORI::Step() { 
-  RD( RS1() | (unsigned int) SignExtend(IMM(),12) ); BumpPC();
+  RD( RS1() | (unsigned int) SIGN_EXTEND_IMM(12) ); BumpPC();
 };
 void XORI::Step() { 
-  RD( RS1() ^ (unsigned int) SignExtend(IMM(),12) ); BumpPC();
+  RD( RS1() ^ (unsigned int) SIGN_EXTEND_IMM(12) ); BumpPC();
 };
+
 void SLLI::Step() {
   RD( RS1() << IMM() ); BumpPC();
 };
@@ -28,12 +30,14 @@ void SRLI::Step() {
 void SRAI::Step() {
   RD ( SignExtend(RS1() >> IMM(),32 - IMM()) ); BumpPC();
 };
+
 void LUI::Step() {
-  RD( IMM()<<12 ); BumpPC();
+  RD( IMM() ); BumpPC();
 };
 void AUIPC::Step() {
-  RD( PC() + IMM() ); BumpPC();
+  RD( PC() + (int) IMM() ); BumpPC();
 };
+
 void ADD::Step() {
   RD( RS1() + RS2() ); BumpPC();
 };
@@ -64,58 +68,59 @@ void SUB::Step() {
 void SRA::Step() { 
   RD ( SignExtend(RS1() >> RS2(),32 - RS2()) ); BumpPC();
 };
+
 void JAL::Step() {
   RD( PC() + 4 );
-  std::cout << "JAL IMM: " << IMM() << std::endl;
-  PC( PC() + SignExtend(IMM(),20) );
+  PC( PC() + SIGN_EXTEND_IMM(20) );
 };
 void JALR::Step() { 
   RD( PC() + 4 );
-  PC( (RS1() + SignExtend(IMM(),20)) & 0xfffffffe );
+  PC( (RS1() + SIGN_EXTEND_IMM(12)) & 0xfffffffe );
 };
+
 void BEQ::Step() {
-  PC( PC() + (RS1() == RS2() ? SignExtend(IMM(),12) : 4)); 
+  PC( PC() + (RS1() == RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
 };
 void BNE::Step() { 
-  PC( PC() + (RS1() != RS2() ? SignExtend(IMM(),12) : 4)); 
+  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
 };
 void BLT::Step() { 
-  PC( PC() + ((long)RS1() != (long)RS2() ? SignExtend(IMM(),12) : 4)); 
+  PC( PC() + ((long)RS1() != (long)RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
 };
 void BLTU::Step() { 
-  PC( PC() + (RS1() != RS2() ? SignExtend(IMM(),12) : 4)); 
+  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
 };
 void BGE::Step() { 
-  PC( PC() + ((long)RS1() >= (long)RS2() ? SignExtend(IMM(),12) : 4)); 
+  PC( PC() + ((long)RS1() >= (long)RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
 };
 void BGEU::Step() { 
-  PC( PC() + (RS1() >= RS2() ? SignExtend(IMM(),12) : 4)); 
+  PC( PC() + (RS1() >= RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
 };
 
 void LB::Step() {
-  RD( SignExtend(MEMORY_READ(RS1() + SignExtend(IMM(),12), 1),8) ); BumpPC();
+  RD( SignExtend(MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 1),8) ); BumpPC();
 };
 void LH::Step() { 
-  RD( SignExtend(MEMORY_READ(RS1() + SignExtend(IMM(),12), 2),16) ); BumpPC();
+  RD( SignExtend(MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 2),16) ); BumpPC();
 };
 void LW::Step() {
-  RD( MEMORY_READ(RS1() + SignExtend(IMM(),12), 4) ); BumpPC();
+  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 4) ); BumpPC();
 };
 void LBU::Step() { 
-  RD( MEMORY_READ(RS1() + SignExtend(IMM(),12), 1) ); BumpPC();
+  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 1) ); BumpPC();
 };
 void LHU::Step() { 
-  RD( MEMORY_READ(RS1() + SignExtend(IMM(),12), 2) ); BumpPC();
+  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 2) ); BumpPC();
 };
 
 void SB::Step() { 
-  MEMORY_WRITE( RS1() + SignExtend(IMM(),12), 1, RS2() ); BumpPC();
+  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 1, RS2() ); BumpPC();
 };
 void SH::Step() { 
-  MEMORY_WRITE( RS1() + SignExtend(IMM(),12), 2, RS2() ); BumpPC();
+  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 2, RS2() ); BumpPC();
 };
 void SW::Step() { 
-  MEMORY_WRITE( RS1() + SignExtend(IMM(),12), 4, RS2() ); BumpPC();
+  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 4, RS2() ); BumpPC();
 };
 void FENCE::Step() {
   BumpPC(); // ignored...

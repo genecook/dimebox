@@ -9,10 +9,14 @@ my @U_AUIPC = qw(AUIPC);
 
 my @J = qw(JAL);
     
-my @I = qw(ADDI SLTI SLTIU XORI ORI ANDI
-           SLLI SRLI SRAI CSRRW CSRRS CSRRC CSRRWI CSRRSI
+my @I = qw(ADDI SLTI XORI ORI ANDI
+           CSRRW CSRRS CSRRC CSRRWI CSRRSI
            CSRRCI);
-    
+
+my @I_UNS = qw(SLTIU);
+
+my @I_SHIFT = qw(SLLI SRLI SRAI);
+
 my @I_JALR = qw(JALR);
     
 my @I_LOAD = qw(LB LH LW LBU LHU);
@@ -37,15 +41,17 @@ print "#ifndef __RV32I_ICLASSES__\n\n";
 
 print "// !!! AUTO-GENERATED CODE - SEE utils/make_iclasses.pl !!!\n";
 
-foreach $instr (@U)       { &class_decl($instr,'U','');                }
-foreach $instr (@U_AUIPC) { &class_decl($instr,'U','uaui=true');       }
-foreach $instr (@J)       { &class_decl($instr,'J','jal=true');        }
-foreach $instr (@I)       { &class_decl($instr,'I','');                }
-foreach $instr (@I_JALR)  { &class_decl($instr,'I','jal=true');        }
-foreach $instr (@I_LOAD)  { &class_decl($instr,'I','load_store=true'); }
-foreach $instr (@S)       { &class_decl($instr,'S','load_store=true'); }
-foreach $instr (@B)       { &class_decl($instr,'B','');                }
-foreach $instr (@R)       { &class_decl($instr,'R','');                }
+foreach $instr (@U)       { &class_decl($instr,'U','');                             }
+foreach $instr (@U_AUIPC) { &class_decl($instr,'U','uaui=true');                    }
+foreach $instr (@J)       { &class_decl($instr,'J','jal=true');                     }
+foreach $instr (@I)       { &class_decl($instr,'I','');                             }
+foreach $instr (@I_JALR)  { &class_decl($instr,'I','jal=true');                     }
+foreach $instr (@I_LOAD)  { &class_decl($instr,'I','load_store=true');              }
+foreach $instr (@I_UNS)   { &class_decl($instr,'I','unsigned_sign_extension=true'); }
+foreach $instr (@I_SHIFT) { &class_decl($instr,'I','shift=true');                   }
+foreach $instr (@S)       { &class_decl($instr,'S','load_store=true');              }
+foreach $instr (@B)       { &class_decl($instr,'B','');                             }
+foreach $instr (@R)       { &class_decl($instr,'R','');                             }
 
 print "\n#endif\n";
 print "#define __RV32I_ICLASSES__ 1\n";

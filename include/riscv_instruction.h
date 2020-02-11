@@ -12,7 +12,7 @@ class RiscvInstruction {
 public:
  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
    : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
-     load_store(false),jal(false),uaui(false) {
+     load_store(false),jal(false),uaui(false),unsigned_sign_extension(false),shift(false) {
    instr_pc = state->PC();
    OPCODE;
  };
@@ -45,7 +45,15 @@ public:
   unsigned int FUNCT7() { return funct7; };
   unsigned int IMM() { return imm; };
 
-  long long SIGNED_IMM(int sign_bit) { long long tl = SignExtend(imm,sign_bit); imm = tl; return tl; };
+  unsigned int IMM_AS_SHIFT() { return imm; };
+
+  // normally immediate sign-extended and result used in signed expressions...
+  long long int SIGN_EXTEND_IMM(int sign_bit) { imm_sign_extended = SignExtend(imm,sign_bit); return imm_sign_extended; };
+  long long IMM_SIGN_EXTENDED() { return imm_sign_extended; };
+
+  // but for some unsigned cases, immediate is sign-extended, and result used in unsigned expressions...
+  unsigned long long UNSIGNED_SIGN_EXTEND_IMM(int sign_bit) { unsigned_imm_sign_extended = SignExtend(imm,sign_bit); return unsigned_imm_sign_extended; };  
+  unsigned long long UNSIGNED_IMM_SIGN_EXTENDED() { return unsigned_imm_sign_extended; };
   
   long long SignExtend(unsigned long long op,int field_width,int rwidth=64) {
     int sign_bit = field_width - 1;
@@ -99,10 +107,14 @@ protected:
   unsigned int rd;                      //
   unsigned int imm;                     //
 
-  bool load_store;                      // used
-  bool jal;                             //  in disassembly
-  bool uaui;                            //
-  unsigned int instr_pc;                //
+  bool load_store;                                // 
+  bool jal;                                       // 
+  bool uaui;                                      // used
+  unsigned int instr_pc;                          //   in disassembly
+  long long imm_sign_extended;                    //
+  unsigned long long unsigned_imm_sign_extended;  // (wonky)
+  bool unsigned_sign_extension;                   //
+  bool shift;                                     //
 };
 
 //*******************************************************************************
@@ -139,10 +151,13 @@ class ItypeInstruction : public RiscvInstruction {
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (load_store)
-      sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),RegAlias(rd),(int) imm,RegAlias(rs1));
+      sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),RegAlias(rd),(int) IMM_SIGN_EXTENDED(),RegAlias(rs1));
+    else if (unsigned_sign_extension)
+      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(unsigned int) UNSIGNED_IMM_SIGN_EXTENDED());
+    else if (shift)
+      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(unsigned int) imm);
     else
-      sprintf(tbuf,"%s %s,%s,%d",
-	      InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(int) imm);
+      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
     return std::string(tbuf);
   };
 };
@@ -157,7 +172,7 @@ class StypeInstruction : public RiscvInstruction {
   virtual void Decode() { _STYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%s,0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
+    sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),RegAlias(rs2),(int) IMM_SIGN_EXTENDED(),RegAlias(rs1));
     return std::string(tbuf);
   };
 };
@@ -172,7 +187,7 @@ class BtypeInstruction : public RiscvInstruction {
   virtual void Decode() { _BTYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%s,0x%x",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),imm);
+    sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
     return std::string(tbuf);
   };
 };
@@ -188,7 +203,7 @@ class UtypeInstruction : public RiscvInstruction {
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (uaui)
-      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm>>12);
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),(int) imm);
     else
       sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm);
     return std::string(tbuf);
@@ -206,7 +221,7 @@ class JtypeInstruction : public RiscvInstruction {
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (jal)
-      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),instr_pc + imm);
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),(unsigned int) (instr_pc + IMM_SIGN_EXTENDED()) );
     else
       sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm);
     return std::string(tbuf);
