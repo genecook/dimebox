@@ -15,6 +15,8 @@ dimebox tasks (in no particular order)
 
  * uart. (morph windvane pla uart into ns...)
 
+ * Archive on github. - DONE.
+
  * Implement app registers, PC, SP. - DONE
 
  * Implement 'top level' simulator class, simulation loop. - DONE.
@@ -27,15 +29,13 @@ dimebox tasks (in no particular order)
 
  * Integrate in gdb 'server' code. (windvane) - DONE.
 
- * Implement rv32i control & status instructions.
+ * Implement rv32i control & status instructions. - DONE.
 
  * Debug gdb server.
  
  * Debug simulator. - runs, loads elf file, simulates a few instructions.
  
- * Other integer instructions + tests - how to use open source test suites?
-
- * Archive on github. - DONE.
+ * Integer instructions + tests - how to use open source test suites?
 
  * README.md - ONGOING.
 
