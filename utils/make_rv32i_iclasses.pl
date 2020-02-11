@@ -9,9 +9,13 @@ my @U_AUIPC = qw(AUIPC);
 
 my @J = qw(JAL);
     
-my @I = qw(ADDI SLTI XORI ORI ANDI
-           CSRRW CSRRS CSRRC CSRRWI CSRRSI
-           CSRRCI);
+my @I = qw(ADDI SLTI XORI ORI ANDI);
+
+my @I_CSRR = qw(CSRRW CSRRC);
+
+my @I_CSRS = qw(CSRRS);
+
+my @I_CSRI = qw(CSRRWI CSRRSI CSRRCI);
 
 my @I_UNS = qw(SLTIU);
 
@@ -49,6 +53,9 @@ foreach $instr (@I_JALR)  { &class_decl($instr,'I','jal=true');                 
 foreach $instr (@I_LOAD)  { &class_decl($instr,'I','load_store=true');              }
 foreach $instr (@I_UNS)   { &class_decl($instr,'I','unsigned_sign_extension=true'); }
 foreach $instr (@I_SHIFT) { &class_decl($instr,'I','shift=true');                   }
+foreach $instr (@I_CSRS)  { &class_decl($instr,'I','csrs=true');                    }
+foreach $instr (@I_CSRR)  { &class_decl($instr,'I','csrr=true');                    }
+foreach $instr (@I_CSRI)  { &class_decl($instr,'I','csri=true');                    }
 foreach $instr (@S)       { &class_decl($instr,'S','load_store=true');              }
 foreach $instr (@B)       { &class_decl($instr,'B','');                             }
 foreach $instr (@R)       { &class_decl($instr,'R','');                             }

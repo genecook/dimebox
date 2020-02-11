@@ -20,7 +20,7 @@ Goals
      * cmake
      * git
      * Test suite execution at check in?
-     * Open source libraries to include:
+     * Open source library dependencies:
        + elftoolchain
        + boost program options
      * Ubuntu 18, g++ 8.3

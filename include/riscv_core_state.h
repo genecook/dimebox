@@ -39,6 +39,46 @@ public:
   unsigned long long FP() { return X[8].Value(); };
   void SetFP(unsigned long long rval) { X[8].Value(rval); };
 
+  // CSR      description
+  // 0xc00    RDCYCLE (cycle counter - lo)
+  // 0xc01    RDTIME (timer - lo)
+  // 0xc02    RDINSTRET (instrs retired counter - lo)
+  // 0xc80    RDCYCLE (cycle counter -hi)
+  // 0xc81    RDTIME (timer - hi)
+  // 0xc82    RDINSTRET (instrs retired counter - hi)
+	       
+  unsigned long long CSR(int csr) {
+    unsigned long long rval = 0;
+    switch(csr) {
+      case 0xc00: rval = Clock() & 0xffffffff; break; 
+      case 0xc01: rval = TimerValue() & 0xffffffff; break;
+      case 0xc02: rval = InstructionCount() & 0xffffffff; break;
+      case 0xc80: rval = Clock() >> 32; break;
+      case 0xc81: rval = TimerValue() >> 32; break;
+      case 0xc82: rval = InstructionCount() & 0xffffffff; break;
+      default: throw EXCEPTION; break;
+    }
+    return rval;
+  };
+
+  void SetCSR(int csr,unsigned long long rval) {
+    throw EXCEPTION;
+  }
+  
+  std::string CSR_NAME(int csr) {
+    std::string rname;
+    switch(csr) {
+      case 0xc00: rname = "RDCYCLE";    break; 
+      case 0xc01: rname = "RDTIME";     break;
+      case 0xc02: rname = "RDINSTRET";  break;
+      case 0xc80: rname = "RDCYCLEH";   break;
+      case 0xc81: rname = "RDTIMEH";    break;
+      case 0xc82: rname = "RDINSTRETH"; break;
+      default: throw EXCEPTION; break;
+    }
+    return rname;    
+  };
+  
 private:
   GPRegister X[32]; // general purpose registers
 };

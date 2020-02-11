@@ -13,7 +13,8 @@ enum SIM_EXCEPTIONS { NO_SIM_EXCEPTION,    // used in general processing of try 
 };
 
 enum EXCEPTION_TYPES { NO_EXCEPTION,
-		       UNIMPLEMENTED_INSTRUCTION=1  // unimplemented or unknown instruction encoding
+		       UNIMPLEMENTED_INSTRUCTION=1,  // unimplemented or unknown instruction encoding
+		       CSR_ACCESS=2,                 //     "         csr or privileged csr access
 };
 
 class Signals {

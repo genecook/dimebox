@@ -164,9 +164,9 @@ RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Mem
   case 0x73: if (encoding == 0x73) instruction = INSTR_INST(ECALL);
              if (encoding == 0x100073) instruction = INSTR_INST(EBREAK);
              switch(funct3) {
-	       case 1: instruction = INSTR_INST(CSRRW); break;
-	       case 2: instruction = INSTR_INST(CSRRS); break;
-	       case 3: instruction = INSTR_INST(CSRRC); break;
+	       case 1: instruction = INSTR_INST(CSRRW);  break;
+	       case 2: instruction = INSTR_INST(CSRRS);  break;
+	       case 3: instruction = INSTR_INST(CSRRC);  break;
 	       case 5: instruction = INSTR_INST(CSRRWI); break;
 	       case 6: instruction = INSTR_INST(CSRRSI); break;
 	       case 7: instruction = INSTR_INST(CSRRCI); break;
@@ -176,7 +176,6 @@ RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Mem
     case 0xf:  if ((encoding & 0xf00fffff) == 0xf) instruction = INSTR_INST(FENCE);
                if ((encoding & 0xffffffff) == 0x100f) instruction = INSTR_INST(FENCE_I);
 	       break;
-	       
     default: break;
   }
 

@@ -131,22 +131,22 @@ void FENCE_I::Step() {
 
 
 void CSRRW::Step() {
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  RD( CSR(imm) ); SetCSR(imm, RS1() );
 };
 void CSRRS::Step() { 
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | RS1() );
 };
 void CSRRC::Step() { 
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !RS1() );
 };
 void CSRRWI::Step() { 
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  RD( CSR(imm) ); SetCSR( imm, rs1 );
 };
 void CSRRSI::Step() { 
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | rs1 );
 };
 void CSRRCI::Step() { 
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !rs1 );
 };
 
 

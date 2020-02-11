@@ -5,7 +5,8 @@
 class State {
 public:
   State() : id(0), asid(0), is_secure(false), clock(0), end_test(false) {};
-  State(SimConfig *sim_cfg) : id(0), asid(0), is_secure(false), clock(0), end_test(false) { Init(sim_cfg); };
+  State(SimConfig *sim_cfg) : id(0), asid(0), is_secure(false), clock(0), end_test(false),
+			      instr_count(0), timer(0) { Init(sim_cfg); };
   State(State *rhs) { Update(rhs); };
   virtual ~State() {};
 
@@ -18,6 +19,8 @@ public:
     clock = rhs->clock;
     end_test = rhs->end_test;
     SetPC(rhs->PC());
+    instr_count = rhs->instr_count;
+    timer = rhs->timer;
   };
   
   unsigned int GetID() { return id; };
@@ -27,6 +30,12 @@ public:
   unsigned long long PC() { return _PC.Value(); };
   void SetPC(unsigned long long rval) { _PC.Value(rval); };
   exclMonitor &LocalMonitor() { return local_monitor; };
+
+  void IncrementInstrCount() { instr_count++; };
+  unsigned long long InstructionCount() { return instr_count; };
+
+  void AdvanceTimer(unsigned int timer_increment) { timer += timer_increment; };
+  unsigned long long TimerValue() { return timer; };
   
   virtual unsigned long long GP(unsigned int rindex) = 0;
   virtual void SetGP(unsigned int rindex,unsigned long long rval) = 0;
@@ -52,7 +61,9 @@ protected:
   unsigned long long clock;
   bool end_test;
   ProgramCounter _PC;  // PC
-
+  unsigned long long instr_count;  // # of 'retired' instructions
+  unsigned long long timer;        // timer
+  
   exclMonitor local_monitor; // each CPU has a local monitor (holdover from another simulator)
 };
 

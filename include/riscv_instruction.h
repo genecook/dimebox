@@ -12,7 +12,8 @@ class RiscvInstruction {
 public:
  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
    : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
-     load_store(false),jal(false),uaui(false),unsigned_sign_extension(false),shift(false) {
+     load_store(false),jal(false),uaui(false),unsigned_sign_extension(false),shift(false),
+     csrs(false), csrr(false), csri(false) {
    instr_pc = state->PC();
    OPCODE;
  };
@@ -42,6 +43,34 @@ public:
 
   void BumpPC() { state->SetPC(PC() + Size); };
 
+  unsigned long long CSR(int csr) {
+    unsigned long long csr_val = 0;
+    try {
+       csr_val = state->CSR(csr);
+    } catch(SIM_EXCEPTIONS sim_exception) {
+      signals.Exception(CSR_ACCESS); throw EXCEPTION;
+    }
+    return csr_val;
+  };
+  
+  void SetCSR(int csr,unsigned long long rval) {
+    try {
+       state->SetCSR(csr,rval);
+    } catch(SIM_EXCEPTIONS sim_exception) {
+      signals.Exception(CSR_ACCESS); throw EXCEPTION;
+    }
+  };
+  
+  std::string CSR_NAME(int csr) {
+    std::string rname;
+    try {
+       state->CSR_NAME(csr);
+    } catch(SIM_EXCEPTIONS sim_exception) {
+      signals.Exception(CSR_ACCESS); throw EXCEPTION;
+    }
+    return rname;
+  };
+  
   unsigned int FUNCT7() { return funct7; };
   unsigned int IMM() { return imm; };
 
@@ -115,6 +144,9 @@ protected:
   unsigned long long unsigned_imm_sign_extended;  // (wonky)
   bool unsigned_sign_extension;                   //
   bool shift;                                     //
+  bool csrs;                                      //
+  bool csrr;                                      //
+  bool csri;                                      //
 };
 
 //*******************************************************************************
@@ -156,6 +188,12 @@ class ItypeInstruction : public RiscvInstruction {
       sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(unsigned int) UNSIGNED_IMM_SIGN_EXTENDED());
     else if (shift)
       sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(unsigned int) imm);
+    else if (csrs)
+      sprintf(tbuf,"%s %s,%s",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str());
+    else if (csrr)
+      sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str(),RegAlias(rs1));
+    else if (csri)
+      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str(),rs1);      
     else
       sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
     return std::string(tbuf);
