@@ -20,6 +20,15 @@ void RiscvSimulator::Init() {
   } else {
     // no memory range specified???
   }
+  // setup devices...
+  for (auto md = sim_cfg->devices.begin(); md != sim_cfg->devices.end(); md++) {
+    if (md->second == "UART_PL011") {
+      uart1.MapDevice(md->first); // instance device, map to requested physical address range
+      memory.AddDevice(&uart1);   // make memory aware of device
+    } else {
+      // add other devices tbd...
+    }
+  }
   SetupDebugServer(sim_cfg->DebugPort(),sim_cfg->DebugCoreID());
 }
 
@@ -120,6 +129,7 @@ void RiscvSimulator::StepCores() {
         std::cout << tbuf << std::endl;
         delete instr;
         instr_count++;
+	(*ci)->AdvanceClock();
         (*ci)->SetEndTest((*ci)->PC() == pc);  // apparent jump to self instruction triggers end-test
         if (!DebugPostStepChecks(*ci,&memory,pc)) {
           (*ci)->SetEndTest(true);

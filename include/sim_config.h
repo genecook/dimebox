@@ -41,7 +41,6 @@ public:
   unsigned int DebugPort() { return gdb_port; };
   unsigned int DebugCoreID() { return gdb_core_id; };
 
-private:
   std::vector<std::string> load_files;
   unsigned long long reset_address;
   unsigned int num_cores;
