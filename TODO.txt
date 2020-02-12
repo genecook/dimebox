@@ -13,7 +13,7 @@ dimebox tasks (in no particular order)
 
  * system timer? (from windvane)
 
- * uart (use existing PLA011 for now; morph windvane pla uart into ns later). - DONE.
+ * Integrate uart (use existing PLA011 for now; morph windvane pla uart into ns later). - DONE.
 
  * Archive on github. - DONE.
 
@@ -25,19 +25,25 @@ dimebox tasks (in no particular order)
 
  * Download/install risc-v tool chain. - DONE.
  
- * Implement rv32i instructions (other then control & status). - DONE. 
+ * Implement rv32i instructions. - DONE. 
 
  * Integrate in gdb 'server' code. (windvane) - DONE.
 
  * Implement rv32i control & status instructions. - DONE.
 
- * Debug gdb server.
+ * Debug simulator. - runs, loads elf file, simulates a few instructions. - DONE.
+
+ * Debug uart accesses. - DONE.
  
- * Debug simulator. - runs, loads elf file, simulates a few instructions.
+ * Download/build riscv gdb server.
+
+ * Exercize gdb, debug simulator using gdb server.
  
  * Integer instructions + tests - how to use open source test suites?
 
- * Implement pseudo real-time clock.
+ * Implement pseudo real-time clock
+   ( use wall clock + core clock to derive real-time clock 'tics'
+   only when real-time clock is accessed?)
  
  * README.md - ONGOING.
 
