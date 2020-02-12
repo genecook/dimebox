@@ -6,7 +6,7 @@
 
 class SimConfig {
 public:
-  SimConfig() : reset_address(0), num_cores(1), disasm_enable(true), max_instr_count(1000),gdb_port(0),gdb_core_id(0) {};
+  SimConfig() : reset_address(0), num_cores(1), disasm_enable(false), max_instr_count(1000),gdb_port(0),gdb_core_id(0) {};
   
   struct addr_range {
     addr_range(unsigned long long _address_lo,unsigned long long _address_hi) {
@@ -33,7 +33,10 @@ public:
     return true;
   }
   void MapDevice(std::string _device,unsigned long long _device_base_address);
+  
   void SetShowProgress(bool _sp);
+  bool ShowDisassembly() { return disasm_enable; };
+  
   void SetMaxInstrs(int max_count);
   int MaxInstrs() { return max_instr_count; };
 

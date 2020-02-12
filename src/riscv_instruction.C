@@ -1,5 +1,7 @@
 #include <string>
 #include <vector>
+#include <string.h>
+#include <stdlib.h>
 #include <dimebox.h>
 #include <iostream>
 //**************************************************************************
@@ -16,9 +18,22 @@ void RiscvInstruction::MEMORY_WRITE(unsigned long long address,int size,unsigned
   default: throw std::runtime_error("Internal error: MEMORY_WRITE invalid byte count"); break;
   }
 
-  // put input (assumed register) value directly into write buffer... 
-  for (int i = 0; i < size; i++)
-     mbuf[i] = (rval>>(i * 8)) & 0xff;
+  // put input (assumed register) value directly into write buffer...
+  // (account for how the data is stored in the host register)
+  if (memory->HostEndianness()) {
+    // big endian: swap register bytes during copy...
+    int j = size - 1;
+    for (int i = 0; i < size; i++) {
+       mbuf[j] = (rval>>(i*8)) & 0xff;
+       j = j - 1;
+    }
+  } else {
+    // little endian: straight copy from register to memory...
+    for (int i = 0; i < size; i++) {
+      mbuf[i] = (rval>>(i*8)) & 0xff;
+    }
+  }
+  
   // apply memory endianness...
   bool big_endian = false;
   int access_size = size;
@@ -34,7 +49,8 @@ void RiscvInstruction::MEMORY_WRITE(unsigned long long address,int size,unsigned
 				    false,  // sign extend
 				    32,     // word size for (unused) sign extend
 				    false,  // paired
-				    false   // privileged
+				    false,  // privileged
+				    mbuf    // the data
 				    )
 		       );
 }

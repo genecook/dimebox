@@ -19,6 +19,9 @@ using namespace std;
 #define NO_MIXED_ACCESSES 1
 #define IGNORE_UPPER_PA_BITS 1
 
+//#define MEM_DEBUG 1
+//#define DEVICE_MEM_DEBUG 1
+
 //==========================================================================================
 // Memory class
 //==========================================================================================

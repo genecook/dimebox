@@ -124,9 +124,11 @@ void RiscvSimulator::StepCores() {
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,&signals,opcode.encoding);
         instr->Step();
         instr->Writeback(*ci,&memory,&signals);
-        char tbuf[128];
-        sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
-        std::cout << tbuf << std::endl;
+	if (sim_cfg->ShowDisassembly()) {
+          char tbuf[128];
+          sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
+          std::cout << tbuf << std::endl;
+	}
         delete instr;
         instr_count++;
 	(*ci)->AdvanceClock();
@@ -169,6 +171,17 @@ bool RiscvSimulator::GetReadyCpus(std::vector<RiscvState *> &ready_cores) {
 
 void RiscvSimulator::ServiceDevices() {
   // add code to uart to track clock...
+  if (uart1.IsImplemented()) {
+    uart1.advanceClock();
+    uart1.ServiceIOs();
+    /* uart interrupt not supported yet...
+    int int_info;
+    if (uart.InterruptPending(int_info)) {
+      // until GIC is implemented, uart interrupt is tied to cpu0 IRQ...
+      cpus[0].SignalIRQ();
+    }
+    */
+}
 }
 
 

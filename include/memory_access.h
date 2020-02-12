@@ -1,5 +1,7 @@
 #ifndef __MEMORY_ACCESS__
 
+#include <string.h>
+
 // MemoryAccess - used with data read/write operations only, ie, NOT for instruction access...
 
 class MemoryAccess {
@@ -14,11 +16,17 @@ class MemoryAccess {
               bool _sign_extend,           // sign-extend after loading
               int  _rwidth,                // when sign-extending, # of bits to extend to - 32 or 64
               bool _paired,                // true if register pair access
-              bool _privileged             // privileged
+              bool _privileged,            // privileged
+	      unsigned char *_mbuf         // data for write
              )            
    : address(_address), size(_size), type(_type), exclusive(_exclusive), direction(_direction), big_endian(_big_endian),
     word_size(_word_size), sign_extend(_sign_extend), rwidth(_rwidth), paired(_paired), privileged(_privileged),
-    exclusive_passed(false) {};
+    exclusive_passed(false) {
+   if ( IsData() && IsWrite() ) {
+     // will ASSUME data endianness has already been accounted for...
+     memcpy(membuffer,_mbuf,_size);
+   }
+ };
 
   friend std::ostream& operator<< (std::ostream &os, MemoryAccess &ma);
 

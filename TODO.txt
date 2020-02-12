@@ -13,7 +13,7 @@ dimebox tasks (in no particular order)
 
  * system timer? (from windvane)
 
- * uart. (morph windvane pla uart into ns...)
+ * uart (use existing PLA011 for now; morph windvane pla uart into ns later). - DONE.
 
  * Archive on github. - DONE.
 
@@ -21,9 +21,9 @@ dimebox tasks (in no particular order)
 
  * Implement 'top level' simulator class, simulation loop. - DONE.
 
- * Implement cmake file (CMakeLists.txt) - DONE
+ * Implement cmake file (CMakeLists.txt) - DONE.
 
- * Download/install risc-v tool chain. - DONE
+ * Download/install risc-v tool chain. - DONE.
  
  * Implement rv32i instructions (other then control & status). - DONE. 
 
@@ -37,6 +37,8 @@ dimebox tasks (in no particular order)
  
  * Integer instructions + tests - how to use open source test suites?
 
+ * Implement pseudo real-time clock.
+ 
  * README.md - ONGOING.
 
 

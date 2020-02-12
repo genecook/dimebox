@@ -1,5 +1,7 @@
 #include <dimebox.h>
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 // Itype:
 void ADDI::Step() {
