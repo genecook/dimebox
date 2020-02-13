@@ -1,5 +1,7 @@
 #ifndef __RISCV_CORE_STATE__
 
+#include <stdlib.h>
+
 class RiscvState : public State {
 public:
   RiscvState() : State() {
@@ -12,15 +14,16 @@ public:
   RiscvState(RiscvState *rhs) : State(rhs) {
     for (auto i = 0; i < 32; i++) {
       if (X[i].Value() != rhs->X[i].Value())
-        X[i] = rhs->X[i];
+        X[i].Value(rhs->X[i].Value());
     }
   };
   
   void Update(RiscvState *rhs) {
     State::Update((State *) rhs);
     for (auto i = 0; i < 32; i++) {
-      if (X[i].Value() != rhs->X[i].Value())
-        X[i] = rhs->X[i];
+      if (X[i].Value() != rhs->X[i].Value()) {
+        X[i].Value(rhs->X[i].Value());
+      }
     } 
   };
   

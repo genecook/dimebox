@@ -19,21 +19,8 @@ class REGISTER_BASE {
 class GPRegister : public REGISTER_BASE {
  public:
   GPRegister() {};
-  
   unsigned long long Value() { return rval; };
   unsigned long long Value(unsigned long long nval) { rval = nval; Set(); return rval; };
-
-  GPRegister operator = (GPRegister &src) {
-    GPRegister dd;
-    dd.Value(src.Value());
-    return dd;
-  };
-  GPRegister operator = (unsigned long long &src) {
-    GPRegister dd;
-    dd.Value(src);
-    return dd;
-  };
-  
  private:  
   unsigned long long rval;
 };
