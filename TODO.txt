@@ -35,9 +35,7 @@ dimebox tasks (in no particular order)
 
  * Debug uart accesses. - DONE.
  
- * Download/build riscv gdb server.
-
- * Exercize gdb, debug simulator using gdb server.
+ * Exercize gdb, debug simulator.
  
  * Integer instructions + tests - how to use open source test suites?
 
