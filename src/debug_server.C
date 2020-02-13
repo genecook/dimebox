@@ -6,6 +6,8 @@
 
 #include <dimebox.h>
 
+//#define DEBUG_GDB_SERVER 1
+
 //***************************************************************************************
 // constructor, destructor...
 //***************************************************************************************
@@ -48,8 +50,10 @@ void DebugServer::Init() {
 void DebugServer::Fini() {
   // TCPServer shuts itself down. Thus nothing to do just yet...
 
-  //printf("[DebugServer::Fini] do_shutdown? %d\n",do_shutdown);
-
+#ifdef DEBUG_GDB_SERVER
+  printf("[DebugServer::Fini] do_shutdown? %d\n",do_shutdown);
+#endif
+  
   if (do_shutdown) {
     // already processed shutdown (kill-target) request, so no need to acknowledge...
   } else {
@@ -63,7 +67,6 @@ void DebugServer::Fini() {
        std::cerr << ex.what() << std::endl;
        listening = false;
     }
-
   }
 }
 
@@ -76,8 +79,9 @@ void DebugServer::Fini() {
 //***************************************************************************************
 
 bool DebugServer::PreStepChecks() {
-  
-  //printf("[DebugServer::RunPreStepChecks] PC: 0x%llx\n",PC());
+#ifdef DEBUG_GDB_SERVER
+  printf("[DebugServer::RunPreStepChecks] PC: 0x%llx\n",PC());
+#endif
   
   bool do_poll = false;
 
@@ -100,13 +104,17 @@ bool DebugServer::PreStepChecks() {
     do_poll = true; 
   }
 
-  //if (do_poll)
-  //  printf("\tpolling at the start of instruction execution cycle - PC has NOT advanced...\n");
+#ifdef DEBUG_GDB_SERVER
+  if (do_poll)
+    printf("\tpolling at the start of instruction execution cycle - PC has NOT advanced...\n");
+#endif
   
   bool rcode = (do_poll) ? Poll(): true;
 
-  //printf("[DebugServer::RunPreStepChecks] exited.\n");
-
+#ifdef DEBUG_GDB_SERVER
+  printf("[DebugServer::RunPreStepChecks] exited.\n");
+#endif
+  
   return rcode;
 }
 
@@ -120,8 +128,9 @@ bool DebugServer::PreStepChecks() {
 //***************************************************************************************
 
 bool DebugServer::PostStepChecks() {
-
-  //printf("[DebugServer::RunPostStepChecks] PC: 0x%llx, next PC: 0x%llx\n",PC(),ipkt->NextPC.Value());
+#ifdef DEBUG_GDB_SERVER
+  printf("[DebugServer::RunPostStepChecks] PC: 0x%llx\n",PC());
+#endif
   
   if (!Enabled()) {
     // debug not enabled...
@@ -149,8 +158,10 @@ bool DebugServer::PostStepChecks() {
     */
   }
 
-  //printf("[DebugServer::RunPostStepChecks] exited.\n");
-
+#ifdef DEBUG_GDB_SERVER
+  printf("[DebugServer::RunPostStepChecks] exited.\n");
+#endif
+  
   return true;
 }
 
@@ -159,6 +170,10 @@ bool DebugServer::PostStepChecks() {
 //***************************************************************************************
 
 void DebugServer::AcknowledgeBreakpoint(unsigned long long PC) {
+#ifdef DEBUG_GDB_SERVER
+  printf("[DebugServer::AcknowledgeBreakpoint] entered, PC: 0x%llx\n",PC);
+#endif
+  
   if (SingleStep()) {
     // we do need to send acknowledge to the debug client, but since single-stepping
     // no need for excess verbage to console...
@@ -172,22 +187,18 @@ void DebugServer::AcknowledgeBreakpoint(unsigned long long PC) {
     std::string my_response = "T02"; // response: signal 2 (SIGINT)...
 
     // add updated FP (frame pointer), SP, PC value to response...
-
-    char tbuf[128];
-
-    my_response += "1d:";   // see RegType method for list of gdb-aarch64 register indices
-    le8(tbuf,FP());
-    my_response += tbuf;
+    // (see RegType method for list of gdb-riscv register indices)
+    
+    my_response += "1d:";   
+    my_response += EncodeRegisterValue(FP());
     my_response += ";";
   
     my_response += "1f:";
-    le8(tbuf,SP());
-    my_response += tbuf;
+    my_response += EncodeRegisterValue(SP());
     my_response += ";";
   
     my_response += "20:";
-    le8(tbuf,PC);
-    my_response += tbuf;
+    my_response += EncodeRegisterValue(PC);
     my_response += ";";
 
     // since this response is not handled by RSP::Dispatch, we need to encode it here...
@@ -218,22 +229,18 @@ void DebugServer::AcknowledgeWatchpoint(unsigned long long data_address) {
     std::string my_response = "T02"; // response: signal 2 (SIGINT)...
 
     // add updated FP (frame pointer), SP, PC value to response...
-
-    char tbuf[128];
-
-    my_response += "1d:";   // see RegType method for list of gdb-aarch64 register indices
-    le8(tbuf,FP());
-    my_response += tbuf;
+    // (see RegType method for list of gdb-riscv register indices)
+    
+    my_response += "1d:";   
+    my_response += EncodeRegisterValue(FP());
     my_response += ";";
   
     my_response += "1f:";
-    le8(tbuf,SP());
-    my_response += tbuf;
+    my_response += EncodeRegisterValue(SP());
     my_response += ";";
   
     my_response += "20:";
-    le8(tbuf,PC());
-    my_response += tbuf;
+    my_response += EncodeRegisterValue(PC());
     my_response += ";";
 
     // since this response is not handled by RSP::Dispatch, we need to encode it here...
@@ -242,7 +249,9 @@ void DebugServer::AcknowledgeWatchpoint(unsigned long long data_address) {
     
     // send server response...
     
-    //std::cout << "Watchpoint response (encoded): '" << my_response << "'" << std::endl;
+#ifdef DEBUG_GDB_SERVER
+    std::cout << "Watchpoint response (encoded): '" << my_response << "'" << std::endl;
+#endif
     
     try {
        server_socket->Write((unsigned char *) my_response.c_str(),my_response.size());
@@ -258,6 +267,10 @@ void DebugServer::AcknowledgeWatchpoint(unsigned long long data_address) {
 //***************************************************************************************
 
 bool DebugServer::Poll() {
+#ifdef DEBUG_GDB_SERVER
+  verbose = true;
+#endif
+  
   if (verbose)
     printf("[DebugServer::Poll] polling, PC: 0x%llx...\n",PC());
   
@@ -392,6 +405,10 @@ std::string DebugServer::Continue() {
 //***************************************************************************************
 
 std::string DebugServer::Step() {
+#ifdef DEBUG_GDB_SERVER
+  verbose = true;
+#endif
+  
   if (verbose)
     printf("[DebugServer::Step] PC: 0x%llx, (assumed) next PC: 0x%llx\n",PC(), PC() + 4);
   
@@ -409,7 +426,9 @@ std::string DebugServer::Step() {
 //***************************************************************************************
 
 std::string DebugServer::KillTarget() {
-  //printf("[DebugServer::KillTarget] entered...\n");
+#ifdef DEBUG_GDB_SERVER
+  printf("[DebugServer::KillTarget] entered...\n");
+#endif
   
   // time to shutdown...
   do_shutdown = true; 
@@ -423,26 +442,26 @@ std::string DebugServer::KillTarget() {
 //***************************************************************************************
 
 std::string DebugServer::ReadGPRegisters() {
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::ReadGPRegisters] entered..." << std::endl;
+#endif
+  
   std::string my_response = "";
 
   // for arm64, registers are:
   //    X0 thru X30, SP, PC, PSTATE, Q0 thru Q31, FPSR, FPCR
   //
   // for risc-V, registers are(?):
-  //    X0 thru X31, SP?, PC?...WHAT ARE THE OTHERS?
+  //    X1 thru X31, SP?, PC?...WHAT ARE THE OTHERS?
 
   char tbuf[128];
 
-  for (int i = 0; i < 31; i++) {
-     le8(tbuf,GP(i));
-     my_response += tbuf;
+  for (int i = 1; i < 31; i++) {
+     my_response += EncodeRegisterValue(GP(i));
   }
 
-  le8(tbuf,SP());
-  my_response += tbuf;
-
-  le8(tbuf,PC());
-  my_response += tbuf;
+  my_response += EncodeRegisterValue(SP());
+  my_response += EncodeRegisterValue(PC());
 
 /*
   le4(tbuf,my_cpu->Pstate.Value());
@@ -465,6 +484,10 @@ std::string DebugServer::ReadGPRegisters() {
   le4(tbuf,my_cpu->FPCR.Value());
   my_response += tbuf;
 */
+
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::ReadGPRegisters] response: " << my_response << std::endl;
+#endif
   
   return my_response;
 }
@@ -487,6 +510,10 @@ std::string DebugServer::ReadGPRegisters() {
 //***************************************************************************************
 
 std::string DebugServer::ReadRegister() {
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::ReadRegister] reg: " << pdata << std::endl;
+#endif
+  
   std::string my_response = "";
 
   unsigned int rindex = 0;
@@ -500,12 +527,10 @@ std::string DebugServer::ReadRegister() {
 
     switch(RegType(rindex)) {
       case GPREG:     // return GP register...
-	              le8(tbuf,GP(rindex));
-                      my_response = tbuf;
+                      my_response = EncodeRegisterValue(GP(rindex));
                       break;
       case SPREG:     // return (current) SP...
-                      le8(tbuf,SP());
-                      my_response = tbuf;    
+                      my_response = EncodeRegisterValue(SP());
                       break;
 /*
       case QREG:      // return Q reg...
@@ -519,8 +544,7 @@ std::string DebugServer::ReadRegister() {
                       break;
 */
       case PCREG:     // return PC...
-                      le8(tbuf,PC());
-                      my_response += tbuf;
+                      my_response += EncodeRegisterValue(PC());;
                       break;
 /*
       case CPSRREG:   // return 'CPSR' - just the flags, in low order 4 bits...
@@ -542,6 +566,10 @@ std::string DebugServer::ReadRegister() {
     }
   }
   
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::ReadRegister] response: " << my_response << std::endl;
+#endif
+  
   return my_response;
 }
 
@@ -551,6 +579,10 @@ std::string DebugServer::ReadRegister() {
 //***************************************************************************************
 
 std::string DebugServer::WriteRegister() {
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::WriteRegister] reg: " << pdata << std::endl;
+#endif
+  
   std::string my_response = "OK";
 
   unsigned int rindex = 0;
@@ -576,14 +608,14 @@ std::string DebugServer::WriteRegister() {
 
     switch(RegType(rindex)) {
        case GPREG:  // set GP register...
-	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval))
+	            if (DecodeRegisterValue(pdata.substr(pos + 1).c_str(),rval))
                       SetGP(rindex,rval);
 		    else
                       my_response = "E2"; // malformed write-register packet...
                     break;
 		    
       case SPREG:   // set current SP...
-	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval)) {
+	            if (DecodeRegisterValue(pdata.substr(pos + 1).c_str(),rval)) {
                       SetSP(rval); //<---updates current SP
 	            } else
                       my_response = "E2"; // malformed write-register packet...
@@ -600,7 +632,7 @@ std::string DebugServer::WriteRegister() {
                     break;
 */
       case PCREG:   // set PC...
-	            if (decoded_le8(pdata.substr(pos + 1).c_str(),rval)) 
+	            if (DecodeRegisterValue(pdata.substr(pos + 1).c_str(),rval)) 
                       SetPC(rval);
 		    else
                       my_response = "E2"; // malformed write-register packet...
@@ -647,6 +679,10 @@ std::string DebugServer::WriteRegister() {
 //***************************************************************************************
 
 std::string DebugServer::ReadMemory() {
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::ReadMemory] address,size: " << pdata << std::endl;
+#endif
+
   std::string my_response = "";
 
   unsigned long long maddr;
@@ -679,6 +715,10 @@ std::string DebugServer::ReadMemory() {
      my_response += tbuf;
   }
   
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::ReadMemory] response: " << my_response << std::endl;
+#endif
+  
   return my_response;
 }
 
@@ -689,6 +729,10 @@ std::string DebugServer::ReadMemory() {
 //***************************************************************************************
 
 std::string DebugServer::WriteMemory() {
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::ReadMemory] address,size: " << pdata << std::endl;
+#endif
+  
   std::string my_response = "OK"; // will assume success...
 
   unsigned long long maddr;
@@ -734,6 +778,10 @@ std::string DebugServer::WriteMemory() {
 //***************************************************************************************
 
 std::string DebugServer::SetBreakpoints() {
+#ifdef DEBUG_GDB_SERVER
+  std::cout << "[DebugServer::SetBreakpoints] type,address,size: " << pdata << std::endl;
+#endif
+  
   std::string my_response = "";
 
   int btype; // type: 0 == breakpoint, 2==watchpoint...

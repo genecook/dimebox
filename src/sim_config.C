@@ -30,6 +30,6 @@ void SimConfig::SetShowProgress(bool _disasm_enable) { disasm_enable = _disasm_e
 void SimConfig::SetMaxInstrs(int _max_instr_count) { max_instr_count = _max_instr_count;}
  
 void SimConfig::SetDebugServerParms(unsigned int _port,unsigned int _core_id) {
-  int gdb_port = _port;
-  int gdb_core_id = _core_id;
+  gdb_port = _port;
+  gdb_core_id = _core_id;
 }

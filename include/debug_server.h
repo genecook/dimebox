@@ -20,6 +20,9 @@ class DebugServer : public RSP {
    bool PreStepChecks();
    bool PostStepChecks();
 
+   virtual std::string EncodeRegisterValue(unsigned long long rval) = 0;
+   virtual bool DecodeRegisterValue(const char *encoded_rv,unsigned long long &rval) = 0;
+
    virtual unsigned long long GP(int reg_index) = 0; // value - gp register
    virtual unsigned long long SP()              = 0; //  "      stack pointer
    virtual unsigned long long FP()              = 0; //  "      frame pointer
@@ -60,6 +63,13 @@ class DebugServer : public RSP {
    std::string SetBreakpoints();
    std::string ClearBreakpoints();
 
+   // endian-ness related utilities...
+   
+   void le8(char *encoded_rv,unsigned long long rv);
+   bool decoded_le8(const char *encoded_rv,unsigned long long &rv);
+   void le4(char *encoded_rv,unsigned int rv);
+   bool decoded_le4(const char *encoded_rv,unsigned int &rv);
+
    static const int MAX_MSG_LEN  = __MAX_MSG_LEN__;
    static const int MAX_BUF_SIZE = __MAX_MSG_LEN__ + 1024;
    
@@ -93,13 +103,6 @@ class DebugServer : public RSP {
    void clearSingleStep() { do_step = false; };
    bool SingleStep() { return do_step; };
    
-   // endian-ness related utilities...
-   
-   void le8(char *encoded_rv,unsigned long long rv);
-   bool decoded_le8(const char *encoded_rv,unsigned long long &rv);
-   void le4(char *encoded_rv,unsigned int rv);
-   bool decoded_le4(const char *encoded_rv,unsigned int &rv);
-
    int portno;                 // parms input
    unsigned int core;          //   via constructor
    

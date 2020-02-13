@@ -37,6 +37,8 @@ class RiscvSimulator {
       printf("configuring debug server on port %d, attached to core %u...\n",
 	     debug_port,debug_core_id);
       debug_server = new RiscvDebugServer(debug_port,debug_core_id);
+    } else {
+      printf("debug server NOT configured.\n");
     }
   };
   bool DebugPreStepChecks(RiscvState *my_cpu, Memory *my_memory, unsigned long long PC) {

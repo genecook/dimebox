@@ -26,6 +26,22 @@ class RiscvDebugServer : public DebugServer {
      return PostStepChecks();
    };
 
+   int RegisterSize() { return 32; };  // register size is 32 bits
+   int AddressSize() { return 32; };   // memory address size is 32 bits
+
+   std::string EncodeRegisterValue(unsigned long long rval) {
+     char tbuf[16];
+     le4(tbuf,rval);
+     return std::string(tbuf);
+   };
+
+   bool DecodeRegisterValue(const char *encoded_rv,unsigned long long &rval) {
+     unsigned int _rval = 0;
+     bool rcode = decoded_le4(encoded_rv,_rval);
+     rval = _rval;
+     return rcode;
+   };
+  
    unsigned long long GP(int reg_index) { return cpu->GP(reg_index); }; // value - gp register
    unsigned long long SP()              { return cpu->SP(); };          //  "      stack pointer
    unsigned long long FP()              { return cpu->FP(); };          //  "      frame pointer
