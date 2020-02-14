@@ -137,9 +137,29 @@ void RiscvSimulator::StepCores() {
           (*ci)->SetEndTest(true);
         }
      } catch(SIM_EXCEPTIONS sim_exception) {
-       fprintf(stderr,"Problems decoding instruction??? PC: 0x%08x, encoded instruction: 0x%08x\n",
-               pc,opcode.encoding);
-       rcode = -1;
+       switch((int) sim_exception) {
+         case UNIMPLEMENTED_INSTRUCTION:
+	   fprintf(stderr,"Unimplemented or unknown instruction encoding! PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
+           rcode = -1;
+	   break;
+         case CSR_ACCESS:
+	   fprintf(stderr,"Unknown csr or privileged csr access! PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
+           rcode = -1;
+	   break;
+         case TEST_PASSES:
+	   printf("'Test harness' indicates success!\n");
+	   rcode = 0;
+	   (*ci)->SetEndTest(true);
+	   break;
+         case TEST_FAILS:
+	   fprintf(stderr,"'Test harness' indicates FAILURE!\n");
+	   rcode = -1;
+	   break;	 
+         default:
+           fprintf(stderr,"Problems with instruction??? PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
+           rcode = -1;
+	   break;
+       }
      }
   }
 }

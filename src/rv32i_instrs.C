@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Itype:
+#define RISCV_ISA_TESTING 1
+
 void ADDI::Step() {
   RD( RS1() + SIGN_EXTEND_IMM(12) ); BumpPC();
 };
@@ -152,8 +153,17 @@ void CSRRCI::Step() {
 };
 
 
-void ECALL::Step() { 
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+void ECALL::Step() {
+#ifdef RISCV_ISA_TESTING
+  if ( (GP() == 1) && (A7() == 93) && (A0() == 0) ) {
+    std::cout << "TEST PASSES!!!" << std::endl;
+    throw TEST_PASSES;
+  } else {
+    std::cout << "TEST FAILS!!!" << std::endl;
+    throw TEST_FAILS;
+  }    
+#endif
+  throw UNIMPLEMENTED_INSTRUCTION;
 };
 void EBREAK::Step() {
   BumpPC(); // ignored...

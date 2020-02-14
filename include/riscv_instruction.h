@@ -97,6 +97,12 @@ public:
     return (long long int) op;
   };
 
+  // define a few register aliases to use with 'test harness' accesses...
+  unsigned int GP() { return state->GP(3);  };
+  unsigned int A7() { return state->GP(17); };
+  unsigned int A0() { return state->GP(10); };
+
+  // alias riscv gp register indices to common riscv assembly language names...
   const char *RegAlias(int reg_index, bool frame_ptr=false) {
     if ( (reg_index == 8) && frame_ptr) return "fp";
     const char *reg_aliases[] = {
