@@ -81,22 +81,22 @@ void JALR::Step() {
 };
 
 void BEQ::Step() {
-  PC( PC() + (RS1() == RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
+  PC( PC() + (RS1() == RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
-void BNE::Step() { 
-  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
+void BNE::Step() {
+  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BLT::Step() { 
-  PC( PC() + ((long)RS1() != (long)RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
+  PC( PC() + ((long)RS1() != (long)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BLTU::Step() { 
-  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
+  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BGE::Step() { 
-  PC( PC() + ((long)RS1() >= (long)RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
+  PC( PC() + ((long)RS1() >= (long)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BGEU::Step() { 
-  PC( PC() + (RS1() >= RS2() ? SIGN_EXTEND_IMM(12) : 4)); 
+  PC( PC() + (RS1() >= RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 
 void LB::Step() {
@@ -133,22 +133,22 @@ void FENCE_I::Step() {
 
 
 void CSRRW::Step() {
-  RD( CSR(imm) ); SetCSR(imm, RS1() );
+  RD( CSR(imm) ); SetCSR(imm, RS1() ); BumpPC();
 };
 void CSRRS::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | RS1() );
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | RS1() ); BumpPC();
 };
 void CSRRC::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !RS1() );
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !RS1() ); BumpPC();
 };
 void CSRRWI::Step() { 
-  RD( CSR(imm) ); SetCSR( imm, rs1 );
+  RD( CSR(imm) ); SetCSR( imm, rs1 ); BumpPC();
 };
 void CSRRSI::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | rs1 );
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | rs1 ); BumpPC();
 };
 void CSRRCI::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !rs1 );
+  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !rs1 ); BumpPC();
 };
 
 
@@ -156,6 +156,23 @@ void ECALL::Step() {
   signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
 };
 void EBREAK::Step() {
+  BumpPC(); // ignored...
+};
+
+void URET::Step() {
+  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+};
+void SRET::Step() {
+  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+};
+void HRET::Step() {
+  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+};
+void MRET::Step() { PC ( MEPC() ); };
+void WFI::Step() {
+  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+};
+void SFENCE::Step() {
   BumpPC(); // ignored...
 };
 

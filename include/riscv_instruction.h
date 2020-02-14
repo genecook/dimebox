@@ -13,7 +13,7 @@ public:
  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
    : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
      load_store(false),jal(false),uaui(false),unsigned_sign_extension(false),shift(false),
-     csrs(false), csrr(false), csri(false) {
+     csrs(false), csrr(false), csri(false), trap(false) {
    instr_pc = state->PC();
    OPCODE;
  };
@@ -41,6 +41,8 @@ public:
   unsigned int PC() { return state->PC(); };
   void PC(unsigned int rval) { state->SetPC(rval); };
 
+  unsigned int MEPC() { return state->MEPC(); };
+
   void BumpPC() { state->SetPC(PC() + Size); };
 
   unsigned long long CSR(int csr) {
@@ -64,7 +66,7 @@ public:
   std::string CSR_NAME(int csr) {
     std::string rname;
     try {
-       state->CSR_NAME(csr);
+       rname = state->CSR_NAME(csr);
     } catch(SIM_EXCEPTIONS sim_exception) {
       signals.Exception(CSR_ACCESS); throw EXCEPTION;
     }
@@ -147,6 +149,7 @@ protected:
   bool csrs;                                      //
   bool csrr;                                      //
   bool csri;                                      //
+  bool trap;                                      //
 };
 
 //*******************************************************************************
@@ -193,7 +196,9 @@ class ItypeInstruction : public RiscvInstruction {
     else if (csrr)
       sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str(),RegAlias(rs1));
     else if (csri)
-      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str(),rs1);      
+      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str(),rs1);
+    else if (trap)
+      sprintf(tbuf,"%s",InstrName().c_str());      
     else
       sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
     return std::string(tbuf);
@@ -215,7 +220,7 @@ class StypeInstruction : public RiscvInstruction {
   };
 };
 
-#define _BTYPE_IMM imm = (((encoding >> 31) & 1) << 12) | (((encoding >> 25) & 0x3f) << 5) | (((encoding >> 8) & 0xf) << 1) | ((encoding >> 7) & 1)
+#define _BTYPE_IMM imm = (((encoding >> 31) & 1) << 12) | (((encoding >> 25) & 0x3f) << 5) | (((encoding >> 8) & 0xf) << 1) | (((encoding >> 7) & 1) << 11)
 
 class BtypeInstruction : public RiscvInstruction {
  public:

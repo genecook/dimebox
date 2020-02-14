@@ -19,6 +19,7 @@ public:
     clock = rhs->clock;
     end_test = rhs->end_test;
     SetPC(rhs->PC());
+    SetMEPC(rhs->MEPC());
     instr_count = rhs->instr_count;
     timer = rhs->timer;
   };
@@ -27,8 +28,13 @@ public:
   unsigned int Asid() { return asid; };
   void AdvanceClock() { clock++; };
   unsigned long long Clock() { return clock; };
+  
   unsigned long long PC() { return _PC.Value(); };
   void SetPC(unsigned long long rval) { _PC.Value(rval); };
+  
+  unsigned long long MEPC() { return _MEPC.Value(); };
+  void SetMEPC(unsigned long long rval) { _MEPC.Value(rval); };
+  
   exclMonitor &LocalMonitor() { return local_monitor; };
 
   void IncrementInstrCount() { instr_count++; };
@@ -61,6 +67,7 @@ protected:
   unsigned long long clock;
   bool end_test;
   ProgramCounter _PC;  // PC
+  AddressRegister _MEPC;
   unsigned long long instr_count;  // # of 'retired' instructions
   unsigned long long timer;        // timer
   

@@ -137,8 +137,8 @@ void RiscvSimulator::StepCores() {
           (*ci)->SetEndTest(true);
         }
      } catch(SIM_EXCEPTIONS sim_exception) {
-       std::cerr << "Problems decoding instruction, encoded instruction: 0x"
-		 << std::hex << opcode.encoding << std::dec << "???" << std::endl;
+       fprintf(stderr,"Problems decoding instruction??? PC: 0x%08x, encoded instruction: 0x%08x\n",
+               pc,opcode.encoding);
        rcode = -1;
      }
   }

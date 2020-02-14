@@ -59,25 +59,47 @@ public:
       case 0xc80: rval = Clock() >> 32; break;
       case 0xc81: rval = TimerValue() >> 32; break;
       case 0xc82: rval = InstructionCount() & 0xffffffff; break;
-      default: throw EXCEPTION; break;
+      case 0x341: rval = MEPC(); break;  
+      default: //throw EXCEPTION;
+	       break;
     }
     return rval;
   };
 
   void SetCSR(int csr,unsigned long long rval) {
-    throw EXCEPTION;
+    switch(csr) {
+      case 0x341: SetMEPC(rval);
+	          break;  
+      default:    //throw EXCEPTION;
+	          break;
+    }
   }
   
   std::string CSR_NAME(int csr) {
     std::string rname;
+    char tbuf[16];
     switch(csr) {
-      case 0xc00: rname = "RDCYCLE";    break; 
-      case 0xc01: rname = "RDTIME";     break;
-      case 0xc02: rname = "RDINSTRET";  break;
-      case 0xc80: rname = "RDCYCLEH";   break;
-      case 0xc81: rname = "RDTIMEH";    break;
-      case 0xc82: rname = "RDINSTRETH"; break;
-      default: throw EXCEPTION; break;
+      case 0xc00: rname = "rdcycle";    break; 
+      case 0xc01: rname = "rdtime";     break;
+      case 0xc02: rname = "rdinstret";  break;
+      case 0xc80: rname = "rdcycleh";   break;
+      case 0xc81: rname = "rdtimeh";    break;
+      case 0xc82: rname = "rdinstreth"; break;
+      case 0xf14: rname = "mhartid";    break; 
+      case 0x305: rname = "mtvec";      break;  
+      case 0x180: rname = "satp";       break;
+      case 0x3b0: rname = "pmpaddr0";   break;
+      case 0x3a0: rname = "pmpcfg0";    break;  
+      case 0x302: rname = "medeleg";    break;  
+      case 0x303: rname = "mideleg";    break;  
+      case 0x304: rname = "mie";        break;  
+      case 0x300: rname = "mstatus";    break;  
+      case 0x341: rname = "mepc";       break;  
+	  
+      default: //throw EXCEPTION;
+	       sprintf(tbuf,"<0x%03x>",csr);
+	       rname = tbuf;
+               break;
     }
     return rname;    
   };

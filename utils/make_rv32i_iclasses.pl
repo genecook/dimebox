@@ -25,6 +25,8 @@ my @I_JALR = qw(JALR);
     
 my @I_LOAD = qw(LB LH LW LBU LHU);
 
+my @I_TRAP = qw(URET SRET HRET MRET WFI SFENCE);
+
 my @S = qw(SB SH SW);
 
 my @B = qw(BEQ BNE BLT BGE BLTU BGEU);
@@ -56,6 +58,7 @@ foreach $instr (@I_SHIFT) { &class_decl($instr,'I','shift=true');               
 foreach $instr (@I_CSRS)  { &class_decl($instr,'I','csrs=true');                    }
 foreach $instr (@I_CSRR)  { &class_decl($instr,'I','csrr=true');                    }
 foreach $instr (@I_CSRI)  { &class_decl($instr,'I','csri=true');                    }
+foreach $instr (@I_TRAP)  { &class_decl($instr,'I','trap=true');                    }
 foreach $instr (@S)       { &class_decl($instr,'S','load_store=true');              }
 foreach $instr (@B)       { &class_decl($instr,'B','');                             }
 foreach $instr (@R)       { &class_decl($instr,'R','');                             }
