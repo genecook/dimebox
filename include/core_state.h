@@ -9,21 +9,22 @@ public:
   State() : id(0), asid(0), is_secure(false), clock(0), end_test(false) {};
   State(SimConfig *sim_cfg) : id(0), asid(0), is_secure(false), clock(0), end_test(false),
 			      instr_count(0), timer(0) { Init(sim_cfg); };
-  State(State *rhs) { Update(rhs); };
+  State(State *rhs) { Update(rhs,false); };
   virtual ~State() {};
 
   virtual void Init(SimConfig *sim_cfg) { _PC.Value(0); };
 
-  virtual void Update(State *rhs, bool show_updates = false) {
+  virtual void Update(State *rhs, bool show_updates) {
     id = rhs->id;
     asid = rhs->asid;
     is_secure = rhs->is_secure;
     clock = rhs->clock;
     end_test = rhs->end_test;
     SetPC(rhs->PC());
-    if (show_updates) printf("  # pc:\t0x%llx\n",_PC.Value());
-    SetMEPC(rhs->MEPC());
-    if (show_updates) printf("  # mepc:\t0x%llx\n",_MEPC.Value());    
+    if (_MEPC.Value() != rhs->MEPC()) {
+      SetMEPC(rhs->MEPC());
+      if (show_updates) printf("  # mepc:\t0x%llx\n",_MEPC.Value());
+    }
     instr_count = rhs->instr_count;
     timer = rhs->timer;
   };
@@ -37,7 +38,9 @@ public:
   void SetPC(unsigned long long rval) { _PC.Value(rval); };
   
   unsigned long long MEPC() { return _MEPC.Value(); };
-  void SetMEPC(unsigned long long rval) { _MEPC.Value(rval); };
+  void SetMEPC(unsigned long long rval) {
+    _MEPC.Value(rval);
+  };
   
   exclMonitor &LocalMonitor() { return local_monitor; };
 

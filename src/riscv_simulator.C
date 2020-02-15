@@ -120,7 +120,7 @@ void RiscvSimulator::StepCores() {
           (*ci)->SetEndTest(true);
 	  return;
         }
-        RiscvState state_updates(*ci);
+        RiscvState state_updates(*ci,sim_cfg->ShowUpdates());
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,&signals,opcode.encoding);
         instr->Step();
 	if (sim_cfg->ShowDisassembly()) {

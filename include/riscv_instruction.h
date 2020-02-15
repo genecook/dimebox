@@ -10,8 +10,8 @@
 
 class RiscvInstruction {
 public:
- RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-   : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
+  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
+    : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
      load_store(false),jal(false),uaui(false),unsigned_sign_extension(false),shift(false),
      csrs(false), csrr(false), csri(false), trap(false) {
    instr_pc = state->PC();
@@ -72,7 +72,7 @@ public:
     }
     return rname;
   };
-  
+
   unsigned int FUNCT7() { return funct7; };
   unsigned int IMM() { return imm; };
 
@@ -102,29 +102,6 @@ public:
   unsigned int A7() { return state->GP(17); };
   unsigned int A0() { return state->GP(10); };
 
-  // alias riscv gp register indices to common riscv assembly language names...
-  const char *RegAlias(int reg_index, bool frame_ptr=false) {
-    if ( (reg_index == 8) && frame_ptr) return "fp";
-    const char *reg_aliases[] = {
-     "0","ra","sp","gp","tp","t0","t1","t2","s0","s1",
-     "a0","a1","a2","a3","a4","a5","a6","a7",
-     "s2","s3","s4","s5","s6","s7","s8","s9","s10","s11",
-     "t3","t4","t5","t6",NULL
-    };
-    return reg_aliases[reg_index];
-  }
-  const char *RegAliasFloat(int reg_index) {
-    const char *reg_aliases_float[] = {
-       "ft0","ft1","ft2","ft3","ft4","ft5","ft6","ft7",
-       "fs0","fs1",
-       "fa0","fa1","fa2","fa3","fa4","fa5","fa6","fa7",
-       "fs2","fs3","fs4","fs5","fs6","fs7","fs8","fs9","fs10","fs11",
-       "ft8","ft3","ft4","ft5","ft6","ft7","ft8","ft9","ft10","ft11",
-       NULL
-    };
-    return reg_aliases_float[reg_index];
-  };
-  
   unsigned long long MEMORY_READ(unsigned long long address,int size);
   void MEMORY_WRITE(unsigned long long address,int size,unsigned long long rval);
   
@@ -176,7 +153,7 @@ class RtypeInstruction : public RiscvInstruction {
   virtual void Decode() { _FUNCT7; _RS2; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),RegAlias(rs2));
+    sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs1),state->RegAlias(rs2));
     return std::string(tbuf);
   };
 };
@@ -192,21 +169,21 @@ class ItypeInstruction : public RiscvInstruction {
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (load_store)
-      sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),RegAlias(rd),(int) IMM_SIGN_EXTENDED(),RegAlias(rs1));
+      sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),state->RegAlias(rd),(int) IMM_SIGN_EXTENDED(),state->RegAlias(rs1));
     else if (unsigned_sign_extension)
-      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(unsigned int) UNSIGNED_IMM_SIGN_EXTENDED());
+      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs1),(unsigned int) UNSIGNED_IMM_SIGN_EXTENDED());
     else if (shift)
-      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(unsigned int) imm);
+      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs1),(unsigned int) imm);
     else if (csrs)
-      sprintf(tbuf,"%s %s,%s",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str());
+      sprintf(tbuf,"%s %s,%s",InstrName().c_str(),state->RegAlias(rd),CSR_NAME(imm).c_str());
     else if (csrr)
-      sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str(),RegAlias(rs1));
+      sprintf(tbuf,"%s %s,%s,%s",InstrName().c_str(),state->RegAlias(rd),CSR_NAME(imm).c_str(),state->RegAlias(rs1));
     else if (csri)
-      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),CSR_NAME(imm).c_str(),rs1);
+      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),state->RegAlias(rd),CSR_NAME(imm).c_str(),rs1);
     else if (trap)
       sprintf(tbuf,"%s",InstrName().c_str());      
     else
-      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rd),RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
+      sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
     return std::string(tbuf);
   };
 };
@@ -221,7 +198,7 @@ class StypeInstruction : public RiscvInstruction {
   virtual void Decode() { _STYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),RegAlias(rs2),(int) IMM_SIGN_EXTENDED(),RegAlias(rs1));
+    sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),state->RegAlias(rs2),(int) IMM_SIGN_EXTENDED(),state->RegAlias(rs1));
     return std::string(tbuf);
   };
 };
@@ -236,7 +213,7 @@ class BtypeInstruction : public RiscvInstruction {
   virtual void Decode() { _BTYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
     char tbuf[1024];
-    sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),RegAlias(rs2),RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
+    sprintf(tbuf,"%s %s,%s,%d",InstrName().c_str(),state->RegAlias(rs2),state->RegAlias(rs1),(int) IMM_SIGN_EXTENDED());
     return std::string(tbuf);
   };
 };
@@ -252,9 +229,9 @@ class UtypeInstruction : public RiscvInstruction {
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (uaui)
-      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),(int) imm);
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),state->RegAlias(rd),(int) imm);
     else
-      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm);
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),state->RegAlias(rd),imm);
     return std::string(tbuf);
   };
 };
@@ -270,9 +247,9 @@ class JtypeInstruction : public RiscvInstruction {
   virtual std::string Disassembly() {
     char tbuf[1024];
     if (jal)
-      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),(unsigned int) (instr_pc + IMM_SIGN_EXTENDED()) );
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),state->RegAlias(rd),(unsigned int) (instr_pc + IMM_SIGN_EXTENDED()) );
     else
-      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),RegAlias(rd),imm);
+      sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),state->RegAlias(rd),imm);
     return std::string(tbuf);
   };
 };
