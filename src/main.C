@@ -45,11 +45,11 @@ int run_simulation(SimConfig *my_sim_cfg) {
      struct timeval t1,t2;
      gettimeofday(&t1,NULL);
 
-     my_simulator.Go();
+     rcode = my_simulator.Go();
 
      gettimeofday(&t2,NULL);
 
-     std::cout << "Simulation ended." << std::endl;
+     std::cout << "Simulation ended, rcode: " << rcode << std::endl;
 
      double elapsed_time = ((t2.tv_sec - t1.tv_sec) * 1000.0)        // pick up milliseconds part 
                              + ((t2.tv_usec - t1.tv_usec) / 1000.0);   //  then microseconds...
@@ -62,6 +62,7 @@ int run_simulation(SimConfig *my_sim_cfg) {
        long instrs_per_seconds = (long)((double) total_instrs * 1000.0 / elapsed_time);
        std::cout << "simulation rate: " << instrs_per_seconds << " instructions per second.\n";
      }
+
   } catch(const std::runtime_error& ex) {
      std::cerr << ex.what() << std::endl;
      rcode = -1;

@@ -65,6 +65,8 @@ int RiscvSimulator::LoadTestImage() {
 //****************************************************************************
 
 int RiscvSimulator::Go() {
+  rcode = 0; // 'master' error code
+  
   rcode = LoadTestImage();
 
   if (rcode)
@@ -72,8 +74,6 @@ int RiscvSimulator::Go() {
   
   cores_are_running = true; // we'll ASSUME at least one core is alive...
 
-  rcode = 0; // 'master' error code
-  
   instr_count = 0; // total # of instructions simulated for all cores
   
   while( !rcode && (instr_count < sim_cfg->MaxInstrs()) && cores_are_running) {

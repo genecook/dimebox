@@ -58,11 +58,13 @@ public:
 
   virtual bool IsSecure() { return is_secure; };
   virtual bool Ready() { return !EndTest(); };
-  virtual bool Halted() { return false; };
+  virtual bool Halted() { return end_test; };  // later may check end-test + core actually halted
   virtual bool Privileged() { return false; };
 
   bool EndTest() { return end_test; };
-  void SetEndTest(bool _end_test) { end_test = _end_test; };
+  void SetEndTest(bool _end_test) {
+    end_test = _end_test;
+  };
 
   virtual void *ITLB() { return NULL; };
   virtual void *DTLB() { return NULL; };
