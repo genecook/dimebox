@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <dimebox.h>
 #include <iostream>
+#include <stdlib.h>
+
 //**************************************************************************
 // simplified memory access methods - will Byte me later...
 //**************************************************************************
@@ -81,13 +83,20 @@ unsigned long long RiscvInstruction::MEMORY_READ(unsigned long long address,int 
   return rval;
 }
 
-void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,Signals *_signals) {
+void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,Signals *_signals, bool show_updates) {
   // after (successfully) stepping an instruction, update (core) register state, memory, signals...
-  _state->Update(state);
+  _state->Update(state,show_updates);
   for (auto mop = mOpsMemory.begin(); mop != mOpsMemory.end(); mop++) {
-     if (mop->IsWrite())
+     if (mop->IsWrite()) {
        memory->WriteMemory(state,mop->Address(),mop->IsData(),mop->Privileged(),
 			   mop->Size(),mop->Aligned(),mop->Buffer());
+       if (show_updates) {
+         printf("  # 0x%llx ",mop->Address());
+	 for (auto i = 0; i < mop->Size(); i++)
+	   printf(" %02x",mop->Buffer()[i]);
+	 printf("\n");
+       }
+     }
   }
   *_signals = signals;
 }

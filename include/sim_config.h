@@ -6,7 +6,8 @@
 
 class SimConfig {
 public:
-  SimConfig() : reset_address(0), num_cores(1), disasm_enable(false), max_instr_count(1000),gdb_port(0),gdb_core_id(0) {};
+  SimConfig() : reset_address(0), num_cores(1), disasm_enable(false), show_updates(false),
+		max_instr_count(1000),gdb_port(0),gdb_core_id(0) {};
   
   struct addr_range {
     addr_range(unsigned long long _address_lo,unsigned long long _address_hi) {
@@ -36,6 +37,9 @@ public:
   
   void SetShowProgress(bool _sp);
   bool ShowDisassembly() { return disasm_enable; };
+
+  void SetShowUpdates(bool _updates) { show_updates = _updates; };
+  bool ShowUpdates() { return show_updates; };
   
   void SetMaxInstrs(int max_count);
   int MaxInstrs() { return max_instr_count; };
@@ -50,6 +54,7 @@ public:
   std::vector<struct addr_range> dram;
   std::unordered_map<unsigned long long,std::string> devices;
   bool disasm_enable;
+  bool show_updates;
   int max_instr_count;
   unsigned int gdb_port;
   unsigned int gdb_core_id;

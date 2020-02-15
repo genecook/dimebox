@@ -27,7 +27,7 @@ public:
   virtual void Step() = 0;     // execute the instruction
   
   // after instruction executes, update simulator state:
-  virtual void Writeback(RiscvState *_state,Memory *_memory,Signals *_signals);
+  virtual void Writeback(RiscvState *_state,Memory *_memory,Signals *_signals,bool show_updates);
 
   virtual std::string Disassembly() = 0;
   virtual std::string InstrName() = 0;

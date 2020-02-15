@@ -18,11 +18,12 @@ public:
     }
   };
   
-  void Update(RiscvState *rhs) {
+  void Update(RiscvState *rhs, bool show_updates) {
     State::Update((State *) rhs);
     for (auto i = 0; i < 32; i++) {
       if (X[i].Value() != rhs->X[i].Value()) {
         X[i].Value(rhs->X[i].Value());
+	if (show_updates) printf("  # x[%d] = 0x%llx\n",i,X[i].Value());
       }
     } 
   };

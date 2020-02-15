@@ -41,6 +41,7 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
       ("num_cores,N",po::value<unsigned int>(),"Number of cores to enable")
       ("max_instrs,n",po::value<unsigned int>(),"Maximum number of instructions per core to simulate")
       ("show_disassembly,D","Print address/disassembly for each instruction during simulation")
+      ("show_updates,U","In addition to disassembly print register updates for each simulated instruction")
       ("reset_address",po::value<string>(),"Reset address")
       ("dram_range",po::value<string>(),"DRAM address range")
       ("uart",po::value<string>(),"Instantiate uart, specify (physical) base address for memory mapped registers")
@@ -76,6 +77,7 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
          printf("        --core (or -C) <core>                   -- ID of processor element simulation debug server will attach to\n");
 	 printf("\n");
          printf("        --show_disassembly (or -D)              -- Print address/disassembly for each instruction during simulation\n");
+         printf("        --show_updates (or -U)                  -- Print disassembly + register updates for each instruction during simulation\n");
 	 printf("\n");
 	 printf("        --reset_address                         -- Start simulation at this address\n");
 	 printf("        --dram_range <addressLo..addressHi>     -- Constrain simulation to this physical address range\n");
@@ -159,6 +161,11 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
       
       if (vm.count("show_disassembly")) {
 	my_sim_cfg.SetShowProgress(true);
+      }
+
+      if (vm.count("show_updates")) {
+	my_sim_cfg.SetShowUpdates(true);
+	my_sim_cfg.SetShowProgress(true); // register updates not quite as useful without the disassembly
       }
 
       if (vm.count("max_instrs")) {

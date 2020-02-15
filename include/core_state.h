@@ -1,6 +1,8 @@
 #ifndef __CORE_STATE__
 
 #include <sim_config.h>
+#include <iostream>
+#include <stdlib.h>
 
 class State {
 public:
@@ -12,14 +14,16 @@ public:
 
   virtual void Init(SimConfig *sim_cfg) { _PC.Value(0); };
 
-  virtual void Update(State *rhs) {
+  virtual void Update(State *rhs, bool show_updates = false) {
     id = rhs->id;
     asid = rhs->asid;
     is_secure = rhs->is_secure;
     clock = rhs->clock;
     end_test = rhs->end_test;
     SetPC(rhs->PC());
+    if (show_updates) printf("  # pc:\t0x%llx\n",_PC.Value());
     SetMEPC(rhs->MEPC());
+    if (show_updates) printf("  # mepc:\t0x%llx\n",_MEPC.Value());    
     instr_count = rhs->instr_count;
     timer = rhs->timer;
   };
