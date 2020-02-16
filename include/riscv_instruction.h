@@ -76,7 +76,7 @@ public:
   unsigned int FUNCT7() { return funct7; };
   unsigned int IMM() { return imm; };
 
-  unsigned int IMM_AS_SHIFT() { return imm; };
+  unsigned int IMM_FOR_SHIFT() { return imm & 0x1f; };
 
   // normally immediate sign-extended and result used in signed expressions...
   long long int SIGN_EXTEND_IMM(int sign_bit) { imm_sign_extended = SignExtend(imm,sign_bit); return imm_sign_extended; };
@@ -159,6 +159,7 @@ class RtypeInstruction : public RiscvInstruction {
 };
 
 #define _ITYPE_IMM imm = (encoding >> 20) & 0xfff
+#define _ITYPE_IMM_SHIFT imm = (encoding >> 20) & 0x1f
 
 class ItypeInstruction : public RiscvInstruction {
  public:
@@ -173,7 +174,7 @@ class ItypeInstruction : public RiscvInstruction {
     else if (unsigned_sign_extension)
       sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs1),(unsigned int) UNSIGNED_IMM_SIGN_EXTENDED());
     else if (shift)
-      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs1),(unsigned int) imm);
+      sprintf(tbuf,"%s %s,%s,%u",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs1),(unsigned int) IMM_FOR_SHIFT());
     else if (csrs)
       sprintf(tbuf,"%s %s,%s",InstrName().c_str(),state->RegAlias(rd),CSR_NAME(imm).c_str());
     else if (csrr)
@@ -188,7 +189,7 @@ class ItypeInstruction : public RiscvInstruction {
   };
 };
 
-#define _STYPE_IMM imm = (((encoding >> 25) & 0x3f) << 5) | ((encoding >> 7) & 0x1f)
+#define _STYPE_IMM imm = (((encoding >> 25) & 0x7f) << 5) | ((encoding >> 7) & 0x1f)
 
 class StypeInstruction : public RiscvInstruction {
  public:

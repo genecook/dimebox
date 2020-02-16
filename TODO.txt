@@ -40,17 +40,21 @@ dimebox tasks (in no particular order)
  * Download/build riscv isa acceptance tests - tests built okay. benchmark test build fails due to
    building risc-v tool chain for rv32 (benchmark build expects rv64?) - DONE.
 
- * Simplify exceptions logic - remove redundant Signals code.
-
- * Implement 'update' cmdline option - when set show register updates for each simulated instruction. -DONE
+ * Implement 'update' cmdline option - when set show register+memory updates (reads and writes)
+   for each simulated instruction. -DONE
 
  * Further work on 'update' cmdline option: show register reads too. Move register 'name' code from
    instruction class to state class. -DONE.
    
  * Integer instructions - debug using riscv isa tests
-   --debugged single test rv32ui-p-addi (built using default target)
-   --add in ecall pass/fail logic at simulator exit
-   --debug a few more rv32ui-p tests, then automate testing for the lot.
+   --debugged single test rv32ui-p-addi (built using default target) -DONE
+   --add in ecall pass/fail logic at simulator exit - DONE
+   --debug a few more rv32ui-p tests, then automate testing for the lot. - DONE
+   --debug fails. - DONE
+
+ * Extract test signatures? Compare with 'golden mode' signatures?
+
+ * Simplify exceptions logic - remove redundant Signals code. Other code cleanup.
 
  * Implement pseudo real-time clock
    ( use wall clock + core clock to derive real-time clock 'tics'

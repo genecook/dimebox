@@ -16,7 +16,7 @@ using namespace std;
 #include <memmap_device.h>
 #include <memory.h>
 
-#define NO_MIXED_ACCESSES 1
+//#define NO_MIXED_ACCESSES 1
 #define IGNORE_UPPER_PA_BITS 1
 
 //#define MEM_DEBUG 1

@@ -22,7 +22,7 @@ void RiscvInstruction::MEMORY_WRITE(unsigned long long address,int size,unsigned
 
   // put input (assumed register) value directly into write buffer...
   // (account for how the data is stored in the host register)
-  if (memory->HostEndianness()) {
+  if (memory->HostEndianness()/* == true if data stored to memory in big-endian */) {
     // big endian: swap register bytes during copy...
     int j = size - 1;
     for (int i = 0; i < size; i++) {
@@ -37,9 +37,9 @@ void RiscvInstruction::MEMORY_WRITE(unsigned long long address,int size,unsigned
   }
   
   // apply memory endianness...
-  bool big_endian = false;
-  int access_size = size;
-  memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
+  //  bool big_endian = false;
+  //int access_size = size;
+  //memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
   // record memory access...
   mOpsMemory.push_back(MemoryAccess(address,
 				    size,
@@ -75,11 +75,22 @@ unsigned long long RiscvInstruction::MEMORY_READ(unsigned long long address,int 
   if (!rcode) {
     bool big_endian = false;
     int access_size = size;
-    memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
+    //memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
   }
   unsigned long long rval = 0;
-  for (int i = 0; i < size; i++)
-     rval = (rval << 8) | mbuf[i];
+  if (memory->HostEndianness() /* == true if data stored to memory in big-endian */) {
+    // big endian: swap memory bytes during copy...
+    int j = size - 1;
+    for (int i = 0; i < size; i++) {
+       rval = rval | ((unsigned long long)mbuf[j])<<(i*8);
+       j = j - 1;
+    }
+  } else {
+    // little endian: straight copy from memory to register...
+    for (int i = 0; i < size; i++)
+       rval = rval | (mbuf[i]<<(i*8));
+  }
+
   return rval;
 }
 

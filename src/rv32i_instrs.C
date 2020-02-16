@@ -9,7 +9,7 @@ void ADDI::Step() {
   RD( RS1() + SIGN_EXTEND_IMM(12) ); BumpPC();
 };
 void SLTI::Step() {
-  RD( (long) RS1() < (long) SIGN_EXTEND_IMM(12) ? 1 : 0 ); BumpPC();
+  RD( (int) RS1() < (int) SIGN_EXTEND_IMM(12) ? 1 : 0 ); BumpPC();
 };
 void SLTIU::Step() { 
   RD( (unsigned int) RS1() < (unsigned int) UNSIGNED_SIGN_EXTEND_IMM(12) ? 1 : 0 ); BumpPC();
@@ -25,13 +25,13 @@ void XORI::Step() {
 };
 
 void SLLI::Step() {
-  RD( RS1() << IMM() ); BumpPC();
+  RD( RS1() << IMM_FOR_SHIFT() ); BumpPC();
 };
 void SRLI::Step() { 
-  RD( RS1() >> IMM() ); BumpPC();
+  RD( RS1() >> IMM_FOR_SHIFT() ); BumpPC();
 };
 void SRAI::Step() {
-  RD ( SignExtend(RS1() >> IMM(),32 - IMM()) ); BumpPC();
+  RD ( (int) SignExtend(RS1() >> IMM_FOR_SHIFT(),32 - IMM_FOR_SHIFT()) ); BumpPC();
 };
 
 void LUI::Step() {
@@ -45,7 +45,7 @@ void ADD::Step() {
   RD( RS1() + RS2() ); BumpPC();
 };
 void SLT::Step() {
-  RD ( (long) RS1() < (long) RS2() ? 1 : 0 ); BumpPC();
+  RD ( (int) RS1() < (int) RS2() ? 1 : 0 ); BumpPC();
 };
 void SLTU::Step() { 
   RD ( RS1() < RS2() ? 1 : 0 ); BumpPC();
@@ -69,7 +69,7 @@ void SUB::Step() {
   RD( RS1() - RS2() ); BumpPC();
 };
 void SRA::Step() { 
-  RD ( SignExtend(RS1() >> RS2(),32 - RS2()) ); BumpPC();
+  RD ( (int) SignExtend(RS1() >> RS2(),32 - (RS2() & 0x1f)) ); BumpPC();
 };
 
 void JAL::Step() {
@@ -88,13 +88,13 @@ void BNE::Step() {
   PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BLT::Step() { 
-  PC( PC() + ((long)RS1() != (long)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  PC( PC() + ((int)RS1() < (int)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BLTU::Step() { 
-  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  PC( PC() + (RS1() < RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
-void BGE::Step() { 
-  PC( PC() + ((long)RS1() >= (long)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+void BGE::Step() {
+  PC( PC() + ((int)RS1() >= (int)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BGEU::Step() { 
   PC( PC() + (RS1() >= RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
