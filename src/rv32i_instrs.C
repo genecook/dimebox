@@ -170,17 +170,18 @@ void EBREAK::Step() {
 };
 
 void URET::Step() {
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  throw UNIMPLEMENTED_INSTRUCTION;
 };
 void SRET::Step() {
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  throw UNIMPLEMENTED_INSTRUCTION;
 };
 void HRET::Step() {
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  throw UNIMPLEMENTED_INSTRUCTION;
 };
 void MRET::Step() { PC ( MEPC() ); };
+
 void WFI::Step() {
-  signals.Exception(UNIMPLEMENTED_INSTRUCTION); throw EXCEPTION;
+  throw WAIT_FOR_INTERRUPT;
 };
 void SFENCE::Step() {
   BumpPC(); // ignored...

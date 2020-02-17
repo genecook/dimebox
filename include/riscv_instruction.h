@@ -45,33 +45,9 @@ public:
 
   void BumpPC() { state->SetPC(PC() + Size); };
 
-  unsigned long long CSR(int csr) {
-    unsigned long long csr_val = 0;
-    try {
-       csr_val = state->CSR(csr);
-    } catch(SIM_EXCEPTIONS sim_exception) {
-      signals.Exception(CSR_ACCESS); throw EXCEPTION;
-    }
-    return csr_val;
-  };
-  
-  void SetCSR(int csr,unsigned long long rval) {
-    try {
-       state->SetCSR(csr,rval);
-    } catch(SIM_EXCEPTIONS sim_exception) {
-      signals.Exception(CSR_ACCESS); throw EXCEPTION;
-    }
-  };
-  
-  std::string CSR_NAME(int csr) {
-    std::string rname;
-    try {
-       rname = state->CSR_NAME(csr);
-    } catch(SIM_EXCEPTIONS sim_exception) {
-      signals.Exception(CSR_ACCESS); throw EXCEPTION;
-    }
-    return rname;
-  };
+  unsigned long long CSR(int csr) { return state->CSR(csr); };
+  void SetCSR(int csr,unsigned long long rval) { state->SetCSR(csr,rval); };
+  std::string CSR_NAME(int csr) { return state->CSR_NAME(csr); };
 
   unsigned int FUNCT7() { return funct7; };
   unsigned int IMM() { return imm; };

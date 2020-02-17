@@ -243,9 +243,7 @@ RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Mem
   }
 
   if (instruction == NULL) {
-    std::cout << "UNIMPLEMENTED INSTRUCTION!" << std::endl;
-    signals->Exception(UNIMPLEMENTED_INSTRUCTION);
-    throw EXCEPTION;
+    throw UNIMPLEMENTED_INSTRUCTION;
   }
   
   return instruction;
