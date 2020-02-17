@@ -36,16 +36,11 @@ void RiscvInstruction::MEMORY_WRITE(unsigned long long address,int size,unsigned
     }
   }
   
-  // apply memory endianness...
-  //  bool big_endian = false;
-  //int access_size = size;
-  //memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
-  // record memory access...
   mOpsMemory.push_back(MemoryAccess(address,
 				    size,
 				    DATA,
 				    false,  // exclusive?
-				    1,      // data
+				    1,      // write
 				    0,      // big-endian
 				    size,   // word size
 				    false,  // sign extend
@@ -72,11 +67,6 @@ unsigned long long RiscvInstruction::MEMORY_READ(unsigned long long address,int 
   bool for_test   = false;
   bool initialize = true;
   int rcode = memory->ReadMemory(state,address,is_data,privileged,size,aligned,mbuf,for_test,initialize);
-  if (!rcode) {
-    bool big_endian = false;
-    int access_size = size;
-    //memory->ApplyEndianness(mbuf,mbuf,big_endian,access_size,size);
-  }
   unsigned long long rval = 0;
   if (memory->HostEndianness() /* == true if data stored to memory in big-endian */) {
     // big endian: swap memory bytes during copy...
@@ -91,6 +81,22 @@ unsigned long long RiscvInstruction::MEMORY_READ(unsigned long long address,int 
        rval = rval | (mbuf[i]<<(i*8));
   }
 
+  // record the memory access...
+  mOpsMemory.push_back(MemoryAccess(address,
+				    size,
+				    DATA,
+				    false,  // exclusive?
+				    0,      // read
+				    0,      // big-endian
+				    size,   // word size
+				    false,  // sign extend
+				    32,     // word size for (unused) sign extend
+				    false,  // paired
+				    false,  // privileged
+				    mbuf    // the data
+				    )
+		       );
+  
   return rval;
 }
 
@@ -101,13 +107,13 @@ void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,Signals *_si
   for (auto mop = mOpsMemory.begin(); mop != mOpsMemory.end(); mop++) {
      if (mop->IsWrite()) {
        memory->WriteMemory(state,mop->Address(),mop->IsData(),mop->Privileged(),
-			   mop->Size(),mop->Aligned(),mop->Buffer());
-       if (show_updates) {
-         printf("  # W 0x%llx ",mop->Address());
-	 for (auto i = 0; i < mop->Size(); i++)
-	   printf(" %02x",mop->Buffer()[i]);
-	 printf("\n");
-       }
+			   mop->Size(),mop->Aligned(),mop->Buffer());       
+     }
+     if (show_updates) {
+       printf("  # M%c 0x%llx ",(mop->IsWrite() ? 'W' : 'R'),mop->Address());
+       for (auto i = 0; i < mop->Size(); i++)
+	  printf(" %02x",mop->Buffer()[i]);
+       printf("\n");
      }
   }
   *_signals = signals;
