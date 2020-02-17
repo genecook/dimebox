@@ -43,6 +43,7 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
       ("show_disassembly,D","Print address/disassembly for each instruction during simulation")
       ("show_updates,U","In addition to disassembly print register updates for each simulated instruction")
       ("reset_address",po::value<string>(),"Reset address")
+      ("pass_address",po::value<string>(),"Riscv ISA test 'pass' address")
       ("dram_range",po::value<string>(),"DRAM address range")
       ("uart",po::value<string>(),"Instantiate uart, specify (physical) base address for memory mapped registers")
       ("counter",po::value<string>(),"Instantiate system counter module, specify (physical) base address for memory mapped registers")
@@ -83,6 +84,8 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 	 printf("        --dram_range <addressLo..addressHi>     -- Constrain simulation to this physical address range\n");
 	 printf("        --uart <baseAddress>                    -- Instantiate uart, specify (physical) base address for memory mapped registers\n");
 	 printf("        --counter <baseAddress>                 -- Instantiate system counter module, specify (physical) base address for memory mapped registers\n");
+	 printf("\n");
+	 printf("        --pass_address                          -- Riscv ISA test 'pass' address\n");
          return SUCCESS;
       }
     
@@ -112,6 +115,17 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 	}
 	printf("  Reset address specified: 0x%llx\n",reset_address);
 	my_sim_cfg.SetResetAddress(reset_address);
+      }
+
+      if (vm.count("pass_address")) {
+	string rs = vm["pass_address"].as<string>();
+        unsigned long long pass_address = 0;
+	if (sscanf(rs.c_str(),"0x%llx",&pass_address) != 1) {
+	    fprintf(stderr,"Invalid test 'pass' address specified (value must be specified in hexadecimal format). Program aborted.\n");
+            return COMMAND_LINE_ERROR;      
+	}
+	printf("  Test pass address specified: 0x%llx\n",pass_address);
+	my_sim_cfg.SetPassAddress(pass_address);
       }
 
       if (vm.count("dram_range")) {

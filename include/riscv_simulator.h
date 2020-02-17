@@ -3,12 +3,13 @@
 class RiscvSimulator {
  public:
   RiscvSimulator() : sim_cfg(NULL), clock(0), instr_count(0), rcode(0),
-		     cores_are_running(false), debug_server(NULL) {
+		     cores_are_running(false), debug_server(NULL),
+		     hit_test_pass_region(false) {
     Init();
   };
   RiscvSimulator(SimConfig *_sim_cfg)
     : sim_cfg(_sim_cfg), clock(0),instr_count(0), rcode(0),
-      cores_are_running(false), debug_server(NULL) {
+      cores_are_running(false), debug_server(NULL), hit_test_pass_region(false) {
     sim_cfg = _sim_cfg;
     Init();
   };
@@ -61,6 +62,8 @@ protected:
   Signals signals;   // timers, interrupts update signals
   UART_pl011 uart1;
   RiscvDebugServer *debug_server;
+
+  bool hit_test_pass_region;
 };
 
 

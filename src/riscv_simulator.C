@@ -75,7 +75,7 @@ int RiscvSimulator::Go() {
   cores_are_running = true; // we'll ASSUME at least one core is alive...
 
   instr_count = 0; // total # of instructions simulated for all cores
-  
+
   while( !rcode && (instr_count < sim_cfg->MaxInstrs()) && cores_are_running) {
     ServiceDevices();
     StepCores();
@@ -103,6 +103,9 @@ void RiscvSimulator::StepCores() {
 
   for (auto ci = ready_cores.begin(); ci != ready_cores.end() && !rcode; ci++) {
      unsigned int pc = (*ci)->PC();
+
+     hit_test_pass_region = sim_cfg->PassAddress(pc); // did test 'pass' memory region get accessed???
+     
      union {
        unsigned char buf[4];
        unsigned int encoding;
@@ -147,8 +150,13 @@ void RiscvSimulator::StepCores() {
            rcode = -1;
 	   break;
          case TEST_PASSES:
-	   printf("'Test harness' indicates success!\n");
-	   rcode = 0;
+	   if (hit_test_pass_region) {
+	     printf("'Test harness' indicates success!\n");
+	     rcode = 0;
+	   } else {
+	     fprintf(stderr,"'Test harness' indicates success but test did NOT pass through 'pass' memory region???\n");
+	     rcode = -1;
+	   }
 	   (*ci)->SetEndTest(true);
 	   break;
          case TEST_FAILS:
