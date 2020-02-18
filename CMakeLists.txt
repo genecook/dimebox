@@ -35,4 +35,5 @@ target_link_libraries(dimebox riscv "${BOOST_PGM_OPTS}" "${LIBELF}")
 configure_file(include/dimeboxVersion.h.in include/dimeboxVersion.h)
 
 install(TARGETS dimebox DESTINATION ${CMAKE_SOURCE_DIR}/bin)
+install(TARGETS riscv DESTINATION ${CMAKE_SOURCE_DIR}/lib)
 
