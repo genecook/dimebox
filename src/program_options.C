@@ -44,6 +44,7 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
       ("show_updates,U","In addition to disassembly print register updates for each simulated instruction")
       ("reset_address",po::value<string>(),"Reset address")
       ("pass_address",po::value<string>(),"Riscv ISA test 'pass' address")
+      ("signature_address_range",po::value<string>(),"Riscv ISA test 'signature' address range")
       ("dram_range",po::value<string>(),"DRAM address range")
       ("uart",po::value<string>(),"Instantiate uart, specify (physical) base address for memory mapped registers")
       ("counter",po::value<string>(),"Instantiate system counter module, specify (physical) base address for memory mapped registers")
@@ -64,28 +65,30 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
          printf("\n");
          printf("    command line options:\n");
 	 
-         printf("        --help (or -h)                          -- print this help message.\n");
-         printf("        --version (or -V)                       -- print tool version information.\n");
+         printf("        --help (or -h)                                    -- print this help message.\n");
+         printf("        --version (or -V)                                 -- print tool version information.\n");
 	 printf("\n");	 
-         printf("        --sim_config_file (or -C) <file path>   -- path to simulation configuration file - (default is none)\n");
+         printf("        --sim_config_file (or -C) <file path>             -- path to simulation configuration file - (default is none)\n");
 	 printf("\n");	 
-         printf("        --sim_load_file (or -L) <file path>     -- path to simulation source (ELF) file\n");
+         printf("        --sim_load_file (or -L) <file path>               -- path to simulation source (ELF) file\n");
 	 printf("\n");	 
-         printf("        --num_cores (or -N) <count>             -- number of cores to enable (default is 1)\n");
-         printf("        --max_instrs (or -n) <count>            -- Maximum number of instructions per core to simulate (default is 1000)\n");
+         printf("        --num_cores (or -N) <count>                       -- number of cores to enable (default is 1)\n");
+         printf("        --max_instrs (or -n) <count>                      -- Maximum number of instructions per core to simulate (default is 1000)\n");
 	 printf("\n");
-         printf("        --port (or -P) <port>                   -- (TCP) port simulation debug server will listen on\n");
-         printf("        --core (or -C) <core>                   -- ID of processor element simulation debug server will attach to\n");
+         printf("        --port (or -P) <port>                             -- (TCP) port simulation debug server will listen on\n");
+         printf("        --core (or -C) <core>                             -- ID of processor element simulation debug server will attach to\n");
 	 printf("\n");
-         printf("        --show_disassembly (or -D)              -- Print address/disassembly for each instruction during simulation\n");
-         printf("        --show_updates (or -U)                  -- Print disassembly + register updates for each instruction during simulation\n");
+         printf("        --show_disassembly (or -D)                        -- Print address/disassembly for each instruction during simulation\n");
+         printf("        --show_updates (or -U)                            -- Print disassembly + register updates for each instruction during simulation\n");
 	 printf("\n");
-	 printf("        --reset_address                         -- Start simulation at this address\n");
-	 printf("        --dram_range <addressLo..addressHi>     -- Constrain simulation to this physical address range\n");
-	 printf("        --uart <baseAddress>                    -- Instantiate uart, specify (physical) base address for memory mapped registers\n");
-	 printf("        --counter <baseAddress>                 -- Instantiate system counter module, specify (physical) base address for memory mapped registers\n");
+	 printf("        --reset_address                                   -- Start simulation at this address\n");
+	 printf("        --dram_range <addressLo..addressHi>               -- Constrain simulation to this physical address range\n");
+	 printf("        --uart <baseAddress>                              -- Instantiate uart, specify (physical) base address for memory mapped registers\n");
+	 printf("        --counter <baseAddress>                           -- Instantiate system counter module, specify (physical) base address for memory mapped registers\n");
 	 printf("\n");
-	 printf("        --pass_address                          -- Riscv ISA test 'pass' address\n");
+	 printf("        --pass_address <address>                          -- Riscv ISA test 'pass' address\n");
+	 printf("        --signature_address_range <addressLo..addressHi>  -- Riscv ISA test 'signature' address range\n");
+	 
          return SUCCESS;
       }
     
@@ -126,6 +129,29 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 	}
 	printf("  Test pass address specified: 0x%llx\n",pass_address);
 	my_sim_cfg.SetPassAddress(pass_address);
+      }
+
+      if (vm.count("signature_address_range")) {
+	string rs = vm["signature_address_range"].as<string>();
+        std::size_t pos = rs.find("..");
+        if (pos == std::string::npos) {
+	    fprintf(stderr,"Invalid test 'signature' address range specified. Program aborted.\n");
+            return COMMAND_LINE_ERROR;      
+	}
+        string addrLo_str = rs.substr(0,pos);
+	string addrHi_str = rs.substr(pos + 2);
+	unsigned long long address_lo = 0, address_hi = 0;
+	if (sscanf(addrLo_str.c_str(),"0x%llx",&address_lo) != 1) {
+	    fprintf(stderr,"Invalid test 'signature' address range (low address) specified. Program aborted.\n");
+            return COMMAND_LINE_ERROR;      
+	}
+	if (sscanf(addrHi_str.c_str(),"0x%llx",&address_hi) != 1) {
+	    fprintf(stderr,"Invalid test 'signature' address range (high address) specified. Program aborted.\n");
+            return COMMAND_LINE_ERROR;      
+	}
+
+	printf("  test signature address range specified: 0x%llx..0x%llx\n",address_lo,address_hi);
+	my_sim_cfg.SetSignatureAddressRange(address_lo,address_hi);
       }
 
       if (vm.count("dram_range")) {

@@ -3,64 +3,55 @@ dime_box - is an unincorporated community in Lee County, Texas.
 dimebox tasks (in no particular order)
 ----------------------------------------
  * libelf - implement script to download/build (elftoolchain) libelf. - DONE
-
  * boost - implement script to download/build boost cmdline args lib. - DONE
-
  * main.C - clone windvane main, breakout cmdline args as separate code
     define config file format + code to parse. define config struct. - DONE
-
  * Integrate in (windvane) physical/logical memory. - DONE
-
  * system timer? (from windvane)
-
  * Integrate uart (use existing PLA011 for now; morph windvane pla uart into ns later). - DONE.
-
  * Archive on github. - DONE.
-
  * Implement app registers, PC, SP. - DONE
-
  * Implement 'top level' simulator class, simulation loop. - DONE.
-
  * Implement cmake file (CMakeLists.txt) - DONE.
-
  * Download/install risc-v tool chain. - DONE.
- 
  * Implement rv32i instructions. - DONE. 
-
  * Integrate in gdb 'server' code. (windvane) - DONE.
-
  * Implement rv32i control & status instructions. - DONE.
-
  * Debug simulator. - runs, loads elf file, simulates a few instructions. - DONE.
-
  * Debug uart accesses. - DONE.
- 
- * Exercize gdb, debug simulator.
- 
  * Download/build riscv isa acceptance tests - tests built okay. benchmark test build fails due to
    building risc-v tool chain for rv32 (benchmark build expects rv64?) - DONE.
-
  * Implement 'update' cmdline option - when set show register+memory updates (reads and writes)
    for each simulated instruction. -DONE
-
  * Further work on 'update' cmdline option: show register reads too. Move register 'name' code from
    instruction class to state class. -DONE.
-   
  * Integer instructions - debug using riscv isa tests
    --debugged single test rv32ui-p-addi (built using default target) -DONE
    --add in ecall pass/fail logic at simulator exit - DONE
    --debug a few more rv32ui-p tests, then automate testing for the lot. -DONE
    --debug fails. -DONE
    --add code to determine test 'pass' memory section, to further tests end correctly. -DONE.
-   
- * Extract test signatures? Compare with 'golden mode' signatures?
+ 
+ * Exercize gdb, debug simulator.
 
+ * Download/build other riscv simulator, run test cases. are test signatures there? execution trace? -DONE.
+   --1st tried spike - failed on test cases AND little or no documentation
+   --2nd try using ovp-sim - success. simulator operates correctly on test cases and has very good docs
+ 
+ * Extract test signatures? Compare with 'golden mode' signatures? - DONE.
+
+ * Formalize test process - using some scripts to ad hoc testing so far.
+
+ * Reconcile sim config file. - not up to date with cmdline args. what should be in this file?
+ 
  * Simplify exceptions logic - remove redundant Signals code. Other code cleanup.
 
  * Implement pseudo real-time clock
    ( use wall clock + core clock to derive real-time clock 'tics'
    only when real-time clock is accessed?)
 
+ * Add support for dtb to describe dimebox 'platform'?
+ 
  * README.md - ONGOING.
 
 

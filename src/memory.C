@@ -465,7 +465,7 @@ void Memory::ApplyEndianness(unsigned char *dest,unsigned char *src,bool src_des
   printf("[Memory::ApplyEndianness] requested endianness: %s access size: %d total # of bytes: %d host-endianness: %s\n",
          (src_dest_endianness ? "Big" : "Little"),access_size_in_bytes,total_number_of_bytes,(HostEndianness() ? "Big" : "Little"));
 #endif
-  
+ 
   int num_words = total_number_of_bytes / access_size_in_bytes;
 
   for (int i = 0; i < num_words; i++) {

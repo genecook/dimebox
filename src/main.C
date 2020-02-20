@@ -63,6 +63,8 @@ int run_simulation(SimConfig *my_sim_cfg) {
        std::cout << "simulation rate: " << instrs_per_seconds << " instructions per second.\n";
      }
 
+     rcode = my_simulator.WriteTestSignature();
+     
   } catch(const std::runtime_error& ex) {
      std::cerr << ex.what() << std::endl;
      rcode = -1;

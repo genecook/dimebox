@@ -21,6 +21,8 @@ class RiscvSimulator {
   int LoadTestImage();
   
   int Go();
+
+  int WriteTestSignature();
   
   int InstrCount() { return instr_count; };
 

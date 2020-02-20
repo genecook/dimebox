@@ -125,12 +125,12 @@ void RiscvSimulator::StepCores() {
         }
         RiscvState state_updates(*ci,sim_cfg->ShowUpdates());
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,&signals,opcode.encoding);
-        instr->Step();
 	if (sim_cfg->ShowDisassembly()) {
           char tbuf[128];
           sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
           std::cout << tbuf << std::endl;
 	}
+        instr->Step();
         instr->Writeback(*ci,&memory,&signals,sim_cfg->ShowUpdates());
         delete instr;
         instr_count++;
@@ -209,8 +209,58 @@ void RiscvSimulator::ServiceDevices() {
       cpus[0].SignalIRQ();
     }
     */
+  }
 }
+
+//****************************************************************************
+// output test signature file...
+//****************************************************************************
+
+int RiscvSimulator::WriteTestSignature() {
+  if (sim_cfg->SignatureStartAddress() == 0)  // test signature is optional...
+    return 0;
+  
+  int signature_size = sim_cfg->SignatureEndAddress() - sim_cfg->SignatureStartAddress();
+
+  // write out signature as quad-words (16 bytes each)...
+  
+  if (signature_size % 16 != 0) {
+    fprintf(stderr,"ERROR: Test signature address must fall on 16 byte boundaries.\n");
+    return -1;
+  }
+
+  FILE *sig_file = fopen("test.signature","w");
+  
+  int rcode = 0;
+
+  for (int i = 0; (i < signature_size) && !rcode; i += 16) {
+     unsigned long long next_sig_addr = sim_cfg->SignatureStartAddress() + i;
+     unsigned char tbuf[16];
+     try {
+        memory.ReadPhysicalMemory(next_sig_addr,16,tbuf,false);
+	if (memory.HostEndianness() /* true for big-endian */) {
+	  // big-endian...
+	  for (auto bx = 0; bx < 16; bx++)
+	    fprintf(sig_file,"%02x",tbuf[bx]);
+	} else {
+	  // little-endian...
+	  for (auto bx = 15; bx >= 0; bx--)
+	    fprintf(sig_file,"%02x",tbuf[bx]);
+	}
+	fprintf(sig_file,"\n");
+     } catch(SIM_EXCEPTIONS sim_exception) {
+       std::cerr << "Problems reading physical memory at 0x"
+		 << std::hex << next_sig_addr << std::dec << "???" << std::endl;
+       rcode = -1;
+     }
+  }
+
+  fclose(sig_file);
+  std::cout << "\nTest signature file: test.signature" << std::endl;
+
+  return rcode;
 }
+
 
 
 
