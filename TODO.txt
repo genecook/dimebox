@@ -31,6 +31,7 @@ dimebox tasks (in no particular order)
    --debug a few more rv32ui-p tests, then automate testing for the lot. -DONE
    --debug fails. -DONE
    --add code to determine test 'pass' memory section, to further tests end correctly. -DONE.
+ * Add in integer multiply/divide/rem instructions. -DONE.
  
  * Exercize gdb, debug simulator.
 

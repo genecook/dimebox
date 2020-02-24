@@ -187,6 +187,57 @@ void SFENCE::Step() {
   BumpPC(); // ignored...
 };
 
+void MUL::Step() {
+  RD( RS1() * RS2() );
+  BumpPC();
+};
+void MULHU::Step() {
+  RD( ((unsigned long long) RS1() * (unsigned long long) RS2()) >> 32 );
+  BumpPC();
+};
+void MULH::Step() {
+  RD( ((long long) SignExtend(RS1(),32) * (long long) SignExtend(RS2(),32) ) >> 32 );
+  BumpPC();
+};
+void MULHSU::Step() {
+  RD( ((long long) SignExtend(RS1(),32) * (unsigned long long) RS2()) >> 32 );
+  BumpPC();
+};
+void DIV::Step() {
+  if ( RS2() == 0) // divide by zero
+    RD( -1 );
+  else if ( (RS1() == 0x80000000) && (RS2() == -1) ) // overflow
+    RD(0x80000000);
+  else
+    RD( (int) RS1() / (int) RS2() );
+  BumpPC();
+};
+void DIVU::Step() {
+  if (RS2() == 0) // divide by zero
+    RD( (unsigned) -1 );
+  else
+    RD( RS1() / RS2() );
+  BumpPC();
+};
+void REM::Step() {
+  if (RS2() == 0) { // division by zero
+    RD( RS1() ); // dividend is result
+  } else if ( (RS1() == 0x80000000) && (RS2() == -1) ) { // overflow
+    RD(0);
+  } else {
+    int rdq = (int) RS1() / (int) RS2();
+    int rem = (int) RS1() - (rdq * (int) RS2());
+    RD( rem );
+  }
+  BumpPC();
+};
+void REMU::Step() {
+  unsigned long long rdq = (unsigned long long) RS1() / (unsigned long long) RS2();
+  unsigned int rem = rdq * (unsigned long long) RS2() - RS2();
+  RD( rem );  
+  BumpPC();
+};
+
 
 
 

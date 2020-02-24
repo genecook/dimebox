@@ -31,7 +31,8 @@ my @S = qw(SB SH SW);
 
 my @B = qw(BEQ BNE BLT BGE BLTU BGEU);
 
-my @R = qw(ADD SLT SLTU AND OR XOR SLL SRL SUB SRA);
+my @R = qw(ADD SLT SLTU AND OR XOR SLL SRL SUB SRA 
+           MUL MULH MULHSU MULHU DIV DIVU REM REMU DIVW DIVUW REMW REMUW);
 
 my $instr_template = '
 class $INSTR$ : public $TYPE$typeInstruction {
