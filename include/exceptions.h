@@ -2,7 +2,7 @@
 
 enum SIM_EXCEPTIONS { NO_SIM_EXCEPTION,          // used in general processing of try blocks
 		      UNIMPLEMENTED_INSTRUCTION, // unimplemented or unknown instruction encoding
-		      CSR_ACCESS,                //     "         csr or privileged csr access
+		      ILLEGAL_INSTRUCTION,       //     "         csr or privileged csr access
 		      INTERRUPT,                 // device interrupt
                       WAIT_FOR_EVENT,            // core goes to sleep
 		      WAIT_FOR_INTERRUPT,        // core waiting on interrupt

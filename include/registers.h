@@ -152,6 +152,20 @@ class AddressRegister : public REGISTER_BASE {
   unsigned long long rval; // value
 };
 
+class ControlRegister : public REGISTER_BASE {
+ public:
+   ControlRegister() {};
+
+   unsigned long long Value() { return rval; };
+   unsigned long long Value(unsigned long long nval) { rval = nval; Set(); return rval; };
+
+   ControlRegister& operator=(unsigned long long rhs ) { this->Value(rhs); Set(); return *this; };
+
+ private:
+  void validate() { if (!IsSet()) throw INTERNAL_ERROR; };
+  unsigned long long rval; // value
+};
+
 #endif
 #define __REGISTERS__ 1
 

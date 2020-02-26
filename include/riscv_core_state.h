@@ -7,27 +7,52 @@ class RiscvState : public State {
 public:
   RiscvState() : State() {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
+    SetPC(0);
   };
+  
   RiscvState(SimConfig *sim_cfg) : State(sim_cfg) {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(sim_cfg->ResetAddress());
   };
+  
   RiscvState(RiscvState *rhs,bool _show_updates = false) : State(rhs) {
     show_updates = _show_updates;
+    
+    SetMEPC(rhs->MEPC());
+    SetMTVEC(rhs->MTVEC());
+    SetSATP(rhs->SATP());
+    SetPMPADDR0(rhs->PMPADDR0());
+    SetPMPCFG0(rhs->PMPCFG0());
+    SetMEDELEG(rhs->MEDELEG());
+    SetMIDELEG(rhs->MIDELEG());
+    SetMIE(rhs->MIE());
+    SetMSTATUS(rhs->MSTATUS());
+    
     for (auto i = 0; i < 32; i++) {
-      if (X[i].Value() != rhs->X[i].Value())
-        X[i].Value(rhs->X[i].Value());
+       X[i].Value(rhs->X[i].Value());
     }
   };
   
   void Update(RiscvState *rhs) {
     State::Update((State *) rhs,show_updates);
+    
+    if (MEPC() != rhs->MEPC()) { SetMEPC(rhs->MEPC());   }
+    if (MTVEC() != rhs->MTVEC()) { SetMTVEC(rhs->MTVEC()); }
+    if (SATP() != rhs->SATP()) { SetSATP(rhs->SATP()); }
+    if (PMPADDR0() != rhs->PMPADDR0()) { SetPMPADDR0(rhs->PMPADDR0()); }
+    if (PMPCFG0() != rhs->PMPCFG0()) { SetPMPCFG0(rhs->PMPCFG0()); }
+    if (MEDELEG() != rhs->MEDELEG()) { SetMEDELEG(rhs->MEDELEG()); }
+    if (MIDELEG() != rhs->MIDELEG()) { SetMIDELEG(rhs->MIDELEG()); }
+    if (MIE() != rhs->MIE())   { SetMIE(rhs->MIE()); }
+    if (MSTATUS() != rhs->MSTATUS())   { SetMSTATUS(rhs->MSTATUS()); }
+
     for (auto i = 0; i < 32; i++) {
       if (X[i].Value() != rhs->X[i].Value()) {
         X[i].Value(rhs->X[i].Value());
 	if (show_updates) ShowRegisterAccess(RegAlias(i),i,X[i].Value(),true);
       }
     }
+    
   };
 
   void ShowRegisterAccess(std::string rname,int rindex,unsigned long long rval, bool update=false) {
@@ -42,6 +67,8 @@ public:
     reg_updates.push_back(tbuf);
   };
 
+  void ValidateCSRAccess(unsigned int csr_address, unsigned int privilege_level, bool for_write);
+  
   void ShowRegisterReads() { for (auto us = reg_updates.begin(); us != reg_updates.end(); us++) std::cout << *us; };
   
   unsigned long long GP(unsigned int rindex) {
@@ -76,70 +103,54 @@ public:
     if (show_updates) ShowRegisterAccess(RegAlias(8),8,X[8].Value(),true);
   };
 
-  // CSR      description
-  // 0xc00    RDCYCLE (cycle counter - lo)
-  // 0xc01    RDTIME (timer - lo)
-  // 0xc02    RDINSTRET (instrs retired counter - lo)
-  // 0xc80    RDCYCLE (cycle counter -hi)
-  // 0xc81    RDTIME (timer - hi)
-  // 0xc82    RDINSTRET (instrs retired counter - hi)
-	       
-  unsigned long long CSR(int csr) {
-    unsigned long long rval = 0;
-    switch(csr) {
-      case 0xc00: rval = Clock() & 0xffffffff; break; 
-      case 0xc01: rval = TimerValue() & 0xffffffff; break;
-      case 0xc02: rval = InstructionCount() & 0xffffffff; break;
-      case 0xc80: rval = Clock() >> 32; break;
-      case 0xc81: rval = TimerValue() >> 32; break;
-      case 0xc82: rval = InstructionCount() & 0xffffffff; break;
-      case 0x341: rval = MEPC(); break;  
-      default: //throw EXCEPTION;
-	       break;
-    }
-    if (show_updates) ShowCSRAccess(CSR_NAME(csr),csr,rval);
-    return rval;
+  unsigned int PrivilegeLevel() { return 3; }; // fudge to machine level for now...
+
+  unsigned long long CSR(unsigned int csr, unsigned int privilege_level);
+
+  void SetCSR(unsigned int csr,unsigned int privilege_level, unsigned long long rval);
+  
+  std::string CSR_NAME(int csr);
+
+  unsigned long long MEPC() { return _MEPC.Value(); };
+  void SetMEPC(unsigned long long rval) {
+    _MEPC.Value(rval);
+    if (show_updates) printf("  # mepc:\t0x%llx\n",_MEPC.Value());
+  };
+  unsigned long long MTVEC() { return _MTVEC.Value(); };
+  void SetMTVEC(unsigned long long rval) {
+    _MTVEC.Value(rval);
+    if (show_updates) printf("  # mtvec:\t0x%llx\n",_MTVEC.Value());
+  };
+  unsigned long long SATP() { return _SATP.Value(); };
+  void SetSATP(unsigned long long rval) {
+    _SATP.Value(rval); 
+    if (show_updates) printf("  # satp:\t0x%llx\n",_SATP.Value());
+  };
+  unsigned long long PMPADDR0() { return _PMPADDR0.Value(); };
+  void SetPMPADDR0(unsigned long long rval) {
+    _PMPADDR0.Value(rval);
+  };
+  unsigned long long PMPCFG0() { return _PMPCFG0.Value(); };
+  void SetPMPCFG0(unsigned long long rval) {
+    _PMPCFG0.Value(rval);
+  };
+  unsigned long long MEDELEG() { return _MEDELEG.Value(); };
+  void SetMEDELEG(unsigned long long rval) {
+    _MEDELEG.Value(rval);
+  };
+  unsigned long long MIDELEG() { return _MIDELEG.Value(); };
+  void SetMIDELEG(unsigned long long rval) {
+    _MIDELEG.Value(rval);
+  };
+  unsigned long long MIE() { return _MIE.Value(); };
+  void SetMIE(unsigned long long rval) {
+    _MIE.Value(rval);
+  };
+  unsigned long long MSTATUS() { return _MSTATUS.Value(); };
+  void SetMSTATUS(unsigned long long rval) {
+    _MSTATUS.Value(rval);
   };
 
-  void SetCSR(int csr,unsigned long long rval) {
-    switch(csr) {
-      case 0x341: SetMEPC(rval);
-	          break;  
-      default:    //throw EXCEPTION;
-	          break;
-    }
-    if (show_updates) ShowCSRAccess(CSR_NAME(csr),csr,rval,true);
-  }
-  
-  std::string CSR_NAME(int csr) {
-    std::string rname;
-    char tbuf[16];
-    switch(csr) {
-      case 0xc00: rname = "rdcycle";    break; 
-      case 0xc01: rname = "rdtime";     break;
-      case 0xc02: rname = "rdinstret";  break;
-      case 0xc80: rname = "rdcycleh";   break;
-      case 0xc81: rname = "rdtimeh";    break;
-      case 0xc82: rname = "rdinstreth"; break;
-      case 0xf14: rname = "mhartid";    break; 
-      case 0x305: rname = "mtvec";      break;  
-      case 0x180: rname = "satp";       break;
-      case 0x3b0: rname = "pmpaddr0";   break;
-      case 0x3a0: rname = "pmpcfg0";    break;  
-      case 0x302: rname = "medeleg";    break;  
-      case 0x303: rname = "mideleg";    break;  
-      case 0x304: rname = "mie";        break;  
-      case 0x300: rname = "mstatus";    break;  
-      case 0x341: rname = "mepc";       break;  
-	  
-      default: //throw EXCEPTION;
-	       sprintf(tbuf,"<0x%03x>",csr);
-	       rname = tbuf;
-               break;
-    }
-    return rname;    
-  };
-  
   // alias riscv gp register indices to common riscv assembly language names...
   const char *RegAlias(int reg_index, bool frame_ptr=false) {
     if ( (reg_index == 8) && frame_ptr) return "fp";
@@ -165,6 +176,17 @@ public:
   
 private:
   GPRegister X[32];  // general purpose registers
+
+  AddressRegister _MEPC;
+  AddressRegister _MTVEC;
+  ControlRegister _SATP;
+  AddressRegister _PMPADDR0;
+  AddressRegister _PMPCFG0;
+  ControlRegister _MEDELEG;
+  ControlRegister _MIDELEG;
+  ControlRegister _MIE;
+  ControlRegister _MSTATUS;
+  
   bool show_updates; // show register values
   std::vector<std::string> reg_updates;
 };

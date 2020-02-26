@@ -145,8 +145,8 @@ void RiscvSimulator::StepCores() {
 	   fprintf(stderr,"Unimplemented or unknown instruction encoding! PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
            rcode = -1;
 	   break;
-         case CSR_ACCESS:
-	   fprintf(stderr,"Unknown csr or privileged csr access! PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
+         case ILLEGAL_INSTRUCTION:
+	   fprintf(stderr,"Unknown or privileged csr access! PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
            rcode = -1;
 	   break;
          case TEST_PASSES:

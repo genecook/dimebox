@@ -45,8 +45,8 @@ public:
 
   void BumpPC() { state->SetPC(PC() + Size); };
 
-  unsigned long long CSR(int csr) { return state->CSR(csr); };
-  void SetCSR(int csr,unsigned long long rval) { state->SetCSR(csr,rval); };
+  unsigned long long CSR(int csr) { return state->CSR(csr,state->PrivilegeLevel()); };
+  void SetCSR(int csr,unsigned long long rval) { state->SetCSR(csr,state->PrivilegeLevel(),rval); };
   std::string CSR_NAME(int csr) { return state->CSR_NAME(csr); };
 
   unsigned int FUNCT7() { return funct7; };

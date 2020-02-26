@@ -21,10 +21,6 @@ public:
     clock = rhs->clock;
     end_test = rhs->end_test;
     SetPC(rhs->PC());
-    if (_MEPC.Value() != rhs->MEPC()) {
-      SetMEPC(rhs->MEPC());
-      if (show_updates) printf("  # mepc:\t0x%llx\n",_MEPC.Value());
-    }
     instr_count = rhs->instr_count;
     timer = rhs->timer;
   };
@@ -36,11 +32,6 @@ public:
   
   unsigned long long PC() { return _PC.Value(); };
   void SetPC(unsigned long long rval) { _PC.Value(rval); };
-  
-  unsigned long long MEPC() { return _MEPC.Value(); };
-  void SetMEPC(unsigned long long rval) {
-    _MEPC.Value(rval);
-  };
   
   exclMonitor &LocalMonitor() { return local_monitor; };
 
@@ -76,7 +67,6 @@ protected:
   unsigned long long clock;
   bool end_test;
   ProgramCounter _PC;  // PC
-  AddressRegister _MEPC;
   unsigned long long instr_count;  // # of 'retired' instructions
   unsigned long long timer;        // timer
   
