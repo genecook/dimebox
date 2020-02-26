@@ -32,17 +32,16 @@ dimebox tasks (in no particular order)
    --debug fails. -DONE
    --add code to determine test 'pass' memory section, to further tests end correctly. -DONE.
  * Add in integer multiply/divide/rem instructions. -DONE.
- 
- * Exercize gdb, debug simulator.
-
  * Download/build other riscv simulator, run test cases. are test signatures there? execution trace? -DONE.
    --1st tried spike - failed on test cases AND little or no documentation
-   --2nd try using ovp-sim - success. simulator operates correctly on test cases and has very good docs
- 
+   --2nd try using ovp-sim - success. simulator operates correctly on test cases and has very good docs 
  * Extract test signatures? Compare with 'golden mode' signatures? - DONE.
 
- * Formalize test process - using some scripts to ad hoc testing so far.
+ * Exercize gdb, debug simulator.
 
+ * Formalize test process - using some scripts to ad hoc testing so far.
+   --add testing to git checkin?
+   
  * Reconcile sim config file. - not up to date with cmdline args. what should be in this file?
  
  * Simplify exceptions logic - remove redundant Signals code. Other code cleanup.
@@ -50,7 +49,12 @@ dimebox tasks (in no particular order)
  * Implement pseudo real-time clock
    ( use wall clock + core clock to derive real-time clock 'tics'
    only when real-time clock is accessed?)
-
+   
+ * Review/implement rv32ui control registers.
+   -work started
+   
+ * Add support for ns16550a uart (derive from existing pla011 implementation)
+ 
  * Add support for dtb to describe dimebox 'platform'?
  
  * README.md - ONGOING.
