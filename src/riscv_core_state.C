@@ -4,6 +4,47 @@
 //#define DEBUG_CSR 1
 
 //***********************************************************************
+// update one RiscvState object from another, possibly displaying
+// register values that have changed...
+//***********************************************************************
+
+void RiscvState::Update(RiscvState *rhs) {
+    State::Update((State *) rhs,show_updates);
+    
+    if (USTATUS() != rhs->USTATUS()) SetUSTATUS(rhs->USTATUS());
+    if (FFLAGS() != rhs->FFLAGS()) SetFFLAGS(rhs->FFLAGS());
+    if (FRM() != rhs->FRM()) SetFRM(rhs->FRM());
+    if (FCSR() != rhs->FCSR()) SetFCSR(rhs->FCSR());
+    if (SATP() != rhs->SATP()) SetSATP(rhs->SATP());
+    if (MSTATUS() != rhs->MSTATUS()) SetMSTATUS(rhs->MSTATUS());  
+    if (MEDELEG() != rhs->MEDELEG()) SetMEDELEG(rhs->MEDELEG());
+    if (MIDELEG() != rhs->MIDELEG()) SetMIDELEG(rhs->MIDELEG());
+    if (MIE() != rhs->MIE()) SetMIE(rhs->MIE());
+    if (MTVEC() != rhs->MTVEC()) SetMTVEC(rhs->MTVEC());
+    if (MCOUNTEREN() != rhs->MCOUNTEREN()) SetMCOUNTEREN(rhs->MCOUNTEREN());
+    if (MSTATUSH() != rhs->MSTATUSH()) SetMSTATUSH(rhs->MSTATUSH());
+    if (MSCRATCH() != rhs->MSCRATCH()) SetMSCRATCH(rhs->MSCRATCH());
+    if (MEPC() != rhs->MEPC()) SetMEPC(rhs->MEPC());
+    if (MCAUSE() != rhs->MCAUSE()) SetMCAUSE(rhs->MCAUSE());
+    if (MTVAL() != rhs->MTVAL()) SetMTVAL(rhs->MTVAL());
+    if (MIP() != rhs->MIP()) SetMIP(rhs->MIP());	
+    if (MTINST() != rhs->MTINST()) SetMTINST(rhs->MTINST());
+    if (PMPCFG0() != rhs->PMPCFG0()) SetPMPCFG0(rhs->PMPCFG0());
+    if (PMPADDR0() != rhs->PMPADDR0()) SetPMPADDR0(rhs->PMPADDR0());
+    if (MCYCLE() != rhs->MCYCLE()) SetMCYCLE(rhs->MCYCLE());
+    if (MTINSTRET() != rhs->MTINSTRET()) SetMTINSTRET(rhs->MTINSTRET());
+    if (MCYCLEH() != rhs->MCYCLEH()) SetMCYCLEH(rhs->MCYCLEH());
+    if (MTINSTRETH() != rhs->MTINSTRETH()) SetMTINSTRETH(rhs->MTINSTRETH());
+
+    for (auto i = 0; i < 32; i++) {
+      if (X[i].Value() != rhs->X[i].Value()) {
+        X[i].Value(rhs->X[i].Value());
+	if (show_updates) ShowRegisterAccess(RegAlias(i),i,X[i].Value(),true);
+      }
+    }
+  }
+
+//***********************************************************************
 // validate CSR access:
 //   1. within valid range?
 //   2. accessed from correct privilege level?
