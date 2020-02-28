@@ -124,14 +124,14 @@ void RiscvSimulator::StepCores() {
 	  return;
         }
         RiscvState state_updates(*ci,sim_cfg->ShowUpdates());
-        RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,&signals,opcode.encoding);
+        RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
 	if (sim_cfg->ShowDisassembly()) {
           char tbuf[128];
           sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
           std::cout << tbuf << std::endl;
 	}
         instr->Step();
-        instr->Writeback(*ci,&memory,&signals,sim_cfg->ShowUpdates());
+        instr->Writeback(*ci,&memory,sim_cfg->ShowUpdates());
         delete instr;
         instr_count++;
 	(*ci)->AdvanceClock();
@@ -141,12 +141,24 @@ void RiscvSimulator::StepCores() {
         }
      } catch(SIM_EXCEPTIONS sim_exception) {
        switch((int) sim_exception) {
-         case UNIMPLEMENTED_INSTRUCTION:
-	   fprintf(stderr,"Unimplemented or unknown instruction encoding! PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
+         case ILLEGAL_INSTRUCTION_UNKNOWN_INSTR:
+	   fprintf(stderr,"Unknown instruction. PC: 0x%08x, encoded instruction: 0x%08x\n",
+		   pc,opcode.encoding);
            rcode = -1;
 	   break;
-         case ILLEGAL_INSTRUCTION:
-	   fprintf(stderr,"Unknown or privileged csr access! PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
+         case ILLEGAL_INSTRUCTION_UNIMPL_INSTR:
+	   fprintf(stderr,"Unimplemented instruction. PC: 0x%08x, encoded instruction: 0x%08x\n",
+		   pc,opcode.encoding);
+           rcode = -1;
+	   break;
+         case ILLEGAL_INSTRUCTION_UNKNOWN_CSR:
+	   fprintf(stderr,"Access to unknown CSR. PC: 0x%08x, encoded instruction: 0x%08x\n",
+		   pc,opcode.encoding);
+           rcode = -1;
+	   break;
+         case ILLEGAL_INSTRUCTION_PRIVILEGED_CSR:
+	   fprintf(stderr,"Privileged csr access. PC: 0x%08x, encoded instruction: 0x%08x\n",
+		   pc,opcode.encoding);
            rcode = -1;
 	   break;
          case TEST_PASSES:

@@ -100,8 +100,8 @@ unsigned long long RiscvInstruction::MEMORY_READ(unsigned long long address,int 
   return rval;
 }
 
-void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,Signals *_signals, bool show_updates) {
-  // after (successfully) stepping an instruction, update (core) register state, memory, signals...
+void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,bool show_updates) {
+  // after (successfully) stepping an instruction, update (core) register state, memory...
   if (show_updates) state->ShowRegisterReads();
   _state->Update(state);
   for (auto mop = mOpsMemory.begin(); mop != mOpsMemory.end(); mop++) {
@@ -116,16 +116,15 @@ void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,Signals *_si
        printf("\n");
      }
   }
-  *_signals = signals;
 }
 
 //**************************************************************************
 //**************************************************************************
 
-#define INSTR_INST(X) new X(state,memory,signals,encoding)
+#define INSTR_INST(X) new X(state,memory,encoding)
 
 RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Memory *memory,
-				  Signals *signals,unsigned int encoding) {
+				  unsigned int encoding) {
 
   // decode RV32I Base Instruction Set...
   
@@ -273,7 +272,7 @@ RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Mem
   }
 
   if (instruction == NULL) {
-    throw UNIMPLEMENTED_INSTRUCTION;
+    throw ILLEGAL_INSTRUCTION_UNKNOWN_INSTR;
   }
   
   return instruction;

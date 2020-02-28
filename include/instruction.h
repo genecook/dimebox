@@ -17,7 +17,7 @@ public:
   virtual void Decode() {};  // decode instruction opcode to yield operand indices
   virtual void Step(const State *_state,const Memory *_memory) {}; // execute the instruction
   // after instruction is stepped, update simulator state:
-  virtual void Writeback(State *_state,Memory *_memory,Signals *_signals);
+  virtual void Writeback(State *_state,Memory *_memory);
 protected:
   unsigned char mbuf[80];               // hold instruction bytes read from memory
   unsigned int opcode;                  // instruction encoding read from memory
@@ -26,7 +26,6 @@ protected:
   char disassembly[256];                // record disassembly
   int execute_op;                       // which machine op to perform
   std::vector<MemoryAccess> mOpsMemory; // memory accesses from execution of instruction
-  Signals signals;                      // exceptions/interrupt flags
 private:
 };
 

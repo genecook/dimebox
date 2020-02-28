@@ -10,8 +10,8 @@
 
 class RiscvInstruction {
 public:
-  RiscvInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : encoding(_encoding), state(_state), memory(_memory), signals(_signals),
+  RiscvInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : encoding(_encoding), state(_state), memory(_memory),
      load_store(false),jal(false),uaui(false),unsigned_sign_extension(false),shift(false),
      csrs(false), csrr(false), csri(false), trap(false) {
    instr_pc = state->PC();
@@ -27,7 +27,7 @@ public:
   virtual void Step() = 0;     // execute the instruction
   
   // after instruction executes, update simulator state:
-  virtual void Writeback(RiscvState *_state,Memory *_memory,Signals *_signals,bool show_updates);
+  virtual void Writeback(RiscvState *_state,Memory *_memory,bool show_updates);
 
   virtual std::string Disassembly() = 0;
   virtual std::string InstrName() = 0;
@@ -88,7 +88,6 @@ protected:
   char disassembly[256];                // record disassembly
   RiscvState *state;                    // register state
   Memory *memory;                       // memory
-  Signals signals;                      // exceptions/interrupt flags
   std::vector<MemoryAccess> mOpsMemory; // memory accesses from execution of instruction
   unsigned int funct7;                  //
   unsigned int rs2;                     // instruction encoding fields
@@ -123,8 +122,8 @@ protected:
 
 class RtypeInstruction : public RiscvInstruction {
  public:
-  RtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
+  RtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { Decode(); };
   ~RtypeInstruction() {};  
   virtual void Decode() { _FUNCT7; _RS2; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
@@ -139,8 +138,8 @@ class RtypeInstruction : public RiscvInstruction {
 
 class ItypeInstruction : public RiscvInstruction {
  public:
-  ItypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
+  ItypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { Decode(); };
   ~ItypeInstruction() {};
   virtual void Decode() { _ITYPE_IMM; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
@@ -169,8 +168,8 @@ class ItypeInstruction : public RiscvInstruction {
 
 class StypeInstruction : public RiscvInstruction {
  public:
-  StypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
+  StypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { Decode(); };
   ~StypeInstruction() {};  
   virtual void Decode() { _STYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
@@ -184,8 +183,8 @@ class StypeInstruction : public RiscvInstruction {
 
 class BtypeInstruction : public RiscvInstruction {
  public:
-  BtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
+  BtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { Decode(); };
   ~BtypeInstruction() {};
   virtual void Decode() { _BTYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
@@ -199,8 +198,8 @@ class BtypeInstruction : public RiscvInstruction {
 
 class UtypeInstruction : public RiscvInstruction {
  public:
-  UtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
+  UtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { Decode(); };
   ~UtypeInstruction() {};  
   virtual void Decode() { _UTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
@@ -217,8 +216,8 @@ class UtypeInstruction : public RiscvInstruction {
 
 class JtypeInstruction : public RiscvInstruction {
  public:
-  JtypeInstruction(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_signals,_encoding) { Decode(); };
+  JtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { Decode(); };
   ~JtypeInstruction() {};  
   virtual void Decode() { _JTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
@@ -240,8 +239,7 @@ class RiscvInstructionFactory {
   RiscvInstructionFactory() {};
   ~RiscvInstructionFactory() {};
 
-  static RiscvInstruction * NewInstruction(RiscvState *_state,Memory *_memory,
-					   Signals *_signals,unsigned int _encoding);
+  static RiscvInstruction * NewInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding);
 };
 
 #endif

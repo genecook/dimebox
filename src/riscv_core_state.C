@@ -10,7 +10,9 @@
 
 void RiscvState::Update(RiscvState *rhs) {
     State::Update((State *) rhs,show_updates);
-    
+   
+    _privilege_level = rhs->_privilege_level;
+
     if (USTATUS() != rhs->USTATUS()) SetUSTATUS(rhs->USTATUS());
     if (FFLAGS() != rhs->FFLAGS()) SetFFLAGS(rhs->FFLAGS());
     if (FRM() != rhs->FRM()) SetFRM(rhs->FRM());
@@ -107,7 +109,7 @@ void RiscvState::ValidateCSRAccess(unsigned int csr_address,
   }
 
   if (!access_okay) {
-    throw ILLEGAL_INSTRUCTION;
+    throw ILLEGAL_INSTRUCTION_PRIVILEGED_CSR;
   }
 }
 
@@ -177,7 +179,7 @@ unsigned long long RiscvState::CSR(unsigned int csr,unsigned int privilege_level
     case 0xf13: rval = MIMPID; break;
     case 0xf14: rval = GetID(); break;
   
-    default: throw ILLEGAL_INSTRUCTION;
+    default: throw ILLEGAL_INSTRUCTION_UNKNOWN_CSR;
              break;
   }
   
@@ -225,7 +227,7 @@ void RiscvState::SetCSR(unsigned int csr,unsigned int privilege_level, unsigned 
     case 0xb80: SetMCYCLEH(rval); break;
     case 0xb82: SetMTINSTRETH(rval); break;
 
-    default:    throw ILLEGAL_INSTRUCTION;
+    default:    throw ILLEGAL_INSTRUCTION_UNKNOWN_CSR;
                 break;
   }
     

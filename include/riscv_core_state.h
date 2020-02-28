@@ -8,11 +8,13 @@ public:
   RiscvState() : State() {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(0);
+    _privilege_level = 3; // defaults to machine mode
   };
   
   RiscvState(SimConfig *sim_cfg) : State(sim_cfg) {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(sim_cfg->ResetAddress());
+    _privilege_level = 3; // defaults to machine mode
   };
   
   RiscvState(RiscvState *rhs,bool _show_updates = false) : State(rhs) {
@@ -117,11 +119,49 @@ public:
     _SATP.Value(rval); 
     if (show_updates) ShowCSRAccess("satp",0x180,rval);
   };
-  unsigned long long MSTATUS() { return _MSTATUS.Value(); };
+  
+  unsigned long long MSTATUS() {
+    return _MSTATUS.Value() & 0x807fffff; // bits 23..30 = WPRI
+  };
   void SetMSTATUS(unsigned long long rval) {
+    rval &= rval & ~0x805de162;  // make sure these bits are clear: SIE,SPP,SPIE,MXR,SUM,UBE,TVM,TSR,FP,XS,SD
+    if ( ((rval & 0xc00) == 0x400) || ((rval & 0xc00) == 0x800) ) {
+      rval &= ~0xc00; // don't allow MPP to be 01 (S) or 02 (reserved)
+    }
     _MSTATUS.Value(rval);
     if (show_updates) ShowCSRAccess("mstatus",0x300,rval);
   };
+  unsigned long long MSTATUSH() {
+    return _MSTATUSH.Value() & 0x30; // bits 6..31,0 = WPRI
+  };
+  void SetMSTATUSH(unsigned long long rval) {
+    rval &= rval & ~0x30; // make sure these bits are clear: MBE,SBE
+    _MSTATUSH.Value(rval);
+    if (show_updates) ShowCSRAccess("mstatush",0x310,rval);
+  };
+  bool GlobalInterruptsEnabled() { return (MSTATUS() & 0x8) != 0; }; // machine mode global interrupt-enable
+  bool WFIEnabled() {
+    // MSTATUS.TW is WFI 'enable' when not in machine mode...
+    return (CurrentPrivilegeLevel() == 3) || (MSTATUS() & 0x200000);
+  };
+  
+  unsigned CurrentPrivilegeLevel() { return _privilege_level; };
+  
+  bool InterruptsEnabled(unsigned /* privilege_level */) {
+    // at this time only machine mode is supported...
+    return (CurrentPrivilegeLevel() == 3) && MIE();
+  };
+
+  // on interrupt:
+  //   1. copy MIE to MPIE
+  //   2. MIE set to 0
+  //   3. MPP set from CurrentPrivilegeLevel
+  // on return from interrupt:
+  //   1. MPIE set to 1
+  //   2. CurrentPrivilegeLevel set from MPP
+  //   3. set MPRV to 0 if MPP != M (0)
+  //   4. MPP = U (1)
+  
   unsigned long long MEDELEG() { return _MEDELEG.Value(); };
   void SetMEDELEG(unsigned long long rval) {
     _MEDELEG.Value(rval);
@@ -146,11 +186,6 @@ public:
   void SetMCOUNTEREN(unsigned long long rval) {
     _MCOUNTEREN.Value(rval);
     if (show_updates) ShowCSRAccess("mcounteren",0x306,rval);
-  };
-  unsigned long long MSTATUSH() { return _MSTATUSH.Value(); };
-  void SetMSTATUSH(unsigned long long rval) {
-    _MSTATUSH.Value(rval);
-    if (show_updates) ShowCSRAccess("mstatush",0x310,rval);
   };
   unsigned long long MSCRATCH() { return _MSCRATCH.Value(); };
   void SetMSCRATCH(unsigned long long rval) {
@@ -237,6 +272,8 @@ public:
   };
   
 private:
+  unsigned _privilege_level; // the current privilege level
+
   GPRegister X[32];  // general purpose registers
 
   AddressRegister _MEPC;

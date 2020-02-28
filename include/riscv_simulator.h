@@ -61,7 +61,6 @@ protected:
   int instr_count;
   int rcode;
   bool cores_are_running;
-  Signals signals;   // timers, interrupts update signals
   UART_pl011 uart1;
   RiscvDebugServer *debug_server;
 

@@ -37,8 +37,8 @@ my @R = qw(ADD SLT SLTU AND OR XOR SLL SRL SUB SRA
 my $instr_template = '
 class $INSTR$ : public $TYPE$typeInstruction {
   public:
-    $INSTR$(RiscvState *_state,Memory *_memory,Signals *_signals,unsigned int _encoding)
-    : $TYPE$typeInstruction(_state,_memory,_signals,_encoding) { $INIT$; };
+    $INSTR$(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : $TYPE$typeInstruction(_state,_memory,_encoding) { $INIT$; };
     std::string InstrName() { return std::string("$instr$"); };
     void Step(); 
 };

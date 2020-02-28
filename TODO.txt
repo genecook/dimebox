@@ -36,6 +36,8 @@ dimebox tasks (in no particular order)
    --1st tried spike - failed on test cases AND little or no documentation
    --2nd try using ovp-sim - success. simulator operates correctly on test cases and has very good docs 
  * Extract test signatures? Compare with 'golden mode' signatures? - DONE.
+ * Simplify exceptions logic - remove redundant Signals code. Other code cleanup. -DONE.
+
 
  * Exercize gdb, debug simulator.
 
@@ -44,14 +46,14 @@ dimebox tasks (in no particular order)
    
  * Reconcile sim config file. - not up to date with cmdline args. what should be in this file?
  
- * Simplify exceptions logic - remove redundant Signals code. Other code cleanup.
-
  * Implement pseudo real-time clock
    ( use wall clock + core clock to derive real-time clock 'tics'
    only when real-time clock is accessed?)
    
  * Review/implement rv32ui control registers.
    -work started
+   --all CSRs in place - not yet vetted or debugged.
+   --riscv specific interrupt/exception types (enums) defined.
    
  * Add support for ns16550a uart (derive from existing pla011 implementation)
  

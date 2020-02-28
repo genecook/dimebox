@@ -163,25 +163,25 @@ void ECALL::Step() {
     throw TEST_FAILS;
   }    
 #endif
-  throw UNIMPLEMENTED_INSTRUCTION;
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void EBREAK::Step() {
   BumpPC(); // ignored...
 };
 
 void URET::Step() {
-  throw UNIMPLEMENTED_INSTRUCTION;
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void SRET::Step() {
-  throw UNIMPLEMENTED_INSTRUCTION;
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void HRET::Step() {
-  throw UNIMPLEMENTED_INSTRUCTION;
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void MRET::Step() { PC ( MEPC() ); };
 
 void WFI::Step() {
-  throw WAIT_FOR_INTERRUPT;
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void SFENCE::Step() {
   BumpPC(); // ignored...
