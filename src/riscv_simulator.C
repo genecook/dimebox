@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 
+#define RISCV_ISA_TESTING 1
+
 //****************************************************************************
 // allocate/initialize cores, timers, devices, etc...
 //****************************************************************************
@@ -142,26 +144,33 @@ void RiscvSimulator::StepCores() {
      } catch(SIM_EXCEPTIONS sim_exception) {
        // process 'expected' exceptions/errors...
        switch((int) sim_exception) {
-         case TEST_PASSES:
-	   if (hit_test_pass_region) {
-	     printf("'Test harness' indicates success!\n");
-	     rcode = 0;
-	   } else {
-	     fprintf(stderr,"'Test harness' indicates success but test did NOT pass through 'pass' memory region???\n");
-	     rcode = -1;
-	   }
-	   (*ci)->SetEndTest(true);
-	   break;
-         case TEST_FAILS:
-	   fprintf(stderr,"'Test harness' indicates FAILURE!\n");
-	   rcode = -1;
-	   break;
+#ifdef RISCV_ISA_TESTING
+         case ENV_CALL_UMODE:
+         case ENV_CALL_MMODE:
+           if ( ((*ci)->GP(3) == 1) && ((*ci)->GP(17) == 93) && ((*ci)->GP(10) == 0) ) {
+	     // at env-call, core register state indicates test has passed...
+             std::cout << "TEST PASSES!!!" << std::endl;
+	     if (hit_test_pass_region) {
+	       // but we still expect the test to have 'passed' thru the 'pass' region...
+	       printf("'Test harness' indicates success!\n");
+	       (*ci)->SetEndTest(true);
+	     } else {
+	       fprintf(stderr,"'Test harness' indicates success but test did NOT pass through 'pass' memory region???\n");
+	       rcode = -1;
+	     }
+           } else {
+             std::cout << "TEST FAILS!!!" << std::endl;
+             rcode = -1;
+           }
+           break;
+#endif
 	 // should never get internal or 'generation' errors...
          case INTERNAL_ERROR:
          case GENERATION_ERROR:  
 	   fprintf(stderr,"Internal Error???\n");
 	   rcode = -1;
 	   break;
+	   
          default:
 	   // defer processing of architectural exceptions/interrupts to the currently executing core...
 	   (*ci)->ProcessException(sim_exception,opcode.encoding);

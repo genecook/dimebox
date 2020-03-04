@@ -306,17 +306,22 @@ void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opc
   char tbuf[1024];
 
   // process any (supported) architecture related exception or platform interrupt here...
+
+  bool is_implemented = false;
+  
   switch((int) sim_exception) {
     case MACHINE_SWI:
     case MACHINE_TIMER_INT:
     case MACHINE_EXTERNAL_INT_UART:
     case PROCESS_WFI:
     case PROCESS_MRET:
-	    // UIE = MPIE
-  // privilege_mode = umode
-  // SetPrivilegeLevel(MPP)
-  // MPIE = 1
-  // PC ( MEPC() );
+      // UIE = MPIE
+      // privilege_mode = umode
+      // SetPrivilegeLevel(MPP)
+      // MPIE = 1
+      SetPC ( MEPC() );
+      is_implemented = true;
+      break;
     case ENV_CALL_UMODE:
     case ENV_CALL_MMODE:  
     case ILLEGAL_INSTRUCTION_UNKNOWN_INSTR:
@@ -333,8 +338,9 @@ void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opc
       break;
   }
 
-  // until implemented, all exceptions throw runtime error...
-  throw std::runtime_error(tbuf);
+  // all unimplemented exceptions throw runtime error...
+  if (!is_implemented)
+    throw std::runtime_error(tbuf);
 }
 
 //***********************************************************************

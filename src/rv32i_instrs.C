@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define RISCV_ISA_TESTING 1
-
 void ADDI::Step() {
   RD( RS1() + SIGN_EXTEND_IMM(12) ); BumpPC();
 };
@@ -153,20 +151,10 @@ void CSRRCI::Step() {
 };
 
 void ECALL::Step() {
-#ifdef RISCV_ISA_TESTING
-  if ( (GP() == 1) && (A7() == 93) && (A0() == 0) ) {
-    std::cout << "TEST PASSES!!!" << std::endl;
-    throw TEST_PASSES;
-  } else {
-    std::cout << "TEST FAILS!!!" << std::endl;
-    throw TEST_FAILS;
-  }
-#else
   if (UserMode())
     throw ENV_CALL_UMODE;
   else
     throw ENV_CALL_MMODE;
-#endif
 };
 
 void EBREAK::Step() {
@@ -183,13 +171,10 @@ void HRET::Step() {
   throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void MRET::Step() { 
-#ifdef RISCV_ISA_TESTING
-  PC ( MEPC() );
-#else
-  if (!MachineMode())
+  if (MachineMode())
+    throw PROCESS_MRET;
+  else
     throw ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR;
-  throw PROCESS_MRET;
-#endif
 };
 
 void WFI::Step() {
