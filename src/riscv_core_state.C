@@ -11,7 +11,7 @@
 void RiscvState::Update(RiscvState *rhs) {
     State::Update((State *) rhs,show_updates);
    
-    _privilege_level = rhs->_privilege_level;
+    _machine_state = rhs->_machine_state;
 
     if (USTATUS() != rhs->USTATUS()) SetUSTATUS(rhs->USTATUS());
     if (FFLAGS() != rhs->FFLAGS()) SetFFLAGS(rhs->FFLAGS());
@@ -187,6 +187,9 @@ unsigned long long RiscvState::CSR(unsigned int csr,unsigned int privilege_level
   return rval;
 }
 
+//***********************************************************************
+//***********************************************************************
+
 void RiscvState::SetCSR(unsigned int csr,unsigned int privilege_level, unsigned long long rval) {
   ValidateCSRAccess(csr,privilege_level,true);
   
@@ -233,6 +236,9 @@ void RiscvState::SetCSR(unsigned int csr,unsigned int privilege_level, unsigned 
     
     if (show_updates) ShowCSRAccess(CSR_NAME(csr),csr,rval,true);
 }
+
+//***********************************************************************
+//***********************************************************************
 
 std::string RiscvState::CSR_NAME(int csr) {
     std::string rname;
@@ -290,5 +296,94 @@ std::string RiscvState::CSR_NAME(int csr) {
                break;
     }
     return rname;
+}
+
+//***********************************************************************
+// process exception or interrupt...
+//***********************************************************************
+
+void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opcode) {
+  char tbuf[1024];
+
+  // process any (supported) architecture related exception or platform interrupt here...
+  switch((int) sim_exception) {
+    case MACHINE_SWI:
+    case MACHINE_TIMER_INT:
+    case MACHINE_EXTERNAL_INT_UART:
+    case PROCESS_WFI:
+    case PROCESS_MRET:
+	    // UIE = MPIE
+  // privilege_mode = umode
+  // SetPrivilegeLevel(MPP)
+  // MPIE = 1
+  // PC ( MEPC() );
+    case ENV_CALL_UMODE:
+    case ENV_CALL_MMODE:  
+    case ILLEGAL_INSTRUCTION_UNKNOWN_INSTR:
+    case ILLEGAL_INSTRUCTION_UNIMPL_INSTR:
+    case ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR:
+    case ILLEGAL_INSTRUCTION_UNKNOWN_CSR:
+    case ILLEGAL_INSTRUCTION_PRIVILEGED_CSR:
+      // exception handling tbd...
+      DecodeException(tbuf,sim_exception,PC(),opcode);
+      break;
+    default:
+      // some unimplemented interrupt/exception???
+      DecodeException(tbuf,sim_exception,PC(),opcode);
+      break;
+  }
+
+  // until implemented, all exceptions throw runtime error...
+  throw std::runtime_error(tbuf);
+}
+
+//***********************************************************************
+// decode exception info into print string...
+//***********************************************************************
+
+void RiscvState::DecodeException(char *tbuf,SIM_EXCEPTIONS sim_exception, unsigned long long pc,unsigned int opcode) {
+  switch((int) sim_exception) {
+    case MACHINE_SWI:
+      sprintf(tbuf,"SWI issued in Machine Mode. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;
+    case MACHINE_TIMER_INT:
+      sprintf(tbuf,"Timer interrupt, Machine Mode. On or around PC: 0x%08llx\n",pc);
+      break;
+    case MACHINE_EXTERNAL_INT_UART:
+      sprintf(tbuf,"Interrupt from Uart, Machine Mode. On or around PC: 0x%08llx.\n",pc);
+      break;
+    case PROCESS_WFI:
+      sprintf(tbuf,"WFI issued in Machine Mode. PC: 0x%08llx, encoded (assumed WFI) instruction: 0x%08x\n",pc,opcode);
+      break;     
+    case PROCESS_MRET:
+      sprintf(tbuf,"MRET issued. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;     
+    case ENV_CALL_UMODE:
+      sprintf(tbuf,"ECALL issued from User Mode. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;     
+    case ENV_CALL_MMODE:  
+      sprintf(tbuf,"ECALL issued from Machine Mode. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;     
+    case ILLEGAL_INSTRUCTION_UNKNOWN_INSTR:
+      sprintf(tbuf,"Unknown instruction. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;
+    case ILLEGAL_INSTRUCTION_UNIMPL_INSTR:
+      sprintf(tbuf,"Unimplemented instruction. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;
+    case ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR:
+      sprintf(tbuf,"Attempt to execute privileged instruction. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;
+    case ILLEGAL_INSTRUCTION_UNKNOWN_CSR:
+      sprintf(tbuf,"Access to unknown CSR. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;
+    case ILLEGAL_INSTRUCTION_PRIVILEGED_CSR:
+      sprintf(tbuf,"Privileged csr access. PC: 0x%08llx, encoded instruction: 0x%08x\n",pc,opcode);
+      break;
+      
+    default:
+      // some unimplemented interrupt/exception???
+      sprintf(tbuf,"Unknown or unsupported exception type: 0x%03x",(int) sim_exception);
+      break;
+  }
 }
 

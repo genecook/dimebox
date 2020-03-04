@@ -77,9 +77,9 @@ int RiscvSimulator::Go() {
   instr_count = 0; // total # of instructions simulated for all cores
 
   while( !rcode && (instr_count < sim_cfg->MaxInstrs()) && cores_are_running) {
-    ServiceDevices();
     StepCores();
     AdvanceClock();
+    ServiceDevices();
   }
 
   // we expect all cores to be 'properly' halted at the end of simulation...
@@ -140,27 +140,8 @@ void RiscvSimulator::StepCores() {
           (*ci)->SetEndTest(true);
         }
      } catch(SIM_EXCEPTIONS sim_exception) {
+       // process 'expected' exceptions/errors...
        switch((int) sim_exception) {
-         case ILLEGAL_INSTRUCTION_UNKNOWN_INSTR:
-	   fprintf(stderr,"Unknown instruction. PC: 0x%08x, encoded instruction: 0x%08x\n",
-		   pc,opcode.encoding);
-           rcode = -1;
-	   break;
-         case ILLEGAL_INSTRUCTION_UNIMPL_INSTR:
-	   fprintf(stderr,"Unimplemented instruction. PC: 0x%08x, encoded instruction: 0x%08x\n",
-		   pc,opcode.encoding);
-           rcode = -1;
-	   break;
-         case ILLEGAL_INSTRUCTION_UNKNOWN_CSR:
-	   fprintf(stderr,"Access to unknown CSR. PC: 0x%08x, encoded instruction: 0x%08x\n",
-		   pc,opcode.encoding);
-           rcode = -1;
-	   break;
-         case ILLEGAL_INSTRUCTION_PRIVILEGED_CSR:
-	   fprintf(stderr,"Privileged csr access. PC: 0x%08x, encoded instruction: 0x%08x\n",
-		   pc,opcode.encoding);
-           rcode = -1;
-	   break;
          case TEST_PASSES:
 	   if (hit_test_pass_region) {
 	     printf("'Test harness' indicates success!\n");
@@ -174,12 +155,23 @@ void RiscvSimulator::StepCores() {
          case TEST_FAILS:
 	   fprintf(stderr,"'Test harness' indicates FAILURE!\n");
 	   rcode = -1;
-	   break;	 
+	   break;
+	 // should never get internal or 'generation' errors...
+         case INTERNAL_ERROR:
+         case GENERATION_ERROR:  
+	   fprintf(stderr,"Internal Error???\n");
+	   rcode = -1;
+	   break;
          default:
-           fprintf(stderr,"Problems with instruction??? PC: 0x%08x, encoded instruction: 0x%08x\n",pc,opcode.encoding);
-           rcode = -1;
+	   // defer processing of architectural exceptions/interrupts to the currently executing core...
+	   (*ci)->ProcessException(sim_exception,opcode.encoding);
 	   break;
        }
+     } catch(const std::runtime_error &msg) {
+       // generally will get here if core cannot handle an exception or interrupt...
+       std::cout << msg.what() << std::endl;
+       rcode = -1;
+       break;
      }
   }
 }
@@ -214,13 +206,11 @@ void RiscvSimulator::ServiceDevices() {
   if (uart1.IsImplemented()) {
     uart1.advanceClock();
     uart1.ServiceIOs();
-    /* uart interrupt not supported yet...
     int int_info;
-    if (uart.InterruptPending(int_info)) {
-      // until GIC is implemented, uart interrupt is tied to cpu0 IRQ...
-      cpus[0].SignalIRQ();
+    if (uart1.InterruptPending(int_info)) {
+      // until interrupt controller is implemented, uart interrupt is tied to cpu0...
+      cores[0]->Signal(MACHINE_EXTERNAL_INT_UART);
     }
-    */
   }
 }
 

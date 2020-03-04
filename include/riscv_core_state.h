@@ -8,13 +8,13 @@ public:
   RiscvState() : State() {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(0);
-    _privilege_level = 3; // defaults to machine mode
+    _machine_state = MACHINE_MODE; // defaults to machine mode
   };
   
   RiscvState(SimConfig *sim_cfg) : State(sim_cfg) {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(sim_cfg->ResetAddress());
-    _privilege_level = 3; // defaults to machine mode
+    _machine_state = MACHINE_MODE; // defaults to machine mode
   };
   
   RiscvState(RiscvState *rhs,bool _show_updates = false) : State(rhs) {
@@ -144,13 +144,27 @@ public:
     // MSTATUS.TW is WFI 'enable' when not in machine mode...
     return (CurrentPrivilegeLevel() == 3) || (MSTATUS() & 0x200000);
   };
+
+  static const unsigned int USER_MODE=0;
+  static const unsigned int SUPERVISOR_MODE=1;
+  static const unsigned int HYPERVISOR_MODE=2;
+  static const unsigned int MACHINE_MODE=3;
+
+  unsigned CurrentPrivilegeLevel() { return _machine_state & 0x3; };
+  void SetPrivilegeLevel(unsigned int _new_privilege_level) {
+    _machine_state = (_machine_state & ~0x3) | _new_privilege_level;
+  };
+  bool LowPowerMode() { return (_machine_state & 0x10) != 0; };
+  void ClearLowPowerMode() { _machine_state &= ~0x10; };
+  void SetLowPowerMode() { _machine_state |= 0x10; };
   
-  unsigned CurrentPrivilegeLevel() { return _privilege_level; };
-  
-  bool InterruptsEnabled(unsigned /* privilege_level */) {
+  bool NestedInterruptsEnabled(unsigned /* privilege_level */) {
     // at this time only machine mode is supported...
     return (CurrentPrivilegeLevel() == 3) && MIE();
   };
+
+  // used to signal interrupt from device such as uart: 
+  void Signal(SIM_EXCEPTIONS sim_interrupt) {};
 
   // on interrupt:
   //   1. copy MIE to MPIE
@@ -161,6 +175,9 @@ public:
   //   2. CurrentPrivilegeLevel set from MPP
   //   3. set MPRV to 0 if MPP != M (0)
   //   4. MPP = U (1)
+
+  void ProcessException(SIM_EXCEPTIONS sim_exception,unsigned int opcode);
+  void DecodeException(char *tbuf,SIM_EXCEPTIONS sim_exception, unsigned long long pc,unsigned int opcode);
   
   unsigned long long MEDELEG() { return _MEDELEG.Value(); };
   void SetMEDELEG(unsigned long long rval) {
@@ -272,8 +289,11 @@ public:
   };
   
 private:
-  unsigned _privilege_level; // the current privilege level
-
+                           //   bits           used for
+                           // ---------   -----------------------
+  unsigned _machine_state; //    4        low power mode (set to 1 if waiting for interrupt, ie, in low power mode
+                           //    1:0      current privilege mode (User=0, Super=1, Hyper=2, Machine=3
+  
   GPRegister X[32];  // general purpose registers
 
   AddressRegister _MEPC;

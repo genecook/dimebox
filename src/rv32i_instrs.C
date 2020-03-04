@@ -152,7 +152,6 @@ void CSRRCI::Step() {
   RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !rs1 ); BumpPC();
 };
 
-
 void ECALL::Step() {
 #ifdef RISCV_ISA_TESTING
   if ( (GP() == 1) && (A7() == 93) && (A0() == 0) ) {
@@ -161,10 +160,15 @@ void ECALL::Step() {
   } else {
     std::cout << "TEST FAILS!!!" << std::endl;
     throw TEST_FAILS;
-  }    
+  }
+#else
+  if (UserMode())
+    throw ENV_CALL_UMODE;
+  else
+    throw ENV_CALL_MMODE;
 #endif
-  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
+
 void EBREAK::Step() {
   BumpPC(); // ignored...
 };
@@ -178,11 +182,25 @@ void SRET::Step() {
 void HRET::Step() {
   throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
-void MRET::Step() { PC ( MEPC() ); };
+void MRET::Step() { 
+#ifdef RISCV_ISA_TESTING
+  PC ( MEPC() );
+#else
+  if (!MachineMode())
+    throw ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR;
+  throw PROCESS_MRET;
+#endif
+};
 
 void WFI::Step() {
-  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  if (UserMode())
+    throw ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR;
+  else if (WFIEnabled())
+    throw PROCESS_WFI;
+  else
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
+
 void SFENCE::Step() {
   BumpPC(); // ignored...
 };

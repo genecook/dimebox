@@ -31,6 +31,11 @@ public:
 
   virtual std::string Disassembly() = 0;
   virtual std::string InstrName() = 0;
+
+  bool UserMode() { return state->CurrentPrivilegeLevel() == state->USER_MODE; };
+  bool MachineMode() { return state->CurrentPrivilegeLevel() == state->MACHINE_MODE; };
+  bool PrivilegedMode() { return state->CurrentPrivilegeLevel() != state->USER_MODE; };
+  bool WFIEnabled() { return state->WFIEnabled(); };
   
   unsigned int RS2() { return state->GP(rs2); };
   unsigned int RS1() { return state->GP(rs1); };
