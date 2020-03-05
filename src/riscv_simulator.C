@@ -27,6 +27,9 @@ void RiscvSimulator::Init() {
     if (md->second == "UART_PL011") {
       uart1.MapDevice(md->first); // instance device, map to requested physical address range
       memory.AddDevice(&uart1);   // make memory aware of device
+    } else if (md->second == "MACHINE_TIMER") {
+      timer.MapDevice(md->first); // instance device, map to requested physical address range
+      memory.AddDevice(&timer);   // make memory aware of device
     } else {
       // add other devices tbd...
     }
@@ -107,11 +110,18 @@ void RiscvSimulator::StepCores() {
      unsigned int pc = (*ci)->PC();
 
      hit_test_pass_region = sim_cfg->PassAddress(pc); // did test 'pass' memory region get accessed???
-     
+
+     SIM_EXCEPTIONS interrupt_to_service;
+     if ( (*ci)->InterruptPending(interrupt_to_service) ) {
+       // an interrupt is pending and ready for service...
+       (*ci)->ProcessInterrupt(interrupt_to_service);
+     }
+
      union {
        unsigned char buf[4];
        unsigned int encoding;
      } opcode;
+     
      try {
         memory.ReadMemory(*ci,pc,false,false,4,true,opcode.buf);
         memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
@@ -120,6 +130,7 @@ void RiscvSimulator::StepCores() {
        rcode = -1;
        continue;
      }
+     
      try {
         if (!DebugPreStepChecks(*ci,&memory,pc)) {
           (*ci)->SetEndTest(true);
@@ -145,35 +156,28 @@ void RiscvSimulator::StepCores() {
        // process 'expected' exceptions/errors...
        switch((int) sim_exception) {
 #ifdef RISCV_ISA_TESTING
-         case ENV_CALL_UMODE:
-         case ENV_CALL_MMODE:
-           if ( ((*ci)->GP(3) == 1) && ((*ci)->GP(17) == 93) && ((*ci)->GP(10) == 0) ) {
-	     // at env-call, core register state indicates test has passed...
-             std::cout << "TEST PASSES!!!" << std::endl;
-	     if (hit_test_pass_region) {
+	 case TEST_PASSES:
+	   // machine state seems to indicate test has passed...
+	   if (hit_test_pass_region) {
 	       // but we still expect the test to have 'passed' thru the 'pass' region...
 	       printf("'Test harness' indicates success!\n");
 	       (*ci)->SetEndTest(true);
-	     } else {
+	   } else {
 	       fprintf(stderr,"'Test harness' indicates success but test did NOT pass through 'pass' memory region???\n");
 	       rcode = -1;
-	     }
-           } else {
-             std::cout << "TEST FAILS!!!" << std::endl;
-             rcode = -1;
-           }
+	   }
+	   break;
+         case TEST_FAILS:
+	   // machine state indicates test has failed...
+           rcode = -1;
            break;
 #endif
 	 // should never get internal or 'generation' errors...
          case INTERNAL_ERROR:
          case GENERATION_ERROR:  
+         default:
 	   fprintf(stderr,"Internal Error???\n");
 	   rcode = -1;
-	   break;
-	   
-         default:
-	   // defer processing of architectural exceptions/interrupts to the currently executing core...
-	   (*ci)->ProcessException(sim_exception,opcode.encoding);
 	   break;
        }
      } catch(const std::runtime_error &msg) {
@@ -211,14 +215,20 @@ bool RiscvSimulator::GetReadyCpus(std::vector<RiscvState *> &ready_cores) {
 //****************************************************************************
 
 void RiscvSimulator::ServiceDevices() {
-  // add code to uart to track clock...
+  if (timer.IsImplemented()) {
+    timer.AdvanceTimer();
+    if (timer.InterruptPending()) {
+      // until interrupt controller is implemented, timer interrupt is tied to cpu0...
+      cores[0]->Signal(MACHINE_TIMER_INT);
+    }
+  }
   if (uart1.IsImplemented()) {
     uart1.advanceClock();
     uart1.ServiceIOs();
     int int_info;
     if (uart1.InterruptPending(int_info)) {
-      // until interrupt controller is implemented, uart interrupt is tied to cpu0...
-      cores[0]->Signal(MACHINE_EXTERNAL_INT_UART);
+      // until interrupt controller is implemented, uart interrupts are tied to cpu0...
+      cores[0]->Signal(MACHINE_EXTERNAL_INT);
     }
   }
 }

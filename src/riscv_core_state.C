@@ -299,48 +299,154 @@ std::string RiscvState::CSR_NAME(int csr) {
 }
 
 //***********************************************************************
-// process exception or interrupt...
+// set/restore privilege level entering/exiting exception...
 //***********************************************************************
 
+void RiscvState::PushPrivilegeLevel() {
+  // get mstatus, isolate mie bit:
+  unsigned int mstatus = MSTATUS();        
+  unsigned int mie = (mstatus >> 3) & 1; // mie is bit 3 of mstatus
+  // clear mstatus mpp, mpie, mie fields:
+  mstatus &= ~0xc88; // clear bits 12,11,7,3 of mstatus
+  // save current privilege level in mpp (bits 12,11), save mie state in mpie:
+  SetMSTATUS( mstatus | (CurrentPrivilegeLevel() << 11) | (mie << 7) );
+  // goto privilege level used to service exception:
+  SetPrivilegeLevel( MACHINE_MODE );   
+}
+
+void RiscvState::PopPrivilegeLevel() {
+  // get mstatus, isolate mpp, mpie fields:
+  unsigned int mstatus = MSTATUS();        
+  unsigned int mpie    = (mstatus >> 7) & 1;  // mpie is bit 3 of mstatus
+  unsigned int mpp     = (mstatus >> 11) & 3; // mpp is bits 12,11
+  // clear mstatus mpp, mpie, mie fields:
+  mstatus &= ~0xc88; // clear bits 12,11,7,3 of mstatus
+  // restore privilege level from mpp
+  SetPrivilegeLevel( mpp );
+  // save current (new) privilege level in mpp (bits 12,11), restore mie from mpie:
+  SetMSTATUS( mstatus | (CurrentPrivilegeLevel() << 11) | (mpie << 3) );
+}
+
+//***********************************************************************
+// is there an interrupt ready to be serviced?
+//***********************************************************************
+
+bool RiscvState::InterruptPending(SIM_EXCEPTIONS &sim_interrupt) {
+  if ( !GlobalInterruptsEnabled() || !MIP() || !MIE() )
+    return false;
+  
+  // global interrupts are enabled, there is at least one interrupt pending,
+  // and there is at least one interrupt enabled...
+  
+  bool external_interrupt_pending = (MIP()>>11) & 1;
+  bool external_interrupt_enabled = (MIE()>>11) & 1;
+  
+  if (external_interrupt_pending && external_interrupt_enabled) {
+    sim_interrupt = MACHINE_EXTERNAL_INT;
+    if (show_updates) ShowComment("  # machine external interrupt...");
+    return true;
+  }
+  
+  bool timer_interrupt_pending = (MIP()>>7) & 1;
+  bool timer_interrupt_enabled = (MIE()>>7) & 1;
+  
+  if (timer_interrupt_pending && timer_interrupt_enabled) {
+    sim_interrupt = MACHINE_TIMER_INT;
+    if (show_updates) ShowComment("  # timer interrupt...");
+   return true;
+  }
+  
+  return false; // no interrupts are pending and/or no interrupts are enabled
+}
+
+//***********************************************************************
+// process exception or interrupt...
+//
+//   --process any (supported) architecture related exception or
+//     platform interrupt here...
+//***********************************************************************
+
+// take exception if pending AND has priority...
 void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opcode) {
-  char tbuf[1024];
-
-  // process any (supported) architecture related exception or platform interrupt here...
-
-  bool is_implemented = false;
+  int cause_bit = -1;
   
   switch((int) sim_exception) {
-    case MACHINE_SWI:
+    // timer and uart are only hardware interrupts currently supported...
     case MACHINE_TIMER_INT:
-    case MACHINE_EXTERNAL_INT_UART:
-    case PROCESS_WFI:
-    case PROCESS_MRET:
-      // UIE = MPIE
-      // privilege_mode = umode
-      // SetPrivilegeLevel(MPP)
-      // MPIE = 1
-      SetPC ( MEPC() );
-      is_implemented = true;
+      cause_bit = 7;
+    case MACHINE_EXTERNAL_INT:
+      if (cause_bit == -1) cause_bit = 11;
+      // validate interrupt enabled -- OR INTERNAL ERROR!
+      // interrupt enabled?
+/*
+      MEIP = machine external interrupt pending - MIP.MEIP (bit 11)
+      MEIE =    "       "        "      enable  - MIE.MEIE    "
+      MTIP = machine timer interrupt pending - MIP.MTIP (bit 7)
+      MTIE =    "       "        "   enable  - MIE.MTIE    "
+
+      if ( !GlobalInterruptsEnabled() || ( (MIE()>>cause_bit) != 1) ) {
+        // interrupts NOT enabled. set interrupt pending bit but otherwise ignore it...
+	SetMIP( MIP() | (1<<cause_bit) );
+	break;
+      }
+*/
+      SetMIP( MIP() & ~(1<<cause_bit) ); // clear interrupt pending bit...
+      ClearLowPowerMode();
+      PushPrivilegeLevel();
+      SetMCAUSE( (sim_exception & 0xf) | 0x80000000 ); // set Interrupt bit
+      SetMTVAL(0);
+      SetMEPC( PC() );
+      SetPC( MTVEC() + ((MCAUSE() & 0xfffffff) * 4) ); // strip interrupt bit
       break;
+
+    // WFI causes processor into low power mode... 
+    case PROCESS_WFI:
+      SetMCAUSE( sim_exception & 0xf );
+      SetMTVAL(0);
+      SetMEPC( PC() + 4 );
+      SetLowPowerMode();
+      break;
+
+    // return from interrupt or exception...
+    case PROCESS_MRET:
+      PopPrivilegeLevel();
+      SetPC ( MEPC() );
+      break;
+
+    // env call from user or machine mode...
     case ENV_CALL_UMODE:
-    case ENV_CALL_MMODE:  
+    case ENV_CALL_MMODE:
+      PushPrivilegeLevel();
+      SetMCAUSE( sim_exception & 0xf );
+      SetMTVAL(0);
+      SetMEPC( PC() );
+      SetPC( MTVEC() );
+      break;
+
+    // illegal instruction exception. broken down into simulator specific cases
+    // for debug purposes...
     case ILLEGAL_INSTRUCTION_UNKNOWN_INSTR:
     case ILLEGAL_INSTRUCTION_UNIMPL_INSTR:
     case ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR:
     case ILLEGAL_INSTRUCTION_UNKNOWN_CSR:
     case ILLEGAL_INSTRUCTION_PRIVILEGED_CSR:
-      // exception handling tbd...
-      DecodeException(tbuf,sim_exception,PC(),opcode);
+      SetMCAUSE( sim_exception & 0xf );
+      SetMTVAL(0);
+      PushPrivilegeLevel();
+      SetMEPC( PC() );
+      SetPC( MTVEC() );
       break;
+
+    // any other trap or interrupt implies logic error in simulator...
     default:
       // some unimplemented interrupt/exception???
-      DecodeException(tbuf,sim_exception,PC(),opcode);
+      {
+       char tbuf[1024];
+       DecodeException(tbuf,sim_exception,PC(),opcode);
+       throw std::runtime_error(tbuf);
+      }
       break;
   }
-
-  // all unimplemented exceptions throw runtime error...
-  if (!is_implemented)
-    throw std::runtime_error(tbuf);
 }
 
 //***********************************************************************

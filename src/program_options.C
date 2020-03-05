@@ -46,8 +46,8 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
       ("pass_address",po::value<string>(),"Riscv ISA test 'pass' address")
       ("signature_address_range",po::value<string>(),"Riscv ISA test 'signature' address range")
       ("dram_range",po::value<string>(),"DRAM address range")
+      ("timer",po::value<string>(),"Instantiate machine timer, specify (physical) base address for memory mapped registers")
       ("uart",po::value<string>(),"Instantiate uart, specify (physical) base address for memory mapped registers")
-      ("counter",po::value<string>(),"Instantiate system counter module, specify (physical) base address for memory mapped registers")
       ("port,P",po::value<string>(),"Port simulation debug server will listen on")
       ("core,C",po::value<string>(),"ID of processor element simulation debug server will attach to");
     
@@ -83,8 +83,8 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 	 printf("\n");
 	 printf("        --reset_address                                   -- Start simulation at this address\n");
 	 printf("        --dram_range <addressLo..addressHi>               -- Constrain simulation to this physical address range\n");
+	 printf("        --timer <baseAddress>                             -- Instantiate timer, specify (physical) base address for memory mapped registers\n");
 	 printf("        --uart <baseAddress>                              -- Instantiate uart, specify (physical) base address for memory mapped registers\n");
-	 printf("        --counter <baseAddress>                           -- Instantiate system counter module, specify (physical) base address for memory mapped registers\n");
 	 printf("\n");
 	 printf("        --pass_address <address>                          -- Riscv ISA test 'pass' address\n");
 	 printf("        --signature_address_range <addressLo..addressHi>  -- Riscv ISA test 'signature' address range\n");
@@ -176,7 +176,18 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 	printf("  dram (simulator memory) address range specified: 0x%llx..0x%llx\n",address_lo,address_hi);
 	my_sim_cfg.SetAddressRange(address_lo,address_hi);
       }
-
+ 
+      if (vm.count("timer")) {
+	string rs = vm["timer"].as<string>();
+        unsigned long long timer_base_address = 0;
+	if (sscanf(rs.c_str(),"0x%llx",&timer_base_address) != 1) {
+	    fprintf(stderr,"Invalid machine timer base address specified (value must be specified in hexadecimal format). Program aborted.\n");
+            return COMMAND_LINE_ERROR;      
+	}
+	printf("  Machine timer memory-mapped registers base address specified: 0x%llx\n",timer_base_address);
+	my_sim_cfg.MapDevice("MACHINE_TIMER",timer_base_address);
+      }
+      
       if (vm.count("uart")) {
 	string rs = vm["uart"].as<string>();
         unsigned long long uart_base_address = 0;
@@ -186,17 +197,6 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 	}
 	printf("  Uart memory-mapped registers base address specified: 0x%llx\n",uart_base_address);
 	my_sim_cfg.MapDevice("UART_PL011",uart_base_address);
-      }
-      
-      if (vm.count("counter")) {
-	string rs = vm["counter"].as<string>();
-        unsigned long long counter_base_address = 0;
-	if (sscanf(rs.c_str(),"0x%llx",&counter_base_address) != 1) {
-	    fprintf(stderr,"Invalid system counter module base address specified (value must be specified in hexadecimal format). Program aborted.\n");
-            return COMMAND_LINE_ERROR;      
-	}
-	printf("  System counter module memory-mapped registers base address specified: 0x%llx\n",counter_base_address);
-	my_sim_cfg.MapDevice("SYSTEM_COUNTER",counter_base_address);
       }
       
       if (vm.count("show_disassembly")) {
@@ -297,15 +297,15 @@ int process_config_file(SimConfig my_sim_cfg,std::string cfg_file) {
          unsigned long long addr_hi = unit.get<unsigned long long>("address_hi",0xffffffff);
          my_sim_cfg.SetAddressRange(addr_lo,addr_hi);
        }
-       else if (child->first == "uart") {
+       else if (child->first == "uart_pl011") {
          pt::ptree unit = child->second;
          unsigned long long uart_base_addr = unit.get<unsigned long long>("base_address",0);
-         my_sim_cfg.MapDevice("uart",uart_base_addr);
+         my_sim_cfg.MapDevice("UART_PL011",uart_base_addr);
        }
-       else if (child->first == "counter") {
+       else if (child->first == "timer") {
          pt::ptree unit = child->second;
-         unsigned long long counter_base_addr = unit.get<unsigned long long>("base_address",0);
-         my_sim_cfg.MapDevice("counter",counter_base_addr);
+         unsigned long long timer_base_addr = unit.get<unsigned long long>("base_address",0);
+         my_sim_cfg.MapDevice("MACHINE_TIMER",timer_base_addr);
        }
        else if (child->first == "debug") {
          pt::ptree unit = child->second;

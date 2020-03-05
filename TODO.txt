@@ -37,8 +37,17 @@ dimebox tasks (in no particular order)
    --2nd try using ovp-sim - success. simulator operates correctly on test cases and has very good docs 
  * Extract test signatures? Compare with 'golden mode' signatures? - DONE.
  * Simplify exceptions logic - remove redundant Signals code. Other code cleanup. -DONE.
-
-
+ * Review/implement rv32ui control registers, complete exceptions code. - DONE.
+   -work started
+   --all CSRs in place - not yet vetted or debugged.
+   --riscv specific interrupt/exception types (enums) defined.
+   --consolidate exceptions handling code. 
+   --implement exception/interrupt pending/priority logic.
+ * Implement timer, timer interrupt. - DONE.
+ * Implement uart clock, interrupt. - DONE.
+ 
+ * Test timer, uart, interrupts.
+ 
  * Exercize gdb, debug simulator.
 
  * Formalize test process - using some scripts to ad hoc testing so far.
@@ -46,15 +55,6 @@ dimebox tasks (in no particular order)
    
  * Reconcile sim config file. - not up to date with cmdline args. what should be in this file?
  
- * Implement pseudo real-time clock
-   ( use wall clock + core clock to derive real-time clock 'tics'
-   only when real-time clock is accessed?)
-   
- * Review/implement rv32ui control registers.
-   -work started
-   --all CSRs in place - not yet vetted or debugged.
-   --riscv specific interrupt/exception types (enums) defined.
-   
  * Add support for ns16550a uart (derive from existing pla011 implementation)
  
  * Add support for dtb to describe dimebox 'platform'?

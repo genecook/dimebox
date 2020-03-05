@@ -62,6 +62,7 @@ protected:
   int rcode;
   bool cores_are_running;
   UART_pl011 uart1;
+  MachineTimer timer;
   RiscvDebugServer *debug_server;
 
   bool hit_test_pass_region;

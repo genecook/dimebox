@@ -32,6 +32,11 @@ public:
   virtual std::string Disassembly() = 0;
   virtual std::string InstrName() = 0;
 
+  void Exception(SIM_EXCEPTIONS sim_exception) {
+    // handle exception, or return from exception...
+    state->ProcessException(sim_exception,encoding);
+  };
+  
   bool UserMode() { return state->CurrentPrivilegeLevel() == state->USER_MODE; };
   bool MachineMode() { return state->CurrentPrivilegeLevel() == state->MACHINE_MODE; };
   bool PrivilegedMode() { return state->CurrentPrivilegeLevel() != state->USER_MODE; };

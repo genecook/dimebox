@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS "-g")
 add_executable(dimebox src/main.C src/program_options.C)
 
 add_library(riscv src/memory.C src/physical_memory.C src/elfio.C src/libelf_interface.c
-            src/rsp.C src/tcp_server.C src/debug_server.C src/uart.C src/uart_pl011.C
+            src/rsp.C src/tcp_server.C src/debug_server.C src/uart.C src/uart_pl011.C src/timer.C
             src/riscv_core_state.C src/rv32i_instrs.C src/riscv_instruction.C
 	    src/sim_config.C src/riscv_simulator.C include/rv32i_instrs.h)
 

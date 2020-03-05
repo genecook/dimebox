@@ -36,6 +36,8 @@ public:
     reg_updates.push_back(tbuf);
   };
 
+  void ShowComment(std::string comment) { reg_updates.push_back(comment); };
+    
   void ValidateCSRAccess(unsigned int csr_address, unsigned int privilege_level, bool for_write);
   
   void ShowRegisterReads() { for (auto us = reg_updates.begin(); us != reg_updates.end(); us++) std::cout << *us; };
@@ -48,6 +50,7 @@ public:
     if (show_updates) ShowRegisterAccess(RegAlias(rindex),rindex,X[rindex].Value());
     return X[rindex].Value();
   };
+  
   void SetGP(unsigned int rindex,unsigned long long rval) {
     if (rindex > 0) {
       X[rindex].Value(rval);
@@ -97,27 +100,27 @@ public:
   unsigned long long USTATUS() { return _USTATUS.Value(); };
   void SetUSTATUS(unsigned long long rval) {
     _USTATUS.Value(rval);
-    if (show_updates) ShowCSRAccess("ustatus",0,rval);
+    if (show_updates) ShowCSRAccess("ustatus",0,rval,true);
   };
   unsigned long long FFLAGS() { return _FFLAGS.Value(); };
   void SetFFLAGS(unsigned long long rval) {
     _FFLAGS.Value(rval);
-    if (show_updates) ShowCSRAccess("fflags",1,rval);
+    if (show_updates) ShowCSRAccess("fflags",1,rval,true);
   };
   unsigned long long FRM() { return _FRM.Value(); };
   void SetFRM(unsigned long long rval) {
     _FRM.Value(rval);
-    if (show_updates) ShowCSRAccess("frm",2,rval);
+    if (show_updates) ShowCSRAccess("frm",2,rval,true);
   };
   unsigned long long FCSR() { return _FCSR.Value(); };
   void SetFCSR(unsigned long long rval) {
     _FCSR.Value(rval);
-    if (show_updates) ShowCSRAccess("fcsr",3,rval);
+    if (show_updates) ShowCSRAccess("fcsr",3,rval,true);
   };
   unsigned long long SATP() { return _SATP.Value(); };
   void SetSATP(unsigned long long rval) {
     _SATP.Value(rval); 
-    if (show_updates) ShowCSRAccess("satp",0x180,rval);
+    if (show_updates) ShowCSRAccess("satp",0x180,rval,true);
   };
   
   unsigned long long MSTATUS() {
@@ -129,7 +132,7 @@ public:
       rval &= ~0xc00; // don't allow MPP to be 01 (S) or 02 (reserved)
     }
     _MSTATUS.Value(rval);
-    if (show_updates) ShowCSRAccess("mstatus",0x300,rval);
+    if (show_updates) ShowCSRAccess("mstatus",0x300,rval,true);
   };
   unsigned long long MSTATUSH() {
     return _MSTATUSH.Value() & 0x30; // bits 6..31,0 = WPRI
@@ -137,7 +140,7 @@ public:
   void SetMSTATUSH(unsigned long long rval) {
     rval &= rval & ~0x30; // make sure these bits are clear: MBE,SBE
     _MSTATUSH.Value(rval);
-    if (show_updates) ShowCSRAccess("mstatush",0x310,rval);
+    if (show_updates) ShowCSRAccess("mstatush",0x310,rval,true);
   };
   bool GlobalInterruptsEnabled() { return (MSTATUS() & 0x8) != 0; }; // machine mode global interrupt-enable
   bool WFIEnabled() {
@@ -157,112 +160,109 @@ public:
   bool LowPowerMode() { return (_machine_state & 0x10) != 0; };
   void ClearLowPowerMode() { _machine_state &= ~0x10; };
   void SetLowPowerMode() { _machine_state |= 0x10; };
-  
-  bool NestedInterruptsEnabled(unsigned /* privilege_level */) {
-    // at this time only machine mode is supported...
-    return (CurrentPrivilegeLevel() == 3) && MIE();
-  };
+
+  void PushPrivilegeLevel();
+  void PopPrivilegeLevel();
 
   // used to signal interrupt from device such as uart: 
-  void Signal(SIM_EXCEPTIONS sim_interrupt) {};
+  void Signal(SIM_EXCEPTIONS sim_interrupt) {
+    switch((int) sim_interrupt) {
+      case MACHINE_TIMER_INT:    SetMIP( MIP() | 1<<7);  break; // MIP.MTIP = 1
+      case MACHINE_EXTERNAL_INT: SetMIP( MIP() | 1<<11); break; // MIP.MEIP = 1
+      default: break;
+    }
+  };
 
-  // on interrupt:
-  //   1. copy MIE to MPIE
-  //   2. MIE set to 0
-  //   3. MPP set from CurrentPrivilegeLevel
-  // on return from interrupt:
-  //   1. MPIE set to 1
-  //   2. CurrentPrivilegeLevel set from MPP
-  //   3. set MPRV to 0 if MPP != M (0)
-  //   4. MPP = U (1)
-
-  void ProcessException(SIM_EXCEPTIONS sim_exception,unsigned int opcode);
+  void ProcessException(SIM_EXCEPTIONS sim_exception,unsigned int opcode=0);
   void DecodeException(char *tbuf,SIM_EXCEPTIONS sim_exception, unsigned long long pc,unsigned int opcode);
-  
+
+  bool InterruptPending(SIM_EXCEPTIONS &sim_interrupt);
+  void ProcessInterrupt(SIM_EXCEPTIONS sim_exception) { ProcessException(sim_exception); };
+
   unsigned long long MEDELEG() { return _MEDELEG.Value(); };
   void SetMEDELEG(unsigned long long rval) {
     _MEDELEG.Value(rval);
-    if (show_updates) ShowCSRAccess("medeleg",0x302,rval);
+    if (show_updates) ShowCSRAccess("medeleg",0x302,rval,true);
   };
   unsigned long long MIDELEG() { return _MIDELEG.Value(); };
   void SetMIDELEG(unsigned long long rval) {
     _MIDELEG.Value(rval);
-    if (show_updates) ShowCSRAccess("mideleg",0x303,rval);
+    if (show_updates) ShowCSRAccess("mideleg",0x303,rval,true);
   };
   unsigned long long MIE() { return _MIE.Value(); };
   void SetMIE(unsigned long long rval) {
     _MIE.Value(rval);
-    if (show_updates) ShowCSRAccess("mie",0x304,rval);
+    if (show_updates) ShowCSRAccess("mie",0x304,rval,true);
   };
   unsigned long long MTVEC() { return _MTVEC.Value(); };
   void SetMTVEC(unsigned long long rval) {
     _MTVEC.Value(rval);
-    if (show_updates) ShowCSRAccess("mtvec",0x305,rval);
+    if (show_updates) ShowCSRAccess("mtvec",0x305,rval,true);
   };
   unsigned long long MCOUNTEREN() { return _MCOUNTEREN.Value(); };
   void SetMCOUNTEREN(unsigned long long rval) {
     _MCOUNTEREN.Value(rval);
-    if (show_updates) ShowCSRAccess("mcounteren",0x306,rval);
+    if (show_updates) ShowCSRAccess("mcounteren",0x306,rval,true);
   };
   unsigned long long MSCRATCH() { return _MSCRATCH.Value(); };
   void SetMSCRATCH(unsigned long long rval) {
     _MSCRATCH.Value(rval);
-    if (show_updates) ShowCSRAccess("mscratch",0x340,rval);
+    if (show_updates) ShowCSRAccess("mscratch",0x340,rval,true);
   };
   unsigned long long MEPC() { return _MEPC.Value(); };
   void SetMEPC(unsigned long long rval) {
     _MEPC.Value(rval);
-    if (show_updates) ShowCSRAccess("mepc",0x341,rval);
+    if (show_updates) ShowCSRAccess("mepc",0x341,rval,true);
   };
   unsigned long long MCAUSE() { return _MCAUSE.Value(); };
   void SetMCAUSE(unsigned long long rval) {
     _MCAUSE.Value(rval);
-    if (show_updates) ShowCSRAccess("mcause",0x342,rval);
+    if (show_updates) ShowCSRAccess("mcause",0x342,rval,true);
   };
   unsigned long long MTVAL() { return _MTVAL.Value(); };
   void SetMTVAL(unsigned long long rval) {
     _MTVAL.Value(rval);
-    if (show_updates) ShowCSRAccess("mtval",0x343,rval);
+    if (show_updates) ShowCSRAccess("mtval",0x343,rval,true);
   };
   unsigned long long MIP() { return _MIP.Value(); };
   void SetMIP(unsigned long long rval) {
     _MIP.Value(rval);
-    if (show_updates) ShowCSRAccess("mip",0x344,rval);
+    if (show_updates) ShowCSRAccess("mip",0x344,rval,true);
   };
   unsigned long long MTINST() { return _MTINST.Value(); };
   void SetMTINST(unsigned long long rval) {
     _MTINST.Value(rval);
-    if (show_updates) ShowCSRAccess("mtinst",0x34a,rval);
+    if (show_updates) ShowCSRAccess("mtinst",0x34a,rval,true);
   };  
   unsigned long long PMPCFG0() { return _PMPCFG0.Value(); };
   void SetPMPCFG0(unsigned long long rval) {
     _PMPCFG0.Value(rval);
-    if (show_updates) ShowCSRAccess("pmpcfg0",0x3a0,rval);
+    if (show_updates) ShowCSRAccess("pmpcfg0",0x3a0,rval,true);
   };
   unsigned long long PMPADDR0() { return _PMPADDR0.Value(); };
   void SetPMPADDR0(unsigned long long rval) {
     _PMPADDR0.Value(rval);
-    if (show_updates) ShowCSRAccess("pmpaddr0",0x3b0,rval);
+    if (show_updates) ShowCSRAccess("pmpaddr0",0x3b0,rval,true);
   };
   unsigned long long MCYCLE() { return _MCYCLE.Value(); };
   void SetMCYCLE(unsigned long long rval) {
     _MCYCLE.Value(rval);
-    if (show_updates) ShowCSRAccess("mcycle",0xb00,rval);
+    if (show_updates) ShowCSRAccess("mcycle",0xb00,rval,true);
   };
   unsigned long long MTINSTRET() { return _MTINSTRET.Value(); };
   void SetMTINSTRET(unsigned long long rval) {
     _MTINSTRET.Value(rval);
-    if (show_updates) ShowCSRAccess("mtinstret",0xb02,rval);
+    if (show_updates) ShowCSRAccess("mtinstret",0xb02,rval,true);
   };
   unsigned long long MCYCLEH() { return _MCYCLEH.Value(); };
   void SetMCYCLEH(unsigned long long rval) {
     _MCYCLEH.Value(rval);
-    if (show_updates) ShowCSRAccess("mcycleh",0xb80,rval);
+    if (show_updates) ShowCSRAccess("mcycleh",0xb80,rval,true);
   };
   unsigned long long MTINSTRETH() { return _MTINSTRETH.Value(); };
   void SetMTINSTRETH(unsigned long long rval) {
     _MTINSTRETH.Value(rval);
-    if (show_updates) ShowCSRAccess("mtinstreth",0xb82,rval);
+    if (show_updates) ShowCSRAccess("mtinstreth",0xb82,rval,true);
   };
 
   // alias riscv gp register indices to common riscv assembly language names...

@@ -39,8 +39,9 @@ enum SIM_EXCEPTIONS {
 		     NO_SIM_EXCEPTION=0,                         //
 		     INTERNAL_ERROR=0xf00,                       //
 		     GENERATION_ERROR=0xf01,                     //
-		     TEST_PASSES=0xf02,                          //
-		     TEST_FAILS=0xf03                            //
+	             TEST_PASSES=0xf02,                          //
+                     TEST_FAILS=0xf03                            //
+
 };
 
 #endif

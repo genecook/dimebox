@@ -11,6 +11,7 @@
 #include <elfio.h>
 #include <uart.h>
 #include <uart_pl011.h>
+#include <timer.h>
 #include <rsp.h>
 #include <tcp_server.h>
 #include <debug_server.h>
