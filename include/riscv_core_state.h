@@ -8,39 +8,47 @@ public:
   RiscvState() : State() {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(0);
-    _machine_state = MACHINE_MODE; // defaults to machine mode
+    _machine_state = MACHINE_MODE; // defaults to machine mode, normal power mode
   };
   
   RiscvState(SimConfig *sim_cfg) : State(sim_cfg) {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(sim_cfg->ResetAddress());
-    _machine_state = MACHINE_MODE; // defaults to machine mode
+    _machine_state = MACHINE_MODE; // defaults to machine mode, normal power mode
+    // at this time, no other registers are initialized
   };
   
   RiscvState(RiscvState *rhs,bool _show_updates = false) : State(rhs) {
-    show_updates = _show_updates;
+    show_updates = false; // log register updates due only to instruction execution
     Update(rhs);    
+    show_updates = _show_updates;
   };
-  
+
   void Update(RiscvState *rhs);
 
   void ShowRegisterAccess(std::string rname,int rindex,unsigned long long rval, bool update=false) {
     char tbuf[256];
     sprintf(tbuf,"  # %c %s (x%d) = 0x%llx\n",(update ? 'W' : 'R'),rname.c_str(),rindex,rval);
-    reg_updates.push_back(tbuf);
+    if (!FindRegisterAccess(tbuf)) reg_updates.push_back(tbuf);
   };
   
   void ShowCSRAccess(std::string csr_name,int csr_index,unsigned long long rval,bool update=false) {
     char tbuf[256];
     sprintf(tbuf,"  # %c %s (csr 0x%03x) = 0x%llx\n",(update ? 'W' : 'R'),csr_name.c_str(),csr_index,rval); 
-    reg_updates.push_back(tbuf);
+    if (!FindRegisterAccess(tbuf)) reg_updates.push_back(tbuf);
   };
 
-  void ShowComment(std::string comment) { reg_updates.push_back(comment); };
+  void ShowComment(std::string comment) { reg_updates.push_back(comment); }; // will assume comments to be unique
     
   void ValidateCSRAccess(unsigned int csr_address, unsigned int privilege_level, bool for_write);
-  
-  void ShowRegisterReads() { for (auto us = reg_updates.begin(); us != reg_updates.end(); us++) std::cout << *us; };
+
+  bool FindRegisterAccess(std::string tbuf) {
+    for (auto us = reg_updates.begin(); us != reg_updates.end(); us++)
+      if (*us == tbuf) return true;
+    return false;
+  };
+
+  void ShowRegisterAccesses() { for (auto us = reg_updates.begin(); us != reg_updates.end(); us++) std::cout << *us; };
   
   unsigned long long GP(unsigned int rindex) {
     if (rindex == 0) {
@@ -128,8 +136,10 @@ public:
   };
   void SetMSTATUS(unsigned long long rval) {
     rval &= rval & ~0x805de162;  // make sure these bits are clear: SIE,SPP,SPIE,MXR,SUM,UBE,TVM,TSR,FP,XS,SD
-    if ( ((rval & 0xc00) == 0x400) || ((rval & 0xc00) == 0x800) ) {
-      rval &= ~0xc00; // don't allow MPP to be 01 (S) or 02 (reserved)
+    
+    if ( ((rval & 0x1800) == 0x800) || ((rval & 0x1800) == 0x01000) ) {
+      unsigned old_mpp = MSTATUS() & 0x1800;
+      rval = (rval & ~0x1800) | old_mpp; // ignore MPP values of 01 (S) or 02 (reserved)
     }
     _MSTATUS.Value(rval);
     if (show_updates) ShowCSRAccess("mstatus",0x300,rval,true);

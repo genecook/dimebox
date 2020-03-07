@@ -320,11 +320,12 @@ void RiscvState::PopPrivilegeLevel() {
   unsigned int mpie    = (mstatus >> 7) & 1;  // mpie is bit 3 of mstatus
   unsigned int mpp     = (mstatus >> 11) & 3; // mpp is bits 12,11
   // clear mstatus mpp, mpie, mie fields:
-  mstatus &= ~0xc88; // clear bits 12,11,7,3 of mstatus
+  mstatus &= ~0x1888; // clear bits 12,11,7,3 of mstatus
   // restore privilege level from mpp
   SetPrivilegeLevel( mpp );
-  // save current (new) privilege level in mpp (bits 12,11), restore mie from mpie:
-  SetMSTATUS( mstatus | (CurrentPrivilegeLevel() << 11) | (mpie << 3) );
+  // set mpp (bits 12,11) to U (zero), restore mie from mpie,
+  // set mpie to 1:
+  SetMSTATUS( mstatus | (mpie << 3) | (1<<7));
 }
 
 //***********************************************************************

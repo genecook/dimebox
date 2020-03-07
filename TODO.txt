@@ -45,11 +45,19 @@ dimebox tasks (in no particular order)
    --implement exception/interrupt pending/priority logic.
  * Implement timer, timer interrupt. - DONE.
  * Implement uart clock, interrupt. - DONE.
+
+ * Enhance test 'harnes' script to drop test generation scripts in each test run directory.
+ 
+ * Complete debug of 'CSR' tests.
  
  * Test timer, uart, interrupts.
- 
+   --implement timer test - timer goes off after N ticks, causes interrupt.
+   --implement uart test - loop, echo'ing chars 'til some special char received.
+   
  * Exercize gdb, debug simulator.
-
+   --step thru available commands on one or more tests.
+   --retreive documentation from 'dev' platform.
+   
  * Formalize test process - using some scripts to ad hoc testing so far.
    --add testing to git checkin?
    
@@ -59,6 +67,6 @@ dimebox tasks (in no particular order)
  
  * Add support for dtb to describe dimebox 'platform'?
  
- * README.md - ONGOING.
+ * Update README.md - ONGOING.
 
 

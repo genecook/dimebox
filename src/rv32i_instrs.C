@@ -134,22 +134,42 @@ void FENCE_I::Step() {
 
 
 void CSRRW::Step() {
-  RD( CSR(imm) ); SetCSR(imm, RS1() ); BumpPC();
+  unsigned int tmp = RS1();
+  RD(CSR(imm));
+  SetCSR(imm, tmp);
+  BumpPC();
 };
-void CSRRS::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | RS1() ); BumpPC();
+
+void CSRRS::Step() {
+  unsigned int tmp = RS1();
+  RD(CSR(imm));
+  if (rs1 != 0)
+    SetCSR(imm, CSR(imm) | tmp);
+  BumpPC();
 };
 void CSRRC::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !RS1() ); BumpPC();
+  unsigned int tmp = RS1();
+  RD(CSR(imm)); 
+  if (rs1 != 0)
+    SetCSR(imm,CSR(imm) & (~tmp));
+  BumpPC();
 };
 void CSRRWI::Step() { 
-  RD( CSR(imm) ); SetCSR( imm, rs1 ); BumpPC();
+  RD(CSR(imm));
+  SetCSR(imm,rs1);
+  BumpPC();
 };
 void CSRRSI::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | rs1 ); BumpPC();
+  RD(CSR(imm));
+  if (rs1 != 0)
+    SetCSR(imm,CSR(imm) + rs1);
+  BumpPC();
 };
 void CSRRCI::Step() { 
-  RD( CSR(imm) ); if (rs1 != 0) SetCSR( imm, CSR(imm) | !rs1 ); BumpPC();
+  RD(CSR(imm));
+  if (rs1 != 0)
+    SetCSR(imm,CSR(imm) - rs1);
+  BumpPC();
 };
 
 void ECALL::Step() {

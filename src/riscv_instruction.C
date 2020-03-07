@@ -102,7 +102,7 @@ unsigned long long RiscvInstruction::MEMORY_READ(unsigned long long address,int 
 
 void RiscvInstruction::Writeback(RiscvState *_state,Memory *_memory,bool show_updates) {
   // after (successfully) stepping an instruction, update (core) register state, memory...
-  if (show_updates) state->ShowRegisterReads();
+  if (show_updates) state->ShowRegisterAccesses();
   _state->Update(state);
   for (auto mop = mOpsMemory.begin(); mop != mOpsMemory.end(); mop++) {
      if (mop->IsWrite()) {
