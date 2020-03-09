@@ -138,13 +138,8 @@ void RiscvSimulator::StepCores() {
         }
         RiscvState state_updates(*ci,sim_cfg->ShowUpdates());
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
-	if (sim_cfg->ShowDisassembly()) {
-          char tbuf[128];
-          sprintf(tbuf,"0x%08x 0x%08x %s",pc,opcode.encoding,instr->Disassembly().c_str());
-          std::cout << tbuf << std::endl;
-	}
-        instr->Step();
-        instr->Writeback(*ci,&memory,sim_cfg->ShowUpdates());
+	instr->Execute(sim_cfg->ShowUpdates());
+	instr->Writeback(*ci,&memory,sim_cfg->ShowUpdates());
         delete instr;
         instr_count++;
 	(*ci)->AdvanceClock();

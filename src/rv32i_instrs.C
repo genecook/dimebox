@@ -6,138 +6,140 @@
 #define RISCV_ISA_TESTING 1
 
 void ADDI::Step() {
-  RD( RS1() + SIGN_EXTEND_IMM(12) ); BumpPC();
+  RD( RS1() + SIGN_EXTEND_IMM(12) );
 };
 void SLTI::Step() {
-  RD( (int) RS1() < (int) SIGN_EXTEND_IMM(12) ? 1 : 0 ); BumpPC();
+  RD( (int) RS1() < (int) SIGN_EXTEND_IMM(12) ? 1 : 0 );
 };
 void SLTIU::Step() { 
-  RD( (unsigned int) RS1() < (unsigned int) UNSIGNED_SIGN_EXTEND_IMM(12) ? 1 : 0 ); BumpPC();
+  RD( (unsigned int) RS1() < (unsigned int) UNSIGNED_SIGN_EXTEND_IMM(12) ? 1 : 0 );
 };
 void ANDI::Step() { 
-  RD( RS1() & (unsigned int) SIGN_EXTEND_IMM(12) ); BumpPC();
+  RD( RS1() & (unsigned int) SIGN_EXTEND_IMM(12) );
 };
 void ORI::Step() { 
-  RD( RS1() | (unsigned int) SIGN_EXTEND_IMM(12) ); BumpPC();
+  RD( RS1() | (unsigned int) SIGN_EXTEND_IMM(12) );
 };
 void XORI::Step() { 
-  RD( RS1() ^ (unsigned int) SIGN_EXTEND_IMM(12) ); BumpPC();
+  RD( RS1() ^ (unsigned int) SIGN_EXTEND_IMM(12) );
 };
 
 void SLLI::Step() {
-  RD( RS1() << IMM_FOR_SHIFT() ); BumpPC();
+  RD( RS1() << IMM_FOR_SHIFT() );
 };
 void SRLI::Step() { 
-  RD( RS1() >> IMM_FOR_SHIFT() ); BumpPC();
+  RD( RS1() >> IMM_FOR_SHIFT() );
 };
 void SRAI::Step() {
-  RD ( (int) SignExtend(RS1() >> IMM_FOR_SHIFT(),32 - IMM_FOR_SHIFT()) ); BumpPC();
+  RD ( (int) SignExtend(RS1() >> IMM_FOR_SHIFT(),32 - IMM_FOR_SHIFT()) );
 };
 
 void LUI::Step() {
-  RD( IMM() ); BumpPC();
+  RD( IMM() );
 };
 void AUIPC::Step() {
-  RD( PC() + (int) IMM() ); BumpPC();
+  RD( PC() + (int) IMM() );
 };
 
 void ADD::Step() {
-  RD( RS1() + RS2() ); BumpPC();
+  RD( RS1() + RS2() );
 };
 void SLT::Step() {
-  RD ( (int) RS1() < (int) RS2() ? 1 : 0 ); BumpPC();
+  RD ( (int) RS1() < (int) RS2() ? 1 : 0 );
 };
 void SLTU::Step() { 
-  RD ( RS1() < RS2() ? 1 : 0 ); BumpPC();
+  RD ( RS1() < RS2() ? 1 : 0 );
 };
 void AND::Step() { 
-  RD ( RS1() & RS2() ); BumpPC();
+  RD ( RS1() & RS2() );
 };
 void OR::Step() { 
-  RD ( RS1() | RS2() ); BumpPC();
+  RD ( RS1() | RS2() );
 };
 void XOR::Step() { 
-  RD ( RS1() ^ RS2() ); BumpPC();
+  RD ( RS1() ^ RS2() );
 };
 void SLL::Step() {
-  RD( RS1() << RS2() ); BumpPC();
+  RD( RS1() << RS2() );
 };
 void SRL::Step() { 
-  RD( RS1() >> RS2() ); BumpPC();
+  RD( RS1() >> RS2() );
 };
 void SUB::Step() { 
-  RD( RS1() - RS2() ); BumpPC();
+  RD( RS1() - RS2() );
 };
 void SRA::Step() { 
-  RD ( (int) SignExtend(RS1() >> RS2(),32 - (RS2() & 0x1f)) ); BumpPC();
+  RD ( (int) SignExtend(RS1() >> RS2(),32 - (RS2() & 0x1f)) );
 };
 
 void JAL::Step() {
   RD( PC() + 4 );
-  PC( PC() + SIGN_EXTEND_IMM(20) );
+  SetPC( PC() + SIGN_EXTEND_IMM(20) );
 };
 void JALR::Step() { 
   RD( PC() + 4 );
-  PC( (RS1() + SIGN_EXTEND_IMM(12)) & 0xfffffffe );
+  SetPC( (RS1() + SIGN_EXTEND_IMM(12)) & 0xfffffffe );
 };
 
 void BEQ::Step() {
-  PC( PC() + (RS1() == RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  SetPC( PC() + (RS1() == RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BNE::Step() {
-  PC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  SetPC( PC() + (RS1() != RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BLT::Step() { 
-  PC( PC() + ((int)RS1() < (int)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  SetPC( PC() + ((int)RS1() < (int)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BLTU::Step() { 
-  PC( PC() + (RS1() < RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  SetPC( PC() + (RS1() < RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BGE::Step() {
-  PC( PC() + ((int)RS1() >= (int)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  SetPC( PC() + ((int)RS1() >= (int)RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 void BGEU::Step() { 
-  PC( PC() + (RS1() >= RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
+  SetPC( PC() + (RS1() >= RS2() ? SIGN_EXTEND_IMM(13) : 4)); 
 };
 
 void LB::Step() {
-  RD( SignExtend(MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 1),8) ); BumpPC();
+  RD( SignExtend(MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 1),8) );
 };
 void LH::Step() { 
-  RD( SignExtend(MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 2),16) ); BumpPC();
+  RD( SignExtend(MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 2),16) );
 };
 void LW::Step() {
-  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 4) ); BumpPC();
+  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 4) );
 };
 void LBU::Step() { 
-  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 1) ); BumpPC();
+  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 1) );
 };
 void LHU::Step() { 
-  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 2) ); BumpPC();
+  RD( MEMORY_READ(RS1() + SIGN_EXTEND_IMM(12), 2) );
 };
 
 void SB::Step() { 
-  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 1, RS2() ); BumpPC();
+  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 1, RS2() );
 };
 void SH::Step() { 
-  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 2, RS2() ); BumpPC();
+  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 2, RS2() );
 };
 void SW::Step() { 
-  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 4, RS2() ); BumpPC();
-};
-void FENCE::Step() {
-  BumpPC(); // ignored...
-};
-void FENCE_I::Step() { 
-  BumpPC(); // ignored...
+  MEMORY_WRITE( RS1() + SIGN_EXTEND_IMM(12), 4, RS2() );
 };
 
+void FENCE::Step() {
+  // ignored...
+};
+void FENCE_I::Step() { 
+  // ignored...
+};
+void SFENCE::Step() {
+  // ignored...
+};
 
 void CSRRW::Step() {
   unsigned int tmp = RS1();
   RD(CSR(imm));
   SetCSR(imm, tmp);
-  BumpPC();
 };
 
 void CSRRS::Step() {
@@ -145,40 +147,34 @@ void CSRRS::Step() {
   RD(CSR(imm));
   if (rs1 != 0)
     SetCSR(imm, CSR(imm) | tmp);
-  BumpPC();
 };
 void CSRRC::Step() { 
   unsigned int tmp = RS1();
   RD(CSR(imm)); 
   if (rs1 != 0)
     SetCSR(imm,CSR(imm) & (~tmp));
-  BumpPC();
 };
 void CSRRWI::Step() { 
   RD(CSR(imm));
   SetCSR(imm,rs1);
-  BumpPC();
 };
 void CSRRSI::Step() { 
   RD(CSR(imm));
   if (rs1 != 0)
     SetCSR(imm,CSR(imm) + rs1);
-  BumpPC();
 };
 void CSRRCI::Step() { 
   RD(CSR(imm));
   if (rs1 != 0)
     SetCSR(imm,CSR(imm) - rs1);
-  BumpPC();
 };
 
 void ECALL::Step() {
+#ifdef RISCV_ISA_TESTING
   if (UserMode())
     Exception(ENV_CALL_UMODE);
   else
     Exception(ENV_CALL_MMODE);
-  
-#ifdef RISCV_ISA_TESTING
   if ( (GP() == 1) && (A7() == 93) && (A0() == 0) ) {
     // at env-call, core register state indicates test has passed...
     std::cout << "TEST PASSES!!!" << std::endl;
@@ -187,57 +183,54 @@ void ECALL::Step() {
     std::cout << "TEST FAILS!!!" << std::endl;
     throw TEST_FAILS;
   }
+#else
+  if (UserMode())
+    throw ENV_CALL_UMODE;
+  else
+    throw ENV_CALL_MMODE;  
 #endif
 };
 
 void EBREAK::Step() {
-  BumpPC(); // ignored...
+  // ignored...
 };
 
 void URET::Step() {
-  Exception(ILLEGAL_INSTRUCTION_UNIMPL_INSTR);
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void SRET::Step() {
-  Exception(ILLEGAL_INSTRUCTION_UNIMPL_INSTR);
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void HRET::Step() {
-  Exception(ILLEGAL_INSTRUCTION_UNIMPL_INSTR);
+  throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 void MRET::Step() { 
   if (MachineMode())
-    Exception(PROCESS_MRET);
+    throw PROCESS_MRET;
   else
-    Exception(ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR);
+    throw ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR;
 };
 
 void WFI::Step() {
   if (UserMode())
-    Exception(ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR);
+    throw ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR;
   else if (WFIEnabled())
-    Exception(PROCESS_WFI);
+    throw PROCESS_WFI;
   else
-    Exception(ILLEGAL_INSTRUCTION_UNIMPL_INSTR);
-};
-
-void SFENCE::Step() {
-  BumpPC(); // ignored...
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };
 
 void MUL::Step() {
   RD( RS1() * RS2() );
-  BumpPC();
 };
 void MULHU::Step() {
   RD( ((unsigned long long) RS1() * (unsigned long long) RS2()) >> 32 );
-  BumpPC();
 };
 void MULH::Step() {
   RD( ((long long) SignExtend(RS1(),32) * (long long) SignExtend(RS2(),32) ) >> 32 );
-  BumpPC();
 };
 void MULHSU::Step() {
   RD( ((long long) SignExtend(RS1(),32) * (unsigned long long) RS2()) >> 32 );
-  BumpPC();
 };
 void DIV::Step() {
   if ( RS2() == 0) // divide by zero
@@ -246,14 +239,12 @@ void DIV::Step() {
     RD(0x80000000);
   else
     RD( (int) RS1() / (int) RS2() );
-  BumpPC();
 };
 void DIVU::Step() {
   if (RS2() == 0) // divide by zero
     RD( (unsigned) -1 );
   else
     RD( RS1() / RS2() );
-  BumpPC();
 };
 void REM::Step() {
   if (RS2() == 0) { // division by zero
@@ -265,13 +256,11 @@ void REM::Step() {
     int rem = (int) RS1() - (rdq * (int) RS2());
     RD( rem );
   }
-  BumpPC();
 };
 void REMU::Step() {
   unsigned long long rdq = (unsigned long long) RS1() / (unsigned long long) RS2();
   unsigned int rem = rdq * (unsigned long long) RS2() - RS2();
   RD( rem );  
-  BumpPC();
 };
 
 

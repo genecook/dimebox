@@ -272,7 +272,8 @@ RiscvInstruction * RiscvInstructionFactory::NewInstruction(RiscvState *state,Mem
   }
 
   if (instruction == NULL) {
-    throw ILLEGAL_INSTRUCTION_UNKNOWN_INSTR;
+    //throw ILLEGAL_INSTRUCTION_UNKNOWN_INSTR;
+    instruction = INSTR_INST(UnknownInstruction);
   }
   
   return instruction;
