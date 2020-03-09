@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define RISCV_ISA_TESTING 1
-
 void ADDI::Step() {
   RD( RS1() + SIGN_EXTEND_IMM(12) );
 };
@@ -170,25 +168,10 @@ void CSRRCI::Step() {
 };
 
 void ECALL::Step() {
-#ifdef RISCV_ISA_TESTING
-  if (UserMode())
-    Exception(ENV_CALL_UMODE);
-  else
-    Exception(ENV_CALL_MMODE);
-  if ( (GP() == 1) && (A7() == 93) && (A0() == 0) ) {
-    // at env-call, core register state indicates test has passed...
-    std::cout << "TEST PASSES!!!" << std::endl;
-    throw TEST_PASSES;
-  } else {
-    std::cout << "TEST FAILS!!!" << std::endl;
-    throw TEST_FAILS;
-  }
-#else
   if (UserMode())
     throw ENV_CALL_UMODE;
   else
-    throw ENV_CALL_MMODE;  
-#endif
+    throw ENV_CALL_MMODE;
 };
 
 void EBREAK::Step() {

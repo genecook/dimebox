@@ -140,41 +140,42 @@ void RiscvSimulator::StepCores() {
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
 	instr->Execute(sim_cfg->ShowUpdates());
 	instr->Writeback(*ci,&memory,sim_cfg->ShowUpdates());
+#ifdef RISCV_ISA_TESTING
+	if (instr->InstrName() == "ecall") {
+          if ( ((*ci)->GP(3) == 1) && ((*ci)->GP(17) == 93) && ((*ci)->GP(10) == 0) ) {
+            // at env-call, core register state indicates test has passed...
+            std::cout << "TEST PASSES!!!" << std::endl;
+            //throw TEST_PASSES;
+	    // machine state seems to indicate test has passed...
+	    if (hit_test_pass_region) {
+	       // we expect the test to have 'passed' thru the 'pass' region...
+	       printf("'Test harness' indicates success!\n");
+	       (*ci)->SetEndTest(true);
+	    } else {
+	       fprintf(stderr,"'Test harness' indicates success but test did NOT pass through 'pass' memory region???\n");
+	       rcode = -1;
+	    }
+          } else {
+            std::cout << "TEST FAILS!!!" << std::endl;
+            //throw TEST_FAILS;
+	    rcode = -1;
+          }
+	}
+#endif
         delete instr;
         instr_count++;
 	(*ci)->AdvanceClock();
-        (*ci)->SetEndTest((*ci)->PC() == pc);  // apparent jump to self instruction triggers end-test
+	
+        if ((*ci)->EndTest()) {
+	  // test has ended...
+	} else {
+	  // apparent jump to self instruction triggers end-test...
+	  (*ci)->SetEndTest((*ci)->PC() == pc);  
+	}
         if (!DebugPostStepChecks(*ci,&memory,pc)) {
+	  // debug may end test...
           (*ci)->SetEndTest(true);
         }
-     } catch(SIM_EXCEPTIONS sim_exception) {
-       // process 'expected' exceptions/errors...
-       switch((int) sim_exception) {
-#ifdef RISCV_ISA_TESTING
-	 case TEST_PASSES:
-	   // machine state seems to indicate test has passed...
-	   if (hit_test_pass_region) {
-	       // but we still expect the test to have 'passed' thru the 'pass' region...
-	       printf("'Test harness' indicates success!\n");
-	       (*ci)->SetEndTest(true);
-	   } else {
-	       fprintf(stderr,"'Test harness' indicates success but test did NOT pass through 'pass' memory region???\n");
-	       rcode = -1;
-	   }
-	   break;
-         case TEST_FAILS:
-	   // machine state indicates test has failed...
-           rcode = -1;
-           break;
-#endif
-	 // should never get internal or 'generation' errors...
-         case INTERNAL_ERROR:
-         case GENERATION_ERROR:  
-         default:
-	   fprintf(stderr,"Internal Error???\n");
-	   rcode = -1;
-	   break;
-       }
      } catch(const std::runtime_error &msg) {
        // generally will get here if core cannot handle an exception or interrupt...
        std::cout << msg.what() << std::endl;
