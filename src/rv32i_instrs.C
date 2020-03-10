@@ -71,12 +71,12 @@ void SRA::Step() {
 };
 
 void JAL::Step() {
-  RD( PC() + 4 );
   SetPC( PC() + SIGN_EXTEND_IMM(20) );
+  RD( PC() + 4 );
 };
 void JALR::Step() { 
-  RD( PC() + 4 );
   SetPC( (RS1() + SIGN_EXTEND_IMM(12)) & 0xfffffffe );
+  RD( PC() + 4 );
 };
 
 void BEQ::Step() {

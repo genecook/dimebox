@@ -46,7 +46,9 @@ dimebox tasks (in no particular order)
  * Implement timer, timer interrupt. - DONE.
  * Implement uart clock, interrupt. - DONE.
 
- * Enhance test 'harnes' script to drop test generation scripts in each test run directory.
+ * Enhance test 'filter' scripts to track all register initial values, discard updates to
+   registers that match initial state.
+ * Enhance test 'harness' script to drop test generation scripts in each test run directory.
  
  * Complete debug of 'CSR' tests.
  

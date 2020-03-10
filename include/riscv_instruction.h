@@ -45,7 +45,16 @@ public:
   // after instruction executes, update simulator state:
   virtual void Writeback(RiscvState *_state,Memory *_memory,bool show_updates);
 
-  void SetPC(unsigned int branch_pc) { next_pc = branch_pc; };
+  void SetPC(unsigned int branch_pc) {
+    // allow no misaligned branch target...
+    // (All instructions assumed to be aligned to 4 byte boundary)
+    if ( (branch_pc & 0x3) != 0) {
+      state->RecordMisalignedAddress(branch_pc);
+      throw INSTRUCTION_ADDRESS_MISALIGNED;
+    }
+    
+    next_pc = branch_pc;
+  };
   
   virtual void AdvancePC() { state->SetPC(next_pc); };
 

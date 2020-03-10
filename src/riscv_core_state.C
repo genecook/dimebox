@@ -233,8 +233,6 @@ void RiscvState::SetCSR(unsigned int csr,unsigned int privilege_level, unsigned 
     default:    throw ILLEGAL_INSTRUCTION_UNKNOWN_CSR;
                 break;
   }
-    
-    if (show_updates) ShowCSRAccess(CSR_NAME(csr),csr,rval,true);
 }
 
 //***********************************************************************
@@ -424,6 +422,15 @@ void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opc
       SetPC( MTVEC() );
       break;
 
+    case INSTRUCTION_ADDRESS_MISALIGNED:
+      SetMCAUSE( sim_exception & 0xf );
+      // MTVAL was set when bad address was detected...
+      PushPrivilegeLevel();
+      SetMEPC( PC() );
+      SetPC( MTVEC() );
+      break;
+
+      
     // illegal instruction exception. broken down into simulator specific cases
     // for debug purposes...
     case ILLEGAL_INSTRUCTION_UNKNOWN_INSTR:

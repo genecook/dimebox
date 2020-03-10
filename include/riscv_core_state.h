@@ -136,9 +136,10 @@ public:
   };
   void SetMSTATUS(unsigned long long rval) {
     rval &= rval & ~0x805de162;  // make sure these bits are clear: SIE,SPP,SPIE,MXR,SUM,UBE,TVM,TSR,FP,XS,SD
-    
     if ( ((rval & 0x1800) == 0x800) || ((rval & 0x1800) == 0x01000) ) {
       unsigned old_mpp = MSTATUS() & 0x1800;
+      if (show_updates)
+	ShowComment("  # ignoring writes to MSTATUS.MPP (values of 01 (S) or 02 (reserved))...\n");
       rval = (rval & ~0x1800) | old_mpp; // ignore MPP values of 01 (S) or 02 (reserved)
     }
     _MSTATUS.Value(rval);
@@ -233,6 +234,9 @@ public:
   void SetMTVAL(unsigned long long rval) {
     _MTVAL.Value(rval);
     if (show_updates) ShowCSRAccess("mtval",0x343,rval,true);
+  };
+  void RecordMisalignedAddress(unsigned long long branch_pc) {
+    SetMTVAL(branch_pc); 
   };
   unsigned long long MIP() { return _MIP.Value(); };
   void SetMIP(unsigned long long rval) {
@@ -337,6 +341,8 @@ private:
   ControlRegister _FCSR;       //      "      control/status
 
   bool show_updates; // show register values
+
+
   std::vector<std::string> reg_updates;
 };
 
