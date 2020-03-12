@@ -21,6 +21,9 @@ public:
 
   void AddSrcFile(std::string &_src_file);
   void SrcFiles(std::vector<std::string> &elf_files);
+
+  void SetDumpFile(std::string &_dump_file) { dump_file = _dump_file; };
+  std::string DumpFile() { return dump_file; };
   
   void SetResetAddress(unsigned long long _reset_address);
   unsigned long long ResetAddress();
@@ -60,6 +63,7 @@ public:
   unsigned int DebugCoreID() { return gdb_core_id; };
 
   std::vector<std::string> load_files;
+  std::string dump_file;
   unsigned long long reset_address;
   unsigned int num_cores;
   std::vector<struct addr_range> dram;

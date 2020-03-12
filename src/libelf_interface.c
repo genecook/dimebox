@@ -136,7 +136,7 @@ int elfio_init_for_write(void **edata, char *err_msg, unsigned long long entry_p
   }
 
   ed->ehdr->e_ident[EI_DATA] = ELFDATA2LSB;  /* big endian (vs ELFDATA2LSB) */
-  ed->ehdr->e_machine        = EM_AARCH64;   /* EM_386;                     */
+  ed->ehdr->e_machine        = EM_RISCV;     /* EM_386;                     */
   ed->ehdr->e_type           = ET_EXEC;      /* ELF executable              */
   ed->ehdr->e_version        = EV_CURRENT;
 

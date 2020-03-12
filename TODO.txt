@@ -45,12 +45,12 @@ dimebox tasks (in no particular order)
    --implement exception/interrupt pending/priority logic.
  * Implement timer, timer interrupt. - DONE.
  * Implement uart clock, interrupt. - DONE.
-
+ * Enhance test 'harness' script to drop test generation scripts in each test run directory. - DONE.
+ * Complete debug of 'CSR' tests. -DONE.
+ * Add cmdline option to dump elf file, for testing purposes. -DONE.
+ 
  * Enhance test 'filter' scripts to track all register initial values, discard updates to
    registers that match initial state.
- * Enhance test 'harness' script to drop test generation scripts in each test run directory.
- 
- * Complete debug of 'CSR' tests.
  
  * Test timer, uart, interrupts.
    --implement timer test - timer goes off after N ticks, causes interrupt.

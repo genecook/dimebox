@@ -43,8 +43,8 @@ int Memory::ReadMemory(State *cpu,unsigned long long LA,bool is_data,bool privil
 		       int number_of_bytes,bool is_aligned,unsigned char *buffer,bool for_test,bool init_if_free) {
 
 #ifdef MEM_DEBUG
-  printf("[Memory::ReadMemory] LA: 0x%llx, data? %d, privileged? %d, size: %d, aligned? %d,init if free? %d\n",
-  	 LA,is_data,privileged,number_of_bytes,is_aligned,init_if_free);
+  printf("\n[Memory::ReadMemory] LA: 0x%llx, data? %d, privileged? %d, size: %d, aligned? %d,for test? %d init if free? %d\n",
+  	 LA,is_data,privileged,number_of_bytes,is_aligned,for_test,init_if_free);
 #endif
 
   // sanity-check: instructions are never mis-aligned...
@@ -57,9 +57,14 @@ int Memory::ReadMemory(State *cpu,unsigned long long LA,bool is_data,bool privil
 
   // short circuit as most of the internal simulator memory accesses are less than a memory block size...
   
-  if (number_of_bytes <= PM_BLOCK_SIZE)
-    return ReadMemoryBlock(cpu,LA,is_data,privileged,number_of_bytes,is_aligned,buffer,init_if_free);
-
+  if (number_of_bytes <= PM_BLOCK_SIZE) {
+    int rcode = ReadMemoryBlock(cpu,LA,is_data,privileged,number_of_bytes,is_aligned,buffer,for_test,init_if_free);
+#ifdef MEM_DEBUG
+    printf("[Memory::ReadMemory] exited.\n\n");
+#endif
+    return rcode;
+  }
+  
   int rcode = 0;
 
   int num_blocks  = number_of_bytes / PM_BLOCK_SIZE;
@@ -70,12 +75,16 @@ int Memory::ReadMemory(State *cpu,unsigned long long LA,bool is_data,bool privil
   // NOTE: will ASSUME if 1st block access is mis-aligned, then ALL blocks accessed are mis-aligned...
   
   for (int i = 1; (i <= num_blocks) && !rcode; i++) {
-     rcode = ReadMemoryBlock(cpu,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,&buffer[block_offset],init_if_free);
+     rcode = ReadMemoryBlock(cpu,LA + block_offset,is_data,privileged,PM_BLOCK_SIZE,is_aligned,&buffer[block_offset],for_test,init_if_free);
      block_offset += PM_BLOCK_SIZE;
   }
 
   if ( (extra_bytes > 0) && !rcode)
-    rcode = ReadMemoryBlock(cpu,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,&buffer[block_offset],init_if_free);
+    rcode = ReadMemoryBlock(cpu,LA + block_offset,is_data,privileged,extra_bytes,is_aligned,&buffer[block_offset],for_test,init_if_free);
+
+#ifdef MEM_DEBUG
+  printf("[Memory::ReadMemory] exited.\n\n");
+#endif
 
   return rcode;
 }
@@ -193,6 +202,10 @@ int Memory::ReadMemoryBlock(State *cpu,unsigned long long LA,bool is_data,
     }
   }
 
+#ifdef MEM_DEBUG
+  unsigned long long PA = trans->PA();
+#endif
+
   if (trans) delete trans;
   if (trans2) delete trans2;
   
@@ -207,7 +220,7 @@ int Memory::ReadMemoryBlock(State *cpu,unsigned long long LA,bool is_data,
   }
   
 #ifdef MEM_DEBUG
-  printf("[Memory::ReadMemoryBlock] exited, LA: 0x%llx PA: 0x%llx rcode: %d\n",LA,trans->PA(),rcode);
+  printf("[Memory::ReadMemoryBlock] exited, LA: 0x%llx PA: 0x%llx rcode: %d\n",LA,PA,rcode);
 #endif
   
   return rcode;

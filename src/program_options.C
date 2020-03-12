@@ -38,6 +38,7 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 
       ("sim_config_file,C",po::value< vector<string> >(),"Simulation config file")
       ("sim_load_file,L",po::value< vector<string> >(),"Simulation load file")
+      ("sim_dump_file",po::value<string>(),"Simulation 'dump' file")
       ("num_cores,N",po::value<unsigned int>(),"Number of cores to enable")
       ("max_instrs,n",po::value<unsigned int>(),"Maximum number of instructions per core to simulate")
       ("show_disassembly,D","Print address/disassembly for each instruction during simulation")
@@ -88,6 +89,8 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
 	 printf("\n");
 	 printf("        --pass_address <address>                          -- Riscv ISA test 'pass' address\n");
 	 printf("        --signature_address_range <addressLo..addressHi>  -- Riscv ISA test 'signature' address range\n");
+	 printf("\n");	 
+         printf("        --sim_dump_file <file path>                       -- path to simulation dump file (ELF format) - used solely for testing purposes.\n");
 	 
          return SUCCESS;
       }
@@ -102,6 +105,11 @@ int process_options(SimConfig &my_sim_cfg,int argc,char **argv) {
          for (vector<string>::iterator i = obj_files.begin(); i != obj_files.end(); i++) {
 	    my_sim_cfg.AddSrcFile(*i);
 	 } 
+      }
+
+      if (vm.count("sim_dump_file")) {
+	std::string dump_file = vm["sim_dump_file"].as< string >();
+        my_sim_cfg.SetDumpFile(dump_file); 
       }
 
       if (vm.count("num_cores")) {

@@ -20,6 +20,8 @@ class RiscvSimulator {
 
   int LoadTestImage();
   
+  int DumpTest(std::string out_file);
+  
   int Go();
 
   int WriteTestSignature();

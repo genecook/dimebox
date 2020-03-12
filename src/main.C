@@ -64,7 +64,14 @@ int run_simulation(SimConfig *my_sim_cfg) {
      }
 
      rcode = my_simulator.WriteTestSignature();
-     
+
+     if (!rcode) {
+       std::string dump_file = my_sim_cfg->DumpFile();
+       if (!dump_file.empty()) {
+         rcode = my_simulator.DumpTest(dump_file);
+	 std::cout << "\nSimulation test image: " << dump_file << std::endl;
+       }
+     }
   } catch(const std::runtime_error& ex) {
      std::cerr << ex.what() << std::endl;
      rcode = -1;

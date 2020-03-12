@@ -65,6 +65,11 @@ int RiscvSimulator::LoadTestImage() {
   return rcode;
 }
 
+int RiscvSimulator::DumpTest(std::string out_file) {
+  ELFIO elf_helper;
+  return elf_helper.Save(memory,out_file,sim_cfg->ResetAddress(),false,false);
+}
+
 //****************************************************************************
 // run a simulation...
 //****************************************************************************
@@ -123,7 +128,7 @@ void RiscvSimulator::StepCores() {
      } opcode;
      
      try {
-        memory.ReadMemory(*ci,pc,false,false,4,true,opcode.buf);
+        memory.ReadMemory(*ci,pc,false,false,4,true,opcode.buf,false,false);
         memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
      } catch(SIM_EXCEPTIONS sim_exception) {
        std::cerr << "Problems reading memory at (PC) 0x" << std::hex << pc << std::dec << "???" << std::endl;
@@ -138,7 +143,7 @@ void RiscvSimulator::StepCores() {
         }
         RiscvState state_updates(*ci,sim_cfg->ShowUpdates());
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
-	instr->Execute(sim_cfg->ShowUpdates());
+	instr->Execute(sim_cfg->ShowDisassembly());
 	instr->Writeback(*ci,&memory,sim_cfg->ShowUpdates());
 #ifdef RISCV_ISA_TESTING
 	if (instr->InstrName() == "ecall") {
