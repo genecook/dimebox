@@ -3,8 +3,6 @@
 #include <vector>
 #include <algorithm>
 
-#define RISCV_ISA_TESTING 1
-
 //****************************************************************************
 // allocate/initialize cores, timers, devices, etc...
 //****************************************************************************
@@ -114,8 +112,6 @@ void RiscvSimulator::StepCores() {
   for (auto ci = ready_cores.begin(); ci != ready_cores.end() && !rcode; ci++) {
      unsigned int pc = (*ci)->PC();
 
-     hit_test_pass_region = sim_cfg->PassAddress(pc); // did test 'pass' memory region get accessed???
-
      SIM_EXCEPTIONS interrupt_to_service;
      if ( (*ci)->InterruptPending(interrupt_to_service) ) {
        // an interrupt is pending and ready for service...
@@ -145,28 +141,10 @@ void RiscvSimulator::StepCores() {
         RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
 	instr->Execute(sim_cfg->ShowDisassembly());
 	instr->Writeback(*ci,&memory,sim_cfg->ShowUpdates());
-#ifdef RISCV_ISA_TESTING
-	if (instr->InstrName() == "ecall") {
-          if ( ((*ci)->GP(3) == 1) && ((*ci)->GP(17) == 93) && ((*ci)->GP(10) == 0) ) {
-            // at env-call, core register state indicates test has passed...
-            std::cout << "TEST PASSES!!!" << std::endl;
-            //throw TEST_PASSES;
-	    // machine state seems to indicate test has passed...
-	    if (hit_test_pass_region) {
-	       // we expect the test to have 'passed' thru the 'pass' region...
-	       printf("'Test harness' indicates success!\n");
-	       (*ci)->SetEndTest(true);
-	    } else {
-	       fprintf(stderr,"'Test harness' indicates success but test did NOT pass through 'pass' memory region???\n");
-	       rcode = -1;
-	    }
-          } else {
-            std::cout << "TEST FAILS!!!" << std::endl;
-            //throw TEST_FAILS;
-	    rcode = -1;
-          }
+	if (sim_cfg->ISAtest() && (instr->InstrName() == "ecall")) {
+	  // for ISA tests ecall instruction ends test...
+	  (*ci)->SetEndTest(true);
 	}
-#endif
         delete instr;
         instr_count++;
 	(*ci)->AdvanceClock();

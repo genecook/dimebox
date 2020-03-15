@@ -82,41 +82,5 @@ then
     exit 1
 fi
 
-# resimulate using dimebox generated test-image...
-# --------------------------------------------------------
-$DIMEBOX_HOME/utils/RESIM_dimebox.sh $1 >$1.test_resimulate_log 2>&1
-
-if [ $? -ne 0 ]
-then
-    echo "FAIL???: dimebox-generated test-image fails to resimulate correctly on dimebox."
-    exit 1
-fi
-
-cat $1.test_resimulate_log | $DIMEBOX_HOME/utils/reformat_dimebox_trace.pl >$1.test_resimulate_trace
-
-if [ $? -ne 0 ]
-then
-    echo "FAIL???: Unable to reformat dimebox resimulation trace."
-    exit 1
-fi
-
-# diff the reference sim trace against dimebox sim trace...
-# ---------------------------------------------------------
-/usr/bin/diff $1.test_trace $1.test_resimulate_trace
-
-if [ $? -ne 0 ]
-then
-    echo "FAIL???: dimebox resimulation trace does NOT match dimebox test trace."
-    exit 1
-fi
-
 echo "SUCCESS!"
-
-
-
-
-
-
-
-
   

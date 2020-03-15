@@ -7,8 +7,8 @@
 class SimConfig {
 public:
   SimConfig() : reset_address(0), num_cores(1), disasm_enable(false), show_updates(false),
-		max_instr_count(1000),gdb_port(0),gdb_core_id(0),pass_address(0xffffffff),
-		signature_start_address(0),signature_end_address() {};
+		max_instr_count(1000),gdb_port(0),gdb_core_id(0),
+		signature_start_address(0),signature_end_address(0),isa_test(false) {};
   
   struct addr_range {
     addr_range(unsigned long long _address_lo,unsigned long long _address_hi) {
@@ -28,13 +28,13 @@ public:
   void SetResetAddress(unsigned long long _reset_address);
   unsigned long long ResetAddress();
 
-  void SetPassAddress(unsigned long long _address) { pass_address = _address; };
-  bool PassAddress(unsigned long long pc) { return pc = pass_address; };
-  
   void SetSignatureAddressRange(unsigned long long _address_lo,unsigned long long _address_hi) {
     signature_start_address = _address_lo;
     signature_end_address = _address_hi;
+    isa_test = true;
   };
+  void SetISAtest() { isa_test = true; };
+  bool ISAtest() { return isa_test; };
   unsigned long long SignatureStartAddress() { return signature_start_address; };
   unsigned long long SignatureEndAddress() { return signature_end_address; };
   
@@ -73,9 +73,9 @@ public:
   int max_instr_count;
   unsigned int gdb_port;
   unsigned int gdb_core_id;
-  unsigned long long pass_address;
   unsigned long long signature_start_address;
   unsigned long long signature_end_address;
+  bool isa_test;
 };
 
 #endif
