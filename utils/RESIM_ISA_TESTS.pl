@@ -25,6 +25,8 @@ print "Simulating all archived tests";
 
 my @isa_tests = split(/\s+/,`ls $images_dir`);
 
+die("No archived tests in $images_dir ?\n") if $#isa_tests <= 0;
+
 foreach my $td (@isa_tests) {
     # an 'archived' test consists of a dimebox generated test image in elf format, and the log from the
     # dimebox test generation:

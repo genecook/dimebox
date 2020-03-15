@@ -1,0 +1,1407 @@
+dimebox/risc-v simulator, version 0.1. Tuleta Software Co. Copyright 2020. All rights reserved.
+
+  Reset address specified: 0x80000000
+  test signature address range specified: 0x80002000..0x80002000
+debug server NOT configured.
+
+Starting simulation...
+Loading test from ELF file '/home/genec/Desktop/riscv/riscv-tests/isa/rv32ui-p-add'...
+elf reader initialized...
+total # of sections: 7
+Done.
+0x80000000 0x04c0006f jal x0,0x80000000
+0x8000004c 0xf1402573 csrrs a0,mhartid
+  # R zero (x0) = 0x0
+  # R mhartid (csr 0xf14) = 0x0
+  # W a0 (x10) = 0x0
+0x80000050 0x00051063 bne x0,a0,76
+  # R a0 (x10) = 0x0
+  # R zero (x0) = 0x0
+0x80000054 0x00000297 auipc t0,0x0
+  # W t0 (x5) = 0x80000054
+0x80000058 0x01028293 addi t0,t0,76
+  # R t0 (x5) = 0x80000054
+  # W t0 (x5) = 0x80000064
+0x8000005c 0x30529073 csrrw x0,mtvec,t0
+  # R t0 (x5) = 0x80000064
+  # R mtvec (csr 0x305) = 0x0
+  # W mtvec (csr 0x305) = 0x80000064
+0x80000060 0x18005073 csrrwi x0,satp,0
+  # R satp (csr 0x180) = 0x0
+  # W satp (csr 0x180) = 0x0
+0x80000064 0x00000297 auipc t0,0x0
+  # W t0 (x5) = 0x80000064
+0x80000068 0x02028293 addi t0,t0,16
+  # R t0 (x5) = 0x80000064
+  # W t0 (x5) = 0x80000084
+0x8000006c 0x30529073 csrrw x0,mtvec,t0
+  # R t0 (x5) = 0x80000084
+  # R mtvec (csr 0x305) = 0x80000064
+  # W mtvec (csr 0x305) = 0x80000084
+0x80000070 0x800002b7 lui t0,0x80000000
+  # W t0 (x5) = 0x80000000
+0x80000074 0xfff28293 addi t0,t0,32
+  # R t0 (x5) = 0x80000000
+  # W t0 (x5) = 0x7fffffff
+0x80000078 0x3b029073 csrrw x0,pmpaddr0,t0
+  # R t0 (x5) = 0x7fffffff
+  # R pmpaddr0 (csr 0x3b0) = 0x0
+  # W pmpaddr0 (csr 0x3b0) = 0x7fffffff
+0x8000007c 0x01f00293 addi t0,x0,-1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x1f
+0x80000080 0x3a029073 csrrw x0,pmpcfg0,t0
+  # R t0 (x5) = 0x1f
+  # R pmpcfg0 (csr 0x3a0) = 0x0
+  # W pmpcfg0 (csr 0x3a0) = 0x1f
+0x80000084 0x00000297 auipc t0,0x0
+  # W t0 (x5) = 0x80000084
+0x80000088 0x01828293 addi t0,t0,31
+  # R t0 (x5) = 0x80000084
+  # W t0 (x5) = 0x8000009c
+0x8000008c 0x30529073 csrrw x0,mtvec,t0
+  # R t0 (x5) = 0x8000009c
+  # R mtvec (csr 0x305) = 0x80000084
+  # W mtvec (csr 0x305) = 0x8000009c
+0x80000090 0x30205073 csrrwi x0,medeleg,0
+  # R medeleg (csr 0x302) = 0x0
+  # W medeleg (csr 0x302) = 0x0
+0x80000094 0x30305073 csrrwi x0,mideleg,0
+  # R mideleg (csr 0x303) = 0x0
+  # W mideleg (csr 0x303) = 0x0
+0x80000098 0x30405073 csrrwi x0,mie,0
+  # R mie (csr 0x304) = 0x0
+  # W mie (csr 0x304) = 0x0
+0x8000009c 0x00000193 addi gp,x0,24
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x0
+0x800000a0 0x00000297 auipc t0,0x0
+  # W t0 (x5) = 0x800000a0
+0x800000a4 0xf6428293 addi t0,t0,0
+  # R t0 (x5) = 0x800000a0
+  # W t0 (x5) = 0x80000004
+0x800000a8 0x30529073 csrrw x0,mtvec,t0
+  # R t0 (x5) = 0x80000004
+  # R mtvec (csr 0x305) = 0x8000009c
+  # W mtvec (csr 0x305) = 0x80000004
+0x800000ac 0x00100513 addi a0,x0,-156
+  # R zero (x0) = 0x0
+  # W a0 (x10) = 0x1
+0x800000b0 0x01f51513 slli a0,a0,31
+  # R a0 (x10) = 0x1
+  # W a0 (x10) = 0x80000000
+0x800000b4 0x00054c63 blt x0,a0,1
+  # R a0 (x10) = 0x80000000
+  # R zero (x0) = 0x0
+0x800000cc 0x80000297 auipc t0,0x80000000
+  # W t0 (x5) = 0xcc
+0x800000d0 0xf3428293 addi t0,t0,24
+  # R t0 (x5) = 0xcc
+  # W t0 (x5) = 0x0
+0x800000d4 0x00028e63 beq x0,t0,-204
+  # R t0 (x5) = 0x0
+  # R zero (x0) = 0x0
+0x800000f0 0x30005073 csrrwi x0,mstatus,0
+  # R mstatus (csr 0x300) = 0x0
+  # W mstatus (csr 0x300) = 0x0
+0x800000f4 0x00000297 auipc t0,0x0
+  # W t0 (x5) = 0x800000f4
+0x800000f8 0x01428293 addi t0,t0,28
+  # R t0 (x5) = 0x800000f4
+  # W t0 (x5) = 0x80000108
+0x800000fc 0x34129073 csrrw x0,mepc,t0
+  # R t0 (x5) = 0x80000108
+  # R mepc (csr 0x341) = 0x0
+  # W mepc (csr 0x341) = 0x80000108
+0x80000100 0xf1402573 csrrs a0,mhartid
+  # R zero (x0) = 0x0
+  # R mhartid (csr 0xf14) = 0x0
+  # W a0 (x10) = 0x0
+0x80000104 0x30200073 mret
+  # W mstatus (csr 0x300) = 0x80
+0x80000108 0x00000093 addi ra,x0,20
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x0
+0x8000010c 0x00000113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x0
+0x80000110 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x0
+  # R sp (x2) = 0x0
+  # W a4 (x14) = 0x0
+0x80000114 0x00000e93 addi t4,x0,0
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x0
+0x80000118 0x00200193 addi gp,x0,0
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x2
+0x8000011c 0x4dd71663 bne t4,a4,2
+  # R a4 (x14) = 0x0
+  # R t4 (x29) = 0x0
+0x80000120 0x00100093 addi ra,x0,2
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x1
+0x80000124 0x00100113 addi sp,x0,1
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x1
+0x80000128 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x1
+  # R sp (x2) = 0x1
+  # W a4 (x14) = 0x2
+0x8000012c 0x00200e93 addi t4,x0,1
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x2
+0x80000130 0x00300193 addi gp,x0,2
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x3
+0x80000134 0x4bd71a63 bne t4,a4,3
+  # R a4 (x14) = 0x2
+  # R t4 (x29) = 0x2
+0x80000138 0x00300093 addi ra,x0,3
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x3
+0x8000013c 0x00700113 addi sp,x0,3
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x7
+0x80000140 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x3
+  # R sp (x2) = 0x7
+  # W a4 (x14) = 0xa
+0x80000144 0x00a00e93 addi t4,x0,7
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0xa
+0x80000148 0x00400193 addi gp,x0,10
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x4
+0x8000014c 0x49d71e63 bne t4,a4,4
+  # R a4 (x14) = 0xa
+  # R t4 (x29) = 0xa
+0x80000150 0x00000093 addi ra,x0,4
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x0
+0x80000154 0xffff8137 lui sp,0xffff8000
+  # W sp (x2) = 0xffff8000
+0x80000158 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x0
+  # R sp (x2) = 0xffff8000
+  # W a4 (x14) = 0xffff8000
+0x8000015c 0xffff8eb7 lui t4,0xffff8000
+  # W t4 (x29) = 0xffff8000
+0x80000160 0x00500193 addi gp,x0,0
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x5
+0x80000164 0x49d71263 bne t4,a4,5
+  # R a4 (x14) = 0xffff8000
+  # R t4 (x29) = 0xffff8000
+0x80000168 0x800000b7 lui ra,0x80000000
+  # W ra (x1) = 0x80000000
+0x8000016c 0x00000113 addi sp,x0,5
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x0
+0x80000170 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x80000000
+  # R sp (x2) = 0x0
+  # W a4 (x14) = 0x80000000
+0x80000174 0x80000eb7 lui t4,0x80000000
+  # W t4 (x29) = 0x80000000
+0x80000178 0x00600193 addi gp,x0,0
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x6
+0x8000017c 0x47d71663 bne t4,a4,6
+  # R a4 (x14) = 0x80000000
+  # R t4 (x29) = 0x80000000
+0x80000180 0x800000b7 lui ra,0x80000000
+  # W ra (x1) = 0x80000000
+0x80000184 0xffff8137 lui sp,0xffff8000
+  # W sp (x2) = 0xffff8000
+0x80000188 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x80000000
+  # R sp (x2) = 0xffff8000
+  # W a4 (x14) = 0x7fff8000
+0x8000018c 0x7fff8eb7 lui t4,0x7fff8000
+  # W t4 (x29) = 0x7fff8000
+0x80000190 0x00700193 addi gp,x0,6
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x7
+0x80000194 0x45d71a63 bne t4,a4,7
+  # R a4 (x14) = 0x7fff8000
+  # R t4 (x29) = 0x7fff8000
+0x80000198 0x00000093 addi ra,x0,7
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x0
+0x8000019c 0x00008137 lui sp,0x8000
+  # W sp (x2) = 0x8000
+0x800001a0 0xfff10113 addi sp,sp,0
+  # R sp (x2) = 0x8000
+  # W sp (x2) = 0x7fff
+0x800001a4 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x0
+  # R sp (x2) = 0x7fff
+  # W a4 (x14) = 0x7fff
+0x800001a8 0x00008eb7 lui t4,0x8000
+  # W t4 (x29) = 0x8000
+0x800001ac 0xfffe8e93 addi t4,t4,-1
+  # R t4 (x29) = 0x8000
+  # W t4 (x29) = 0x7fff
+0x800001b0 0x00800193 addi gp,x0,-1
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x8
+0x800001b4 0x43d71a63 bne t4,a4,8
+  # R a4 (x14) = 0x7fff
+  # R t4 (x29) = 0x7fff
+0x800001b8 0x800000b7 lui ra,0x80000000
+  # W ra (x1) = 0x80000000
+0x800001bc 0xfff08093 addi ra,ra,8
+  # R ra (x1) = 0x80000000
+  # W ra (x1) = 0x7fffffff
+0x800001c0 0x00000113 addi sp,x0,-1
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x0
+0x800001c4 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x7fffffff
+  # R sp (x2) = 0x0
+  # W a4 (x14) = 0x7fffffff
+0x800001c8 0x80000eb7 lui t4,0x80000000
+  # W t4 (x29) = 0x80000000
+0x800001cc 0xfffe8e93 addi t4,t4,0
+  # R t4 (x29) = 0x80000000
+  # W t4 (x29) = 0x7fffffff
+0x800001d0 0x00900193 addi gp,x0,-1
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x9
+0x800001d4 0x41d71a63 bne t4,a4,9
+  # R a4 (x14) = 0x7fffffff
+  # R t4 (x29) = 0x7fffffff
+0x800001d8 0x800000b7 lui ra,0x80000000
+  # W ra (x1) = 0x80000000
+0x800001dc 0xfff08093 addi ra,ra,9
+  # R ra (x1) = 0x80000000
+  # W ra (x1) = 0x7fffffff
+0x800001e0 0x00008137 lui sp,0x8000
+  # W sp (x2) = 0x8000
+0x800001e4 0xfff10113 addi sp,sp,-1
+  # R sp (x2) = 0x8000
+  # W sp (x2) = 0x7fff
+0x800001e8 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x7fffffff
+  # R sp (x2) = 0x7fff
+  # W a4 (x14) = 0x80007ffe
+0x800001ec 0x80008eb7 lui t4,0x80008000
+  # W t4 (x29) = 0x80008000
+0x800001f0 0xffee8e93 addi t4,t4,-1
+  # R t4 (x29) = 0x80008000
+  # W t4 (x29) = 0x80007ffe
+0x800001f4 0x00a00193 addi gp,x0,-2
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0xa
+0x800001f8 0x3fd71863 bne t4,a4,10
+  # R a4 (x14) = 0x80007ffe
+  # R t4 (x29) = 0x80007ffe
+0x800001fc 0x800000b7 lui ra,0x80000000
+  # W ra (x1) = 0x80000000
+0x80000200 0x00008137 lui sp,0x8000
+  # W sp (x2) = 0x8000
+0x80000204 0xfff10113 addi sp,sp,10
+  # R sp (x2) = 0x8000
+  # W sp (x2) = 0x7fff
+0x80000208 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x80000000
+  # R sp (x2) = 0x7fff
+  # W a4 (x14) = 0x80007fff
+0x8000020c 0x80008eb7 lui t4,0x80008000
+  # W t4 (x29) = 0x80008000
+0x80000210 0xfffe8e93 addi t4,t4,-1
+  # R t4 (x29) = 0x80008000
+  # W t4 (x29) = 0x80007fff
+0x80000214 0x00b00193 addi gp,x0,-1
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0xb
+0x80000218 0x3dd71863 bne t4,a4,11
+  # R a4 (x14) = 0x80007fff
+  # R t4 (x29) = 0x80007fff
+0x8000021c 0x800000b7 lui ra,0x80000000
+  # W ra (x1) = 0x80000000
+0x80000220 0xfff08093 addi ra,ra,11
+  # R ra (x1) = 0x80000000
+  # W ra (x1) = 0x7fffffff
+0x80000224 0xffff8137 lui sp,0xffff8000
+  # W sp (x2) = 0xffff8000
+0x80000228 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x7fffffff
+  # R sp (x2) = 0xffff8000
+  # W a4 (x14) = 0x7fff7fff
+0x8000022c 0x7fff8eb7 lui t4,0x7fff8000
+  # W t4 (x29) = 0x7fff8000
+0x80000230 0xfffe8e93 addi t4,t4,-1
+  # R t4 (x29) = 0x7fff8000
+  # W t4 (x29) = 0x7fff7fff
+0x80000234 0x00c00193 addi gp,x0,-1
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0xc
+0x80000238 0x3bd71863 bne t4,a4,12
+  # R a4 (x14) = 0x7fff7fff
+  # R t4 (x29) = 0x7fff7fff
+0x8000023c 0x00000093 addi ra,x0,12
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x0
+0x80000240 0xfff00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xffffffff
+0x80000244 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x0
+  # R sp (x2) = 0xffffffff
+  # W a4 (x14) = 0xffffffff
+0x80000248 0xfff00e93 addi t4,x0,-1
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0xffffffff
+0x8000024c 0x00d00193 addi gp,x0,-1
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0xd
+0x80000250 0x39d71c63 bne t4,a4,13
+  # R a4 (x14) = 0xffffffff
+  # R t4 (x29) = 0xffffffff
+0x80000254 0xfff00093 addi ra,x0,13
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xffffffff
+0x80000258 0x00100113 addi sp,x0,-1
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x1
+0x8000025c 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xffffffff
+  # R sp (x2) = 0x1
+  # W a4 (x14) = 0x0
+0x80000260 0x00000e93 addi t4,x0,1
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x0
+0x80000264 0x00e00193 addi gp,x0,0
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0xe
+0x80000268 0x39d71063 bne t4,a4,14
+  # R a4 (x14) = 0x0
+  # R t4 (x29) = 0x0
+0x8000026c 0xfff00093 addi ra,x0,14
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xffffffff
+0x80000270 0xfff00113 addi sp,x0,-1
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xffffffff
+0x80000274 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xffffffff
+  # R sp (x2) = 0xffffffff
+  # W a4 (x14) = 0xfffffffe
+0x80000278 0xffe00e93 addi t4,x0,-1
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0xfffffffe
+0x8000027c 0x00f00193 addi gp,x0,-2
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0xf
+0x80000280 0x37d71463 bne t4,a4,15
+  # R a4 (x14) = 0xfffffffe
+  # R t4 (x29) = 0xfffffffe
+0x80000284 0x00100093 addi ra,x0,15
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x1
+0x80000288 0x80000137 lui sp,0x80000000
+  # W sp (x2) = 0x80000000
+0x8000028c 0xfff10113 addi sp,sp,1
+  # R sp (x2) = 0x80000000
+  # W sp (x2) = 0x7fffffff
+0x80000290 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0x1
+  # R sp (x2) = 0x7fffffff
+  # W a4 (x14) = 0x80000000
+0x80000294 0x80000eb7 lui t4,0x80000000
+  # W t4 (x29) = 0x80000000
+0x80000298 0x01000193 addi gp,x0,-1
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x10
+0x8000029c 0x35d71663 bne t4,a4,16
+  # R a4 (x14) = 0x80000000
+  # R t4 (x29) = 0x80000000
+0x800002a0 0x00d00093 addi ra,x0,16
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x800002a4 0x00b00113 addi sp,x0,13
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800002a8 0x002080b3 add ra,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W ra (x1) = 0x18
+0x800002ac 0x01800e93 addi t4,x0,11
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x18
+0x800002b0 0x01100193 addi gp,x0,24
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x11
+0x800002b4 0x33d09a63 bne t4,ra,17
+  # R ra (x1) = 0x18
+  # R t4 (x29) = 0x18
+0x800002b8 0x00e00093 addi ra,x0,17
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x800002bc 0x00b00113 addi sp,x0,14
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800002c0 0x00208133 add sp,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W sp (x2) = 0x19
+0x800002c4 0x01900e93 addi t4,x0,11
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x19
+0x800002c8 0x01200193 addi gp,x0,25
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x12
+0x800002cc 0x31d11e63 bne t4,sp,18
+  # R sp (x2) = 0x19
+  # R t4 (x29) = 0x19
+0x800002d0 0x00d00093 addi ra,x0,18
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x800002d4 0x001080b3 add ra,ra,ra
+  # R ra (x1) = 0xd
+  # W ra (x1) = 0x1a
+0x800002d8 0x01a00e93 addi t4,x0,13
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x1a
+0x800002dc 0x01300193 addi gp,x0,26
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x13
+0x800002e0 0x31d09463 bne t4,ra,19
+  # R ra (x1) = 0x1a
+  # R t4 (x29) = 0x1a
+0x800002e4 0x00000213 addi tp,x0,19
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x800002e8 0x00d00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x800002ec 0x00b00113 addi sp,x0,13
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800002f0 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x800002f4 0x00070313 addi t1,a4,11
+  # R a4 (x14) = 0x18
+  # W t1 (x6) = 0x18
+0x800002f8 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x800002fc 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000300 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x800002e8 0x00d00093 addi ra,x0,-24
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x800002ec 0x00b00113 addi sp,x0,13
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800002f0 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x800002f4 0x00070313 addi t1,a4,11
+  # R a4 (x14) = 0x18
+  # W t1 (x6) = 0x18
+0x800002f8 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x800002fc 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000300 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000304 0x01800e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x18
+0x80000308 0x01400193 addi gp,x0,24
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x14
+0x8000030c 0x2dd31e63 bne t4,t1,20
+  # R t1 (x6) = 0x18
+  # R t4 (x29) = 0x18
+0x80000310 0x00000213 addi tp,x0,20
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000314 0x00e00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x80000318 0x00b00113 addi sp,x0,14
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000031c 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x80000320 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000324 0x00070313 addi t1,a4,0
+  # R a4 (x14) = 0x19
+  # W t1 (x6) = 0x19
+0x80000328 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x8000032c 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000330 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000314 0x00e00093 addi ra,x0,-28
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x80000318 0x00b00113 addi sp,x0,14
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000031c 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x80000320 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000324 0x00070313 addi t1,a4,0
+  # R a4 (x14) = 0x19
+  # W t1 (x6) = 0x19
+0x80000328 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x8000032c 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000330 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000334 0x01900e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x19
+0x80000338 0x01500193 addi gp,x0,25
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x15
+0x8000033c 0x2bd31663 bne t4,t1,21
+  # R t1 (x6) = 0x19
+  # R t4 (x29) = 0x19
+0x80000340 0x00000213 addi tp,x0,21
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000344 0x00f00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x80000348 0x00b00113 addi sp,x0,15
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000034c 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x80000350 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000354 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x80000358 0x00070313 addi t1,a4,0
+  # R a4 (x14) = 0x1a
+  # W t1 (x6) = 0x1a
+0x8000035c 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000360 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000364 0xfe5210e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000344 0x00f00093 addi ra,x0,-32
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x80000348 0x00b00113 addi sp,x0,15
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000034c 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x80000350 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000354 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x80000358 0x00070313 addi t1,a4,0
+  # R a4 (x14) = 0x1a
+  # W t1 (x6) = 0x1a
+0x8000035c 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000360 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000364 0xfe5210e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000368 0x01a00e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x1a
+0x8000036c 0x01600193 addi gp,x0,26
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x16
+0x80000370 0x27d31c63 bne t4,t1,22
+  # R t1 (x6) = 0x1a
+  # R t4 (x29) = 0x1a
+0x80000374 0x00000213 addi tp,x0,22
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000378 0x00d00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x8000037c 0x00b00113 addi sp,x0,13
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000380 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x80000384 0x00120213 addi tp,tp,11
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000388 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x8000038c 0xfe5216e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000378 0x00d00093 addi ra,x0,-20
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x8000037c 0x00b00113 addi sp,x0,13
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000380 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x80000384 0x00120213 addi tp,tp,11
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000388 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x8000038c 0xfe5216e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000390 0x01800e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x18
+0x80000394 0x01700193 addi gp,x0,24
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x17
+0x80000398 0x25d71863 bne t4,a4,23
+  # R a4 (x14) = 0x18
+  # R t4 (x29) = 0x18
+0x8000039c 0x00000213 addi tp,x0,23
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x800003a0 0x00e00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x800003a4 0x00b00113 addi sp,x0,14
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800003a8 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x800003ac 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x800003b0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x800003b4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800003b8 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x800003a0 0x00e00093 addi ra,x0,-24
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x800003a4 0x00b00113 addi sp,x0,14
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800003a8 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x800003ac 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x800003b0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x800003b4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800003b8 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x800003bc 0x01900e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x19
+0x800003c0 0x01800193 addi gp,x0,25
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x18
+0x800003c4 0x23d71263 bne t4,a4,24
+  # R a4 (x14) = 0x19
+  # R t4 (x29) = 0x19
+0x800003c8 0x00000213 addi tp,x0,24
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x800003cc 0x00f00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x800003d0 0x00b00113 addi sp,x0,15
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800003d4 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x800003d8 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x800003dc 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x800003e0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x800003e4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800003e8 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x800003cc 0x00f00093 addi ra,x0,-28
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x800003d0 0x00b00113 addi sp,x0,15
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800003d4 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x800003d8 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x800003dc 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x800003e0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x800003e4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800003e8 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x800003ec 0x01a00e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x1a
+0x800003f0 0x01900193 addi gp,x0,26
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x19
+0x800003f4 0x1fd71a63 bne t4,a4,25
+  # R a4 (x14) = 0x1a
+  # R t4 (x29) = 0x1a
+0x800003f8 0x00000213 addi tp,x0,25
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x800003fc 0x00d00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x80000400 0x00000013 addi x0,x0,13
+  # R zero (x0) = 0x0
+0x80000404 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000408 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x8000040c 0x00120213 addi tp,tp,11
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000410 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000414 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x800003fc 0x00d00093 addi ra,x0,-24
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x80000400 0x00000013 addi x0,x0,13
+  # R zero (x0) = 0x0
+0x80000404 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000408 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x8000040c 0x00120213 addi tp,tp,11
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000410 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000414 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000418 0x01800e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x18
+0x8000041c 0x01a00193 addi gp,x0,24
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x1a
+0x80000420 0x1dd71463 bne t4,a4,26
+  # R a4 (x14) = 0x18
+  # R t4 (x29) = 0x18
+0x80000424 0x00000213 addi tp,x0,26
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000428 0x00e00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x8000042c 0x00000013 addi x0,x0,14
+  # R zero (x0) = 0x0
+0x80000430 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000434 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000438 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x8000043c 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000440 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000444 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000428 0x00e00093 addi ra,x0,-28
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x8000042c 0x00000013 addi x0,x0,14
+  # R zero (x0) = 0x0
+0x80000430 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000434 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000438 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x8000043c 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000440 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000444 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000448 0x01900e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x19
+0x8000044c 0x01b00193 addi gp,x0,25
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x1b
+0x80000450 0x19d71c63 bne t4,a4,27
+  # R a4 (x14) = 0x19
+  # R t4 (x29) = 0x19
+0x80000454 0x00000213 addi tp,x0,27
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000458 0x00f00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x8000045c 0x00000013 addi x0,x0,15
+  # R zero (x0) = 0x0
+0x80000460 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x80000464 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000468 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x8000046c 0x00120213 addi tp,tp,11
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000470 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000474 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000458 0x00f00093 addi ra,x0,-28
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x8000045c 0x00000013 addi x0,x0,15
+  # R zero (x0) = 0x0
+0x80000460 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x80000464 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000468 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x8000046c 0x00120213 addi tp,tp,11
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000470 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000474 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000478 0x01a00e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x1a
+0x8000047c 0x01c00193 addi gp,x0,26
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x1c
+0x80000480 0x17d71463 bne t4,a4,28
+  # R a4 (x14) = 0x1a
+  # R t4 (x29) = 0x1a
+0x80000484 0x00000213 addi tp,x0,28
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000488 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000048c 0x00d00093 addi ra,x0,11
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x80000490 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x80000494 0x00120213 addi tp,tp,13
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000498 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x8000049c 0xfe5216e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000488 0x00b00113 addi sp,x0,-20
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000048c 0x00d00093 addi ra,x0,11
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x80000490 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x80000494 0x00120213 addi tp,tp,13
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000498 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x8000049c 0xfe5216e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x800004a0 0x01800e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x18
+0x800004a4 0x01d00193 addi gp,x0,24
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x1d
+0x800004a8 0x15d71063 bne t4,a4,29
+  # R a4 (x14) = 0x18
+  # R t4 (x29) = 0x18
+0x800004ac 0x00000213 addi tp,x0,29
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x800004b0 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800004b4 0x00e00093 addi ra,x0,11
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x800004b8 0x00000013 addi x0,x0,14
+  # R zero (x0) = 0x0
+0x800004bc 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x800004c0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x800004c4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800004c8 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x800004b0 0x00b00113 addi sp,x0,-24
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800004b4 0x00e00093 addi ra,x0,11
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x800004b8 0x00000013 addi x0,x0,14
+  # R zero (x0) = 0x0
+0x800004bc 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x800004c0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x800004c4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800004c8 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x800004cc 0x01900e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x19
+0x800004d0 0x01e00193 addi gp,x0,25
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x1e
+0x800004d4 0x11d71a63 bne t4,a4,30
+  # R a4 (x14) = 0x19
+  # R t4 (x29) = 0x19
+0x800004d8 0x00000213 addi tp,x0,30
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x800004dc 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800004e0 0x00f00093 addi ra,x0,11
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x800004e4 0x00000013 addi x0,x0,15
+  # R zero (x0) = 0x0
+0x800004e8 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x800004ec 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x800004f0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x800004f4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800004f8 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x800004dc 0x00b00113 addi sp,x0,-28
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x800004e0 0x00f00093 addi ra,x0,11
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x800004e4 0x00000013 addi x0,x0,15
+  # R zero (x0) = 0x0
+0x800004e8 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x800004ec 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x800004f0 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x800004f4 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x800004f8 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x800004fc 0x01a00e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x1a
+0x80000500 0x01f00193 addi gp,x0,26
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x1f
+0x80000504 0x0fd71263 bne t4,a4,31
+  # R a4 (x14) = 0x1a
+  # R t4 (x29) = 0x1a
+0x80000508 0x00000213 addi tp,x0,31
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x8000050c 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000510 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000514 0x00d00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x80000518 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x8000051c 0x00120213 addi tp,tp,13
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000520 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000524 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x8000050c 0x00b00113 addi sp,x0,-24
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x80000510 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000514 0x00d00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xd
+0x80000518 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xd
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x18
+0x8000051c 0x00120213 addi tp,tp,13
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000520 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000524 0xfe5214e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000528 0x01800e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x18
+0x8000052c 0x02000193 addi gp,x0,24
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x20
+0x80000530 0x0bd71c63 bne t4,a4,32
+  # R a4 (x14) = 0x18
+  # R t4 (x29) = 0x18
+0x80000534 0x00000213 addi tp,x0,32
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000538 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000053c 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000540 0x00e00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x80000544 0x00000013 addi x0,x0,14
+  # R zero (x0) = 0x0
+0x80000548 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x8000054c 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000550 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000554 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000538 0x00b00113 addi sp,x0,-28
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000053c 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000540 0x00e00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xe
+0x80000544 0x00000013 addi x0,x0,14
+  # R zero (x0) = 0x0
+0x80000548 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xe
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x19
+0x8000054c 0x00120213 addi tp,tp,0
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000550 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000554 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000558 0x01900e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x19
+0x8000055c 0x02100193 addi gp,x0,25
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x21
+0x80000560 0x09d71463 bne t4,a4,33
+  # R a4 (x14) = 0x19
+  # R t4 (x29) = 0x19
+0x80000564 0x00000213 addi tp,x0,33
+  # R zero (x0) = 0x0
+  # W tp (x4) = 0x0
+0x80000568 0x00b00113 addi sp,x0,0
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000056c 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000570 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x80000574 0x00f00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x80000578 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x8000057c 0x00120213 addi tp,tp,15
+  # R tp (x4) = 0x0
+  # W tp (x4) = 0x1
+0x80000580 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000584 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x1
+  # R t0 (x5) = 0x2
+0x80000568 0x00b00113 addi sp,x0,-28
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0xb
+0x8000056c 0x00000013 addi x0,x0,11
+  # R zero (x0) = 0x0
+0x80000570 0x00000013 addi x0,x0,0
+  # R zero (x0) = 0x0
+0x80000574 0x00f00093 addi ra,x0,0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x80000578 0x00208733 add a4,ra,sp
+  # R ra (x1) = 0xf
+  # R sp (x2) = 0xb
+  # W a4 (x14) = 0x1a
+0x8000057c 0x00120213 addi tp,tp,15
+  # R tp (x4) = 0x1
+  # W tp (x4) = 0x2
+0x80000580 0x00200293 addi t0,x0,1
+  # R zero (x0) = 0x0
+  # W t0 (x5) = 0x2
+0x80000584 0xfe5212e3 bne t0,tp,2
+  # R tp (x4) = 0x2
+  # R t0 (x5) = 0x2
+0x80000588 0x01a00e93 addi t4,x0,2
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x1a
+0x8000058c 0x02200193 addi gp,x0,26
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x22
+0x80000590 0x05d71c63 bne t4,a4,34
+  # R a4 (x14) = 0x1a
+  # R t4 (x29) = 0x1a
+0x80000594 0x00f00093 addi ra,x0,34
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0xf
+0x80000598 0x00100133 add sp,x0,ra
+  # R zero (x0) = 0x0
+  # R ra (x1) = 0xf
+  # W sp (x2) = 0xf
+0x8000059c 0x00f00e93 addi t4,x0,15
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0xf
+0x800005a0 0x02300193 addi gp,x0,15
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x23
+0x800005a4 0x05d11263 bne t4,sp,35
+  # R sp (x2) = 0xf
+  # R t4 (x29) = 0xf
+0x800005a8 0x02000093 addi ra,x0,35
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x20
+0x800005ac 0x00008133 add sp,ra,x0
+  # R ra (x1) = 0x20
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x20
+0x800005b0 0x02000e93 addi t4,x0,32
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x20
+0x800005b4 0x02400193 addi gp,x0,32
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x24
+0x800005b8 0x03d11863 bne t4,sp,36
+  # R sp (x2) = 0x20
+  # R t4 (x29) = 0x20
+0x800005bc 0x000000b3 add ra,x0,x0
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x0
+0x800005c0 0x00000e93 addi t4,x0,36
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x0
+0x800005c4 0x02500193 addi gp,x0,0
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x25
+0x800005c8 0x03d09063 bne t4,ra,37
+  # R ra (x1) = 0x0
+  # R t4 (x29) = 0x0
+0x800005cc 0x01000093 addi ra,x0,37
+  # R zero (x0) = 0x0
+  # W ra (x1) = 0x10
+0x800005d0 0x01e00113 addi sp,x0,16
+  # R zero (x0) = 0x0
+  # W sp (x2) = 0x1e
+0x800005d4 0x00208033 add x0,ra,sp
+  # R ra (x1) = 0x10
+  # R sp (x2) = 0x1e
+0x800005d8 0x00000e93 addi t4,x0,30
+  # R zero (x0) = 0x0
+  # W t4 (x29) = 0x0
+0x800005dc 0x02600193 addi gp,x0,0
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x26
+0x800005e0 0x01d01463 bne t4,x0,38
+  # R zero (x0) = 0x0
+  # R t4 (x29) = 0x0
+0x800005e4 0x02301063 bne gp,x0,38
+  # R zero (x0) = 0x0
+  # R gp (x3) = 0x26
+0x80000604 0x0ff0000f fence x0,0xff00000
+0x80000608 0x00100193 addi gp,x0,32
+  # R zero (x0) = 0x0
+  # W gp (x3) = 0x1
+0x8000060c 0x05d00893 addi a7,x0,1
+  # R zero (x0) = 0x0
+  # W a7 (x17) = 0x5d
+0x80000610 0x00000513 addi a0,x0,93
+  # R zero (x0) = 0x0
+  # W a0 (x10) = 0x0
+0x80000614 0x00000073 ecall x0,0x0
+  # W mstatus (csr 0x300) = 0x0
+  # W mcause (csr 0x342) = 0x8
+  # W mtval (csr 0x343) = 0x0
+  # W mepc (csr 0x341) = 0x80000614
+Simulation ended, rcode: 0
+
+Elapsed time: 3.969 ms.
+simulation rate: 117409 instructions per second.
+
+Test signature file: test.signature
+
+Simulation test image: rv32ui-p-add.elf
+signature file: test_signature
+test image: rv32ui-p-add.elf

@@ -48,6 +48,12 @@ dimebox tasks (in no particular order)
  * Enhance test 'harness' script to drop test generation scripts in each test run directory. - DONE.
  * Complete debug of 'CSR' tests. -DONE.
  * Add cmdline option to dump elf file, for testing purposes. -DONE.
+ * Update test harness, scripts to cause dimebox to output test image during simulation,
+   and then resimulate using the test image. -DONE.
+ * Archive dimebox generated test images from ISA tests. implement 'resim' script.
+   Add 'test' target to cmake. -DONE.
+   
+ * Enhance elf loader to determine entry point for single elf file tests, for convenience.
  
  * Enhance test 'filter' scripts to track all register initial values, discard updates to
    registers that match initial state.
@@ -61,6 +67,7 @@ dimebox tasks (in no particular order)
    --retreive documentation from 'dev' platform.
    
  * Formalize test process - using some scripts to ad hoc testing so far.
+   --save test images created during running of riscv isa tests. 
    --add testing to git checkin?
    
  * Reconcile sim config file. - not up to date with cmdline args. what should be in this file?
