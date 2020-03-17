@@ -43,3 +43,6 @@ add_test(NAME resim_isa_tests
          WORKING_DIRECTORY ..
          COMMAND utils/RESIM_ISA_TESTS.pl)
 
+add_test(NAME wfi_timer_test
+         COMMAND ./dimebox -L ../tests/wfi_timer.o -U --timer 0x8000)
+
