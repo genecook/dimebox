@@ -80,14 +80,18 @@ int RiscvSimulator::Go() {
   if (rcode)
     return rcode;
   
-  cores_are_running = true; // we'll ASSUME at least one core is alive...
+  std::vector<RiscvState *> ready_cores;
+  
+  bool cores_are_running = GetReadyCpus(ready_cores);
 
   instr_count = 0; // total # of instructions simulated for all cores
 
-  while( !rcode && (instr_count < sim_cfg->MaxInstrs()) && cores_are_running) {
-    StepCores();
+  while( !rcode && (instr_count < sim_cfg->MaxInstrs()) && (cores_are_running || SleepingCores()) ) {
+    if (cores_are_running)
+      StepCores(ready_cores);
     AdvanceClock();
     ServiceDevices();
+    cores_are_running = GetReadyCpus(ready_cores);
   }
 
   // we expect all cores to be 'properly' halted at the end of simulation...
@@ -104,67 +108,83 @@ int RiscvSimulator::Go() {
 // step all ready cores...
 //****************************************************************************
 
-void RiscvSimulator::StepCores() {
-  std::vector<RiscvState *> ready_cores;
-  
-  cores_are_running = GetReadyCpus(ready_cores);
-
+void RiscvSimulator::StepCores(std::vector<RiscvState *> &ready_cores) {
   for (auto ci = ready_cores.begin(); ci != ready_cores.end() && !rcode; ci++) {
-     unsigned int pc = (*ci)->PC();
-
-     SIM_EXCEPTIONS interrupt_to_service;
-     if ( (*ci)->InterruptPending(interrupt_to_service) ) {
-       // an interrupt is pending and ready for service...
-       (*ci)->ProcessInterrupt(interrupt_to_service);
-     }
-
-     union {
-       unsigned char buf[4];
-       unsigned int encoding;
-     } opcode;
-     
-     try {
-        memory.ReadMemory(*ci,pc,false,false,4,true,opcode.buf,false,false);
-        memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
-     } catch(SIM_EXCEPTIONS sim_exception) {
-       std::cerr << "Problems reading memory at (PC) 0x" << std::hex << pc << std::dec << "???" << std::endl;
-       rcode = -1;
-       continue;
-     }
-     
-     try {
-        if (!DebugPreStepChecks(*ci,&memory,pc)) {
-          (*ci)->SetEndTest(true);
-	  return;
-        }
-        RiscvState state_updates(*ci,sim_cfg->ShowUpdates());
-        RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
-	instr->Execute(sim_cfg->ShowDisassembly());
-	instr->Writeback(*ci,&memory,sim_cfg->ShowUpdates());
-	if (sim_cfg->ISAtest() && (instr->InstrName() == "ecall")) {
-	  // for ISA tests ecall instruction ends test...
-	  (*ci)->SetEndTest(true);
-	}
-        delete instr;
-        instr_count++;
-	(*ci)->AdvanceClock();
-	
-        if ((*ci)->EndTest()) {
-	  // test has ended...
-	} else {
-	  // apparent jump to self instruction triggers end-test...
-	  (*ci)->SetEndTest((*ci)->PC() == pc);  
-	}
-        if (!DebugPostStepChecks(*ci,&memory,pc)) {
-	  // debug may end test...
-          (*ci)->SetEndTest(true);
-        }
-     } catch(const std::runtime_error &msg) {
+    try {
+       StepCore(*ci);
+    } catch(const std::runtime_error &msg) {
        // generally will get here if core cannot handle an exception or interrupt...
        std::cout << msg.what() << std::endl;
        rcode = -1;
        break;
-     }
+    }
+  }
+}
+
+//****************************************************************************
+// step a single core...
+//****************************************************************************
+
+void RiscvSimulator::StepCore(RiscvState *core) {
+  RiscvState state_updates(core,sim_cfg->ShowUpdates());
+  
+  SIM_EXCEPTIONS interrupt_to_service;
+  
+  if ( state_updates.InterruptPending(interrupt_to_service) ) {
+    // an interrupt is pending and ready for service...
+    state_updates.ProcessInterrupt(interrupt_to_service);
+  }
+
+  if ( state_updates.LowPowerMode() ) {
+    return;
+  }
+     
+  unsigned int pc = state_updates.PC();
+
+  union {
+    unsigned char buf[4];
+    unsigned int encoding;
+  } opcode;
+     
+  try {
+     memory.ReadMemory(&state_updates,pc,false,false,4,true,opcode.buf,false,false);
+     memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
+  } catch(SIM_EXCEPTIONS sim_exception) {
+     std::cerr << "Problems reading memory at (PC) 0x" << std::hex << pc << std::dec << "???" << std::endl;
+     rcode = -1;
+     return;
+  }
+
+  if (!DebugPreStepChecks(&state_updates,&memory,pc)) {
+    state_updates.SetEndTest(true);
+    return;
+  }
+
+  RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
+	
+  instr->Execute(sim_cfg->ShowDisassembly());
+  instr->Writeback(core,&memory,sim_cfg->ShowUpdates());
+  
+  if (sim_cfg->ISAtest() && (instr->InstrName() == "ecall")) {
+    // for ISA tests ecall instruction ends test...
+    core->SetEndTest(true);
+  }
+  
+  delete instr;
+  instr_count++;
+	
+  if (core->EndTest()) {
+    // test has ended...
+  } else if (core->LowPowerMode()) {
+    // core in low power mode. hopefully some event (interrupt or wakeup from another core) will wake it up...
+  } else {
+    // apparent jump to self instruction triggers end-test...
+    core->SetEndTest(core->PC() == pc);  
+  }
+  
+  if (!DebugPostStepChecks(core,&memory,pc)) {
+    // debug may end test...
+    core->SetEndTest(true);
   }
 }
 
@@ -174,6 +194,8 @@ void RiscvSimulator::StepCores() {
 //****************************************************************************
 
 bool RiscvSimulator::GetReadyCpus(std::vector<RiscvState *> &ready_cores) {
+  ready_cores.clear();
+  
   int ready_count = 0;
   
   for (auto ci = cores.begin(); ci != cores.end(); ci++) {
@@ -189,6 +211,15 @@ bool RiscvSimulator::GetReadyCpus(std::vector<RiscvState *> &ready_cores) {
   return (ready_count > 0);
 }
 
+bool RiscvSimulator::SleepingCores() {
+  for (auto ci = cores.begin(); ci != cores.end(); ci++) {
+    if ((*ci)->LowPowerMode()) {
+       return true;
+    }
+  }
+  return false;
+}
+
 //****************************************************************************
 // on each clock 'tick' service any devices...
 //****************************************************************************
@@ -199,6 +230,7 @@ void RiscvSimulator::ServiceDevices() {
     if (timer.InterruptPending()) {
       // until interrupt controller is implemented, timer interrupt is tied to cpu0...
       cores[0]->Signal(MACHINE_TIMER_INT);
+      //      cores[0]->ClearLowPowerMode();
     }
   }
   if (uart1.IsImplemented()) {

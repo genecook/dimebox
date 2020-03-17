@@ -339,20 +339,20 @@ bool RiscvState::InterruptPending(SIM_EXCEPTIONS &sim_interrupt) {
   
   bool external_interrupt_pending = (MIP()>>11) & 1;
   bool external_interrupt_enabled = (MIE()>>11) & 1;
-  
+ 
   if (external_interrupt_pending && external_interrupt_enabled) {
     sim_interrupt = MACHINE_EXTERNAL_INT;
-    if (show_updates) ShowComment("  # machine external interrupt...");
+    if (show_updates) ShowComment("  # machine external interrupt...\n");
     return true;
   }
   
   bool timer_interrupt_pending = (MIP()>>7) & 1;
   bool timer_interrupt_enabled = (MIE()>>7) & 1;
-  
+ 
   if (timer_interrupt_pending && timer_interrupt_enabled) {
     sim_interrupt = MACHINE_TIMER_INT;
-    if (show_updates) ShowComment("  # timer interrupt...");
-   return true;
+    if (show_updates) ShowComment("  # timer interrupt...\n");
+    return true;
   }
   
   return false; // no interrupts are pending and/or no interrupts are enabled
@@ -368,7 +368,7 @@ bool RiscvState::InterruptPending(SIM_EXCEPTIONS &sim_interrupt) {
 // take exception if pending AND has priority...
 void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opcode) {
   int cause_bit = -1;
-  
+ 
   switch((int) sim_exception) {
     // timer and uart are only hardware interrupts currently supported...
     case MACHINE_TIMER_INT:
@@ -404,6 +404,7 @@ void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opc
       SetMTVAL(0);
       SetMEPC( PC() + 4 );
       SetLowPowerMode();
+      if (show_updates) ShowComment("  # Entering low power mode...\n");
       break;
 
     // return from interrupt or exception...

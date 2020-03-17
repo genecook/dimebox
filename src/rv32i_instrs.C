@@ -195,10 +195,11 @@ void MRET::Step() {
 };
 
 void WFI::Step() {
-  if (UserMode())
+  if (UserMode()) {
     throw ILLEGAL_INSTRUCTION_PRIVILEGED_INSTR;
-  else if (WFIEnabled())
+  } else if (WFIEnabled()) {
     throw PROCESS_WFI;
+  }
   else
     throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
 };

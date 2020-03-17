@@ -156,7 +156,7 @@ public:
   bool GlobalInterruptsEnabled() { return (MSTATUS() & 0x8) != 0; }; // machine mode global interrupt-enable
   bool WFIEnabled() {
     // MSTATUS.TW is WFI 'enable' when not in machine mode...
-    return (CurrentPrivilegeLevel() == 3) || (MSTATUS() & 0x200000);
+    return (CurrentPrivilegeLevel() == 3) || ((MSTATUS() & 0x200000) == 0x200000);
   };
 
   static const unsigned int USER_MODE=0;
@@ -168,10 +168,16 @@ public:
   void SetPrivilegeLevel(unsigned int _new_privilege_level) {
     _machine_state = (_machine_state & ~0x3) | _new_privilege_level;
   };
-  bool LowPowerMode() { return (_machine_state & 0x10) != 0; };
+  bool LowPowerMode() { return (_machine_state & 0x10) == 0x10; };
   void ClearLowPowerMode() { _machine_state &= ~0x10; };
   void SetLowPowerMode() { _machine_state |= 0x10; };
 
+  bool Ready() {
+    SIM_EXCEPTIONS sim_interrupt;
+    bool is_ready = !EndTest() && (!LowPowerMode() || InterruptPending(sim_interrupt));
+    return is_ready;
+  };
+  
   void PushPrivilegeLevel();
   void PopPrivilegeLevel();
 

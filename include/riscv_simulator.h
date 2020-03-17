@@ -29,8 +29,11 @@ class RiscvSimulator {
   int InstrCount() { return instr_count; };
 
   bool GetReadyCpus(vector<RiscvState *> &ready_cores);
-  void StepCores();
-  
+  void StepCores(std::vector<RiscvState *> &ready_cores);
+  void StepCore(RiscvState *core);
+
+  bool SleepingCores();
+
   void AdvanceClock() { clock++; };
 
   void ServiceDevices(); // service uart, other devices tbd
