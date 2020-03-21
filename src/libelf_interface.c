@@ -380,7 +380,7 @@ int elfio_read_next_section(void **edata, char *name,unsigned long long *address
   strcpy(name,ed->section_name); /* copy section name */
 
   *address = shdr.sh_addr;  /* pick off section address from section header */
-  *is_data = ( (shdr.sh_type == SHT_PROGBITS) || (shdr.sh_type == SHT_NOBITS) ) ? 1 : 0; /* we think PROGBITS or NOBITS indicates 'real' data or instrs */
+  *is_data = ( (shdr.sh_type == SHT_PROGBITS) || (shdr.sh_type == SHT_NOBITS) || (shdr.sh_type == SHT_INIT_ARRAY) || (shdr.sh_type == SHT_FINI_ARRAY)) ? 1 : 0; /* we think PROGBITS or NOBITS indicates 'real' data or instrs */
 
   *dbuf = ed->section_read_buffer;
   *size_in_bytes = ed->num_bytes;

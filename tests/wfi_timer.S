@@ -1,5 +1,11 @@
+#********************************************************************
 # simple minded asm program to confirm timer interrupts,
 # enter/wakeup from low power mode...
+#
+# to run:
+#
+#    dimebox -L wfi_timer.o -U --timer 0x8000
+#********************************************************************
 	
 # set timer to cause interrupt, goto sleep 'til timer interrupt...
 
