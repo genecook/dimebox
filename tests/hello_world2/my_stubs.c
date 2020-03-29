@@ -65,9 +65,25 @@ int _open(const char *name, int flags, int mode) {
   return -1;
 }
 
-int _read(int file, void *ptr, size_t len) {
-  return 0;
+int _uart_status() {
+  // uart status access here...
+  register int FR asm("t0");
+  asm("li a1, 0x9000000");
+  asm("lw t0, 0x18(a1)");
+  return FR;
 }
+
+int _inbyte() {
+  // if uart receive (buffer) empty return 0...
+  if ( (_uart_status() & 0x10) != 0)
+    return 0; 
+  // uart access here...
+  register int DR asm("t0");
+  asm("li a1, 0x9000000");
+  asm("lw t0, 0(a1)");
+  return DR;
+}
+
 
 void * _sbrk(ptrdiff_t incr) {
   errno = ENOMEM;
@@ -107,6 +123,18 @@ int _write(int file, const void *ptr, size_t len) {
      _outbyte(tbuf[i]);
   }
   return len;
+}
+
+int _read(int file, void *ptr, size_t len) {
+  char *tbuf = (char *) ptr;
+  int i;
+  for (i = 0; i < len; i++) {
+     int nc = _inbyte();
+     if (nc == -1)
+       break;
+     tbuf[i] = (char) nc;
+  }
+  return i;
 }
 
 int _gettimeofday(struct timeval *p, void *z) {

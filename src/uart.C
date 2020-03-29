@@ -10,9 +10,11 @@
 
 #include "uart.h"
 
-//#define UART_DEBUG 1
+//#define UART_TX_DEBUG 1
+//#define UART_RCV_DEBUG 1
 
 #define UNBUFFERED 1
+#define FILTER_NULL_CHARS 1
 
 //--------------------------------------------------------------------------------
 // Transmit - write to stdout one char from transmit queue.
@@ -23,19 +25,19 @@
 //--------------------------------------------------------------------------------
 
 void uart::Transmit() {
-#ifdef UART_DEBUG
+#ifdef UART_TX_DEBUG
   printf("[uart::Transmit] entered...\n");
 #endif
   unsigned int nc = 0;
     
   if (transmit_queue.GetChar(&nc)) {
-#ifdef UART_DEBUG
+#ifdef UART_TX_DEBUG
     printf("[uart::Transmit] next char to transmit: '%c'\n",nc);
 #endif
     putchar(nc); // we ASSUME stdout is always ready...
     fflush(stdout);
     if (transmit_queue.BelowThreshhold()) {
-#ifdef UART_DEBUG
+#ifdef UART_TX_DEBUG
       printf("[uart::Transmit] set transmit interrupt...\n");
 #endif
       SetTransmitInterrupt();
@@ -51,28 +53,28 @@ void uart::Transmit() {
 
 
 void uart::Receive() {
-#ifdef UART_DEBUG
+#ifdef UART_RCV_DEBUG
   printf("[uart::Receive] entered...\n");
 #endif
-  
+ 
   if (receive_queue.Full()) {
-#ifdef UART_DEBUG
+#ifdef UART_RCV_DEBUG
     printf("   receive queue is full. set overrun...\n");
 #endif
     SetOverrun(true);
-#ifdef UART_DEBUG
-  printf("[uart::Receive] exited.\n");
+#ifdef UART_RCV_DEBUG
+    printf("[uart::Receive] exited.\n");
 #endif
     return;
   }
 
   SetOverrun(false);
 
-#ifdef UART_DEBUG
+#ifdef UART_RCV_DEBUG
   printf("   there is room in the queue so no overrun...\n");
 #endif
 
-#ifdef UART_DEBUG
+#ifdef UART_RCV_DEBUG
   printf("  setup unbuffered state...\n");
 #endif
 
@@ -94,34 +96,55 @@ void uart::Receive() {
   tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
 #endif
 
+  unsigned char nc = 0;
   
   if ( input_chars_available() ) {
-#ifdef UART_DEBUG
-    printf("  get next (unbuffered) input char, queue it up...\n");
+#ifdef UART_RCV_DEBUG
+    printf("  get next (unbuffered) input char...\n");
 #endif
-    unsigned char nc = getchar();
-//#ifdef UART_DEBUG
-    //printf("  char read: '%c' (0x%x)\n", nc, nc);
-//#endif
-    receive_queue.PutChar(nc);
-    if (receive_queue.AboveThreshhold()) {
-#ifdef UART_DEBUG
-        printf("  receive queue above threshhold...\n");
+    nc = getchar();
+#ifdef UART_RCV_DEBUG
+    printf("  char read: '%c' (0x%x)\n", nc, nc);
 #endif
-        SetReceiveInterrupt();
-    }
   } else {
-#ifdef UART_DEBUG
+#ifdef UART_RCV_DEBUG
     printf("  no char available...\n");
 #endif
   }
 
+  // not sure why we are seeing nil (null?) char on unbuffered
+  // stdin, but will choose to ignore for now...
+
+  bool queue_up_char = true;
+  
+#ifdef FILTER_NULL_CHARS
+  if (nc == 0) {
+    queue_up_char = false;
+#ifdef UART_RCV_DEBUG
+    printf("  ignoring 'nil' char...\n");
+#endif
+  }
+#endif
+
+  if (queue_up_char) {
+//#ifdef UART_RCV_DEBUG
+    printf("  queue up char '%c' (0x%02x)\n",nc,nc);
+//#endif
+    receive_queue.PutChar(nc);
+    if (receive_queue.AboveThreshhold()) {
+#ifdef UART_RCV_DEBUG
+        printf("  receive queue above threshhold...\n");
+#endif
+        SetReceiveInterrupt();
+    }
+  }
+  
 #ifdef UNBUFFERED
   /* restore the former settings */
   tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
 #endif
 
-#ifdef UART_DEBUG
+#ifdef UART_RCV_DEBUG
   printf("[uart::Receive] exited.\n");
 #endif
 }

@@ -28,6 +28,8 @@ class RiscvSimulator {
   
   int InstrCount() { return instr_count; };
 
+  bool InstructionCountExceeded();
+
   bool GetReadyCpus(vector<RiscvState *> &ready_cores);
   void StepCores(std::vector<RiscvState *> &ready_cores);
   void StepCore(RiscvState *core);

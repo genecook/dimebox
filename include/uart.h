@@ -160,6 +160,12 @@ class uart {
    virtual void Transmit();
    virtual void Receive();
 
+   // for testing purposes:
+   void PrimeReceive(unsigned char nc) {
+      printf("[PrimeReceive] stuffing '%c' into queue...\n",nc);
+      receive_queue.PutChar(nc);
+   };
+
    // sub-class deals with transmit/receive, overrun...
    
    virtual void SetTransmitInterrupt() { };

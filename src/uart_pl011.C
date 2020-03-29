@@ -97,15 +97,30 @@ int UART_pl011::Read(unsigned long long PA,unsigned char *buffer,int access_size
   return rcode;
 }
 
+void UART_pl011::UpdateStatus(const std::string &where) {
+  UARTFR = (RI()<<8) | (Transmit_empty()<<7) | (Receive_full()<<6) | (Transmit_full()<<5)
+           | (Receive_empty()<<4) | (UART_busy()<<3) | (DCD()<<2) | (DSR()<<1) | CTS();
+
+#ifdef PL011_DEBUG
+  if (!where.empty())
+  printf("[UART_pl011 - %s] FR: 0x%03x (Tx empty/full: %d/%d Rcv empty/full: %d/%d busy? %d RI/DCD/DSR/CTS: %d/%d/%d/%d \n",
+	 where.c_str(),UARTFR,Transmit_empty(),Transmit_full(),Receive_empty(),Receive_full(),UART_busy(),RI(),DCD(),DSR(),CTS() );
+#endif
+}
 
 int UART_pl011::Read(unsigned long long PA,unsigned int *rval) {
   int rcode = 0;
 
   *rval = 0;
 
-  
   switch( register_index(PA) ) {
-    case DR:   GetChar(rval);
+    case DR:   if (Receive_empty()) {
+                 // receive buffer empty...
+               } else {
+                 //UpdateStatus("Before (DR) read");
+		 GetChar(rval);
+		 //UpdateStatus("Just after (DR) read");
+	       }
                break;
 	       
     case RSR:  // receive status register should be up to date...
@@ -113,8 +128,7 @@ int UART_pl011::Read(unsigned long long PA,unsigned int *rval) {
                break;
       
     case FR:   // update anytime accessed...
-               UARTFR |= (RI()<<8) | (Transmit_empty()<<7) | (Receive_full()<<6) | (Transmit_full()<<5) 
-		 | (Receive_empty()<<4) | (UART_busy()<<3) | (DCD()<<2) | (DSR()<<1) | CTS();
+               UpdateStatus("Before (FR) access");
 	       *rval = UARTFR;
                break;
 	       

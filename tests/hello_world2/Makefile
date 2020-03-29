@@ -6,8 +6,12 @@ all:
 	make clean
 	make HelloWorld
 	make test
+	make test_echo
 
 HelloWorld: main.c my_stubs.o
+	${CC} ${CFLAGS} -o $@ $^
+
+EchoChars: echo.c my_stubs.o
 	${CC} ${CFLAGS} -o $@ $^
 
 # our system calls...
@@ -28,7 +32,13 @@ test: HelloWorld
 	${DIMEBOX} -L HelloWorld --reset_address 0x10090 --uart 0x9000000 --isa_test -n 2000 1>tlog 2>&1
 	grep 'Hello World!' tlog 1>/dev/null 2>&1
 
+# EchoChars - echo characters typed from stdin. Note -n option with value -1 to specify that simulation
+#             has no max-instruction count...
+
+test_echo: EchoChars
+	echo 'Hello World!' | ${DIMEBOX} -L EchoChars --reset_address 0x10090 --uart 0x9000000 --isa_test -n -1 
+
 clean:
-	rm -f HelloWorld my_stubs.o tlog
+	rm -f HelloWorld EchoChars my_stubs.o tlog
 
 

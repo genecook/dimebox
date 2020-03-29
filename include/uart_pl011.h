@@ -19,7 +19,7 @@ class UART_pl011 : public uart, public memmap_device {
     
     UARTDR = 0;
     UARTRSR = 0;
-    UARTFR = 0x48;
+    UARTFR = 0x110; // transmit empty, receive empty
     UARTILPR = 0;
     UARTIBRD = 0;
     UARTFBRD = 0;
@@ -51,7 +51,10 @@ class UART_pl011 : public uart, public memmap_device {
         clock_advance_interval = _clock_advance_interval;
   };
 
-  void ServiceIOs() { Transmit(); Receive(); };
+  void ServiceIOs() { 
+    Transmit(); 
+    Receive(); 
+  };
   
   int Read(unsigned long long PA,unsigned char *buffer,int access_size);
   int Write(unsigned long long PA,unsigned char *buffer,int access_size);
@@ -59,7 +62,9 @@ class UART_pl011 : public uart, public memmap_device {
   enum UART_SUPPORTED_INTERRUPTS { UART_OVERRUN=1, UART_TRANSMIT=2, UART_RECEIVE=4 };
   
   bool InterruptPending(int &pending_interrupts);
-  
+ 
+  void UpdateStatus(const std::string &where);
+
   // (memory-mapped uart) register offsets from uart memory base address:
 
   enum { DR=0x0, RSR=0x4, FR=0x18, ILPR=0x20, IBRD=0x24, FBRD=0x28, LCR_H=0x2c, TCR=0x30,

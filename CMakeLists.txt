@@ -50,3 +50,7 @@ add_test(NAME helloworld_uart_test
          WORKING_DIRECTORY ../tests/hello_world
          COMMAND make)
 
+add_test(NAME helloworld_uart_test2
+         WORKING_DIRECTORY ../tests/hello_world2
+         COMMAND make)
+

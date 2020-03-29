@@ -86,7 +86,7 @@ int RiscvSimulator::Go() {
 
   instr_count = 0; // total # of instructions simulated for all cores
 
-  while( !rcode && (instr_count < sim_cfg->MaxInstrs()) && (cores_are_running || SleepingCores()) ) {
+  while( !rcode && !InstructionCountExceeded() && (cores_are_running || SleepingCores()) ) {
     if (cores_are_running)
       StepCores(ready_cores);
     AdvanceClock();
@@ -102,6 +102,17 @@ int RiscvSimulator::Go() {
   }
   
   return rcode;
+}
+
+//****************************************************************************
+// max number of instructions simulated exceeded?
+//****************************************************************************
+
+bool RiscvSimulator::InstructionCountExceeded() {
+  if (sim_cfg->MaxInstrs() < 0) // if max-instrs is negative then simulation 
+    return false;               //   runs forever...
+  
+  return (instr_count > sim_cfg->MaxInstrs()); // have we reached the max yet?
 }
 
 //****************************************************************************
