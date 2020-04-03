@@ -53,6 +53,16 @@ dimebox tasks (in no particular order)
  * Archive dimebox generated test images from ISA tests. implement 'resim' script.
    Add 'test' target to cmake. -DONE.
 
+ * Implement Compressed Instruction set:
+   --add code to instr class generator script for compressed instrs. --DONE.
+   --add (compressed) instruction class definitions. --DONE.
+   --implement Step method for each compressed instruction supported. --DONE.
+   --review new instr class defs, defines for correctness.
+   --add code to allow half-word aligned PC.
+   --enhance instruction 'cracker' for compressed instrs.
+   --expand test 'harness' to include tests for compressed instrs.
+   --debug/test of compressed instrs.
+   
  * Test timer, uart, interrupts.
    --implement timer test - timer goes off after N ticks, causes interrupt. -DONE.
    --implement simple C-based tests to write chars to uart - DONE.

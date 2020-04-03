@@ -76,6 +76,8 @@ public:
   
   unsigned int RD() { return state->GP(rd); };
   void RD(unsigned int rval) { state->SetGP(rd,rval); };
+
+  unsigned int rvc2reg(int indx) { return indx + 8; };
   
   unsigned int PC() { return state->PC(); };
   void PC(unsigned int rval) { state->SetPC(rval); };
@@ -110,10 +112,15 @@ public:
     return (long long int) op;
   };
 
-  // define a few register aliases to use with 'test harness' accesses...
+  // define a few register aliases...
   unsigned int GP() { return state->GP(3);  };
+  unsigned int SP() { return state->GP(2);  };
   unsigned int A7() { return state->GP(17); };
   unsigned int A0() { return state->GP(10); };
+
+  unsigned int X(int idx) { return state->GP(idx); };
+
+  void SetSP(unsigned long long rval) { state->SetGP(2,rval); };
 
   unsigned long long MEMORY_READ(unsigned long long address,int size);
   void MEMORY_WRITE(unsigned long long address,int size,unsigned long long rval);
@@ -131,8 +138,10 @@ protected:
   unsigned int rs2;                     // instruction encoding fields
   unsigned int rs1;                     //   common to all instruction encodings
   unsigned int funct3;                  //
+  unsigned int funct4;                  //
   unsigned int rd;                      //
   unsigned int imm;                     //
+  unsigned int op;                      //
 
   bool load_store;                                // 
   bool jal;                                       // 
@@ -287,6 +296,130 @@ class JtypeInstruction : public RiscvInstruction {
     return std::string(tbuf);
   };
 };
+
+
+//*******************************************************************************
+// Compressed instruction classes...
+//*******************************************************************************
+
+#define _FUNCT4    funct4   = (encoding & 0xf000)>>12
+#define _FUNCT3_C  funct3   = (encoding >> 12) & 0x7
+#define _OP        op       = (encoding & 3)
+#define _CB_OFFSET imm      = (((encoding & 0x1c00)>>10)<<5) | ((encoding & 0x7c)>>2)
+#define _CJ_TARGET imm      = (encoding & 0x1ffc)>>2
+#define _IMM_CI    imm      = (((encoding & 0x1000)>>12)<<5) | ((encoding & 0x7c)>>2)
+#define _IMM_CIW   imm      = (encoding & 0x1fe0)>>5
+#define _IMM_CL    imm      = (((encoding>>10) & 0x7)<<2) | ((encoding>>5) & 3)
+#define _IMM_CSS   imm      = (encoding >> 7) & 0x3f
+#define _RD3       rd       = rvc2reg( (encoding>>2) & 0x3 )
+#define _RD_RS1    rd = rs1 = (encoding>>7) & 0x1f
+#define _RS1_3     rs1      = rvc2reg( (encoding>>7) & 0x3 )
+#define _RS2_3     rs2      = rvc2reg( (encoding>>2) & 0x3 )
+
+class CRtypeInstruction : public RiscvInstruction {
+ public:
+  CRtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CRtypeInstruction() {};  
+  virtual void Decode() { _FUNCT4; _RD_RS1; _RS2; _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s %s,%s",InstrName().c_str(),state->RegAlias(rd),state->RegAlias(rs2));
+    return std::string(tbuf);
+  };
+};
+
+class CItypeInstruction : public RiscvInstruction {
+ public:
+  CItypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CItypeInstruction() {};  
+  virtual void Decode() { _FUNCT3; _IMM_CI; _RD_RS1; _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),state->RegAlias(rd),imm);
+    return std::string(tbuf);
+  };
+};
+
+class CSStypeInstruction : public RiscvInstruction {
+ public:
+  CSStypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CSStypeInstruction() {};  
+  virtual void Decode() { _FUNCT3; _IMM_CSS; _RS2; _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),state->RegAlias(rs2),imm);
+    return std::string(tbuf);
+  };
+};
+
+class CIWtypeInstruction : public RiscvInstruction {
+ public:
+  CIWtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CIWtypeInstruction() {};  
+  virtual void Decode() { _FUNCT3; _IMM_CIW; _RD3; _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s %s,0x%x",InstrName().c_str(),state->RegAlias(rd),imm);
+    return std::string(tbuf);
+  };
+};
+
+class CLtypeInstruction : public RiscvInstruction {
+ public:
+  CLtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CLtypeInstruction() {};  
+  virtual void Decode() { _FUNCT3; _IMM_CL; _RS1_3; _RD3; _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),state->RegAlias(rd),imm,state->RegAlias(rs1));
+    return std::string(tbuf);
+  };
+};
+
+class CStypeInstruction : public RiscvInstruction {
+ public:
+  CStypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CStypeInstruction() {};  
+  virtual void Decode() { _FUNCT3; _IMM_CL; _RS1_3; _RS2_3; _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),state->RegAlias(rd),imm,state->RegAlias(rs1));
+    return std::string(tbuf);
+  };
+};
+
+class CBtypeInstruction : public RiscvInstruction {
+ public:
+  CBtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CBtypeInstruction() {};  
+  virtual void Decode() { _FUNCT3; _CB_OFFSET; _RS1_3; _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s %s,%d(%s)",InstrName().c_str(),state->RegAlias(rd),imm,state->RegAlias(rs1));
+    return std::string(tbuf);
+  };
+};
+
+class CJtypeInstruction : public RiscvInstruction {
+ public:
+  CJtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
+    : RiscvInstruction(_state,_memory,_encoding) { };
+  ~CJtypeInstruction() {};  
+  virtual void Decode() { _FUNCT3; _CJ_TARGET;  _OP; };
+  virtual std::string Disassembly() {
+    char tbuf[1024];
+    sprintf(tbuf,"%s 0x%x",InstrName().c_str(),imm);
+    return std::string(tbuf);
+  };
+};
+
 
 //*******************************************************************************
 // riscv instruction factory...

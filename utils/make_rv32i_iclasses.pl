@@ -34,6 +34,18 @@ my @B = qw(BEQ BNE BLT BGE BLTU BGEU);
 my @R = qw(ADD SLT SLTU AND OR XOR SLL SRL SUB SRA 
            MUL MULH MULHSU MULHU DIV DIVU REM REMU DIVW DIVUW REMW REMUW);
 
+# compressed instructions:
+
+my @CR   = qw( C.MV C.ADD C.EBREAK );
+my @CR_J = qw( C.JR C.JALR );
+my @CI   = qw( C.LWSP C.LI C.LUI C.ADDI C.ADDI16SP C.SLLI C.NOP );
+my @CSS  = qw( C.SWSP );
+my @CIW  = qw( C.ADDI4SPN );
+my @CL   = qw( C.LW );
+my @CS   = qw( C.SW C.AND C.OR C.XOR C.SUB );
+my @CB   = qw( C.BEQZ C.BNEZ C.SRLI C.SRAI C.ANDI );
+my @CJ   = qw( C.J C.JAL );
+
 my $instr_template = '
 class $INSTR$ : public $TYPE$typeInstruction {
   public:
@@ -44,9 +56,9 @@ class $INSTR$ : public $TYPE$typeInstruction {
 };
 ';
 
-print "#ifndef __RV32I_ICLASSES__\n\n";
+print "#ifndef __RV32IMC_ICLASSES__\n\n";
 
-print "// !!! AUTO-GENERATED CODE - SEE utils/make_iclasses.pl !!!\n";
+print "// !!! AUTO-GENERATED CODE - SEE utils/make_rv32i_iclasses.pl !!!\n";
 
 foreach $instr (@U)       { &class_decl($instr,'U','');                             }
 foreach $instr (@U_AUIPC) { &class_decl($instr,'U','uaui=true');                    }
@@ -64,8 +76,18 @@ foreach $instr (@S)       { &class_decl($instr,'S','load_store=true');          
 foreach $instr (@B)       { &class_decl($instr,'B','');                             }
 foreach $instr (@R)       { &class_decl($instr,'R','');                             }
 
+foreach $instr (@CR)   { &class_decl($instr,'CR', '');                }
+foreach $instr (@CR_J) { &class_decl($instr,'CR', 'jal=true');        }
+foreach $instr (@CI)   { &class_decl($instr,'CI', '');                }
+foreach $instr (@CSS)  { &class_decl($instr,'CSS','');                }
+foreach $instr (@CIW)  { &class_decl($instr,'CIW','');                }
+foreach $instr (@CL)   { &class_decl($instr,'CL', 'load_store=true'); }
+foreach $instr (@CS)   { &class_decl($instr,'CS', 'load_store=true'); }
+foreach $instr (@CB)   { &class_decl($instr,'CB', '');                }
+foreach $instr (@CJ)   { &class_decl($instr,'CJ', 'jal=true');        }
+
 print "\n#endif\n";
-print "#define __RV32I_ICLASSES__ 1\n";
+print "#define __RV32IMC_ICLASSES__ 1\n";
 
 sub class_decl {
     my ($instr,$type,$init) = @_;

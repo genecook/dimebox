@@ -247,6 +247,112 @@ void REMU::Step() {
   RD( rem );  
 };
 
+// compressed instructions...
+
+void C_LWSP::Step() {
+  RD( MEMORY_READ(X(2) + IMM() * 4, 4) );
+}
+void C_SWSP::Step() {
+  MEMORY_WRITE( X(2) + IMM() * 4, 4, RS2() );
+}
+void C_LW::Step() {
+  RD( MEMORY_READ(RS1() + IMM() * 4, 4) );
+}
+void C_SW::Step() {
+  MEMORY_WRITE( RS1() + IMM() * 4, 4, RS2() );
+}
+void C_J::Step() {
+  SetPC( PC() + SIGN_EXTEND_IMM(11) );
+}
+void C_JAL::Step() {
+  SetPC( PC() + SIGN_EXTEND_IMM(11) );
+  RD( PC() + 2 );
+}
+void C_JR::Step() {
+  SetPC( RS1() );
+}
+void C_JALR::Step() {
+  SetPC( RS1() );
+  RD( PC() + 2 );
+}
+void C_BEQZ::Step() {
+  SetPC( PC() + (RS1() == 0 ? SIGN_EXTEND_IMM(8) : 2)); 
+}
+void C_BNEZ::Step() {
+  SetPC( PC() + (RS1() != 0 ? SIGN_EXTEND_IMM(8) : 2)); 
+}
+void C_LI::Step() {
+  if (rd == 0)
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  RD( SIGN_EXTEND_IMM(6) );
+}
+void C_LUI::Step() {
+  if ( (rd == 0) || (rd == 2) )
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  RD( SignExtend(IMM()<<12,17) );
+}
+void C_ADDI::Step() {
+  if (imm == 0)
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  RD( RS1() + SIGN_EXTEND_IMM(6) );
+}
+void C_ADDI16SP::Step() {
+  if (imm == 0)
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  SetSP( SP() + SIGN_EXTEND_IMM(6)<<4 );
+}
+void C_ADDI4SPN::Step() {
+  if (imm == 0)
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  RD( SP() + IMM()<<4 );
+}
+void C_SLLI::Step() {
+  if (( imm & 0x20) != 0)
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  RD( RS1() << IMM_FOR_SHIFT() );
+}
+void C_SRLI::Step() {
+  if (( imm & 0x20) != 0)
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  RD( RS1() >> IMM_FOR_SHIFT() );
+}
+void C_SRAI::Step() {
+  if (( imm & 0x20) != 0)
+    throw ILLEGAL_INSTRUCTION_UNIMPL_INSTR;
+  RD ( (int) SignExtend(RS1() >> IMM_FOR_SHIFT(),32 - IMM_FOR_SHIFT()) );
+}
+void C_ANDI::Step() {
+  RD( RD() & (unsigned int) SIGN_EXTEND_IMM(6) );
+}
+void C_MV::Step() {
+  RD( RS2() );
+}
+void C_ADD::Step() {
+  RD( RD() + RS2() );
+}
+void C_AND::Step() {
+  RD ( RD() & RS2() );
+}
+void C_OR::Step() {
+  RD ( RD() | RS2() );
+}
+void C_XOR::Step() {
+  RD ( RD() ^ RS2() );
+}
+void C_SUB::Step() {
+  RD( RD() - RS2() );
+}
+void C_NOP::Step() {
+}
+void C_EBREAK::Step() {
+  // ignored...
+}
+
+
+
+
+
+
 
 
 
