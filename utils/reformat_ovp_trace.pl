@@ -3,7 +3,7 @@
 my %rvals = ();
 
 while(<>) {
-  if (/^Info \'riscvOVPsim\/cpu\', 0x00000000([0-9a-f]+)\([\+\w]+\)\: ([0-9a-f]+) (\w[\w\.]*)\s+/) {
+  if (/^Info \'riscvOVPsim\/cpu\', 0x00000000([0-9a-f]+)\([\+\w]+\)\: ([0-9a-f]+)\s+(\w[\w\.]*)\s+/) {
     my $address = '0x' . $1;
     my $opcode = '0x' . $2;
     my $mnemonic = $3;
