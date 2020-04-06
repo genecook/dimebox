@@ -14,12 +14,12 @@ Done.
   # R zero (x0) = 0x0
   # R mhartid (csr 0xf14) = 0x0
   # W a0 (x10) = 0x0
-0x80000050 0x00051063 bne x0,a0,76
+0x80000050 0x00051063 bne x0,a0,0
   # R a0 (x10) = 0x0
   # R zero (x0) = 0x0
 0x80000054 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000054
-0x80000058 0x01028293 addi t0,t0,76
+0x80000058 0x01028293 addi t0,t0,0
   # R t0 (x5) = 0x80000054
   # W t0 (x5) = 0x80000064
 0x8000005c 0x30529073 csrrw x0,mtvec,t0
@@ -31,7 +31,7 @@ Done.
   # W satp (csr 0x180) = 0x0
 0x80000064 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000064
-0x80000068 0x02028293 addi t0,t0,16
+0x80000068 0x02028293 addi t0,t0,0
   # R t0 (x5) = 0x80000064
   # W t0 (x5) = 0x80000084
 0x8000006c 0x30529073 csrrw x0,mtvec,t0
@@ -40,14 +40,14 @@ Done.
   # W mtvec (csr 0x305) = 0x80000084
 0x80000070 0x800002b7 lui t0,0x80000000
   # W t0 (x5) = 0x80000000
-0x80000074 0xfff28293 addi t0,t0,32
+0x80000074 0xfff28293 addi t0,t0,0
   # R t0 (x5) = 0x80000000
   # W t0 (x5) = 0x7fffffff
 0x80000078 0x3b029073 csrrw x0,pmpaddr0,t0
   # R t0 (x5) = 0x7fffffff
   # R pmpaddr0 (csr 0x3b0) = 0x0
   # W pmpaddr0 (csr 0x3b0) = 0x7fffffff
-0x8000007c 0x01f00293 addi t0,x0,-1
+0x8000007c 0x01f00293 addi t0,x0,0
   # R zero (x0) = 0x0
   # W t0 (x5) = 0x1f
 0x80000080 0x3a029073 csrrw x0,pmpcfg0,t0
@@ -56,7 +56,7 @@ Done.
   # W pmpcfg0 (csr 0x3a0) = 0x1f
 0x80000084 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000084
-0x80000088 0x01828293 addi t0,t0,31
+0x80000088 0x01828293 addi t0,t0,0
   # R t0 (x5) = 0x80000084
   # W t0 (x5) = 0x8000009c
 0x8000008c 0x30529073 csrrw x0,mtvec,t0
@@ -72,7 +72,7 @@ Done.
 0x80000098 0x30405073 csrrwi x0,mie,0
   # R mie (csr 0x304) = 0x0
   # W mie (csr 0x304) = 0x0
-0x8000009c 0x00000193 addi gp,x0,24
+0x8000009c 0x00000193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x0
 0x800000a0 0x00000297 auipc t0,0x0
@@ -84,21 +84,21 @@ Done.
   # R t0 (x5) = 0x80000004
   # R mtvec (csr 0x305) = 0x8000009c
   # W mtvec (csr 0x305) = 0x80000004
-0x800000ac 0x00100513 addi a0,x0,-156
+0x800000ac 0x00100513 addi a0,x0,0
   # R zero (x0) = 0x0
   # W a0 (x10) = 0x1
 0x800000b0 0x01f51513 slli a0,a0,31
   # R a0 (x10) = 0x1
   # W a0 (x10) = 0x80000000
-0x800000b4 0x00054c63 blt x0,a0,1
+0x800000b4 0x00054c63 blt x0,a0,0
   # R a0 (x10) = 0x80000000
   # R zero (x0) = 0x0
 0x800000cc 0x80000297 auipc t0,0x80000000
   # W t0 (x5) = 0xcc
-0x800000d0 0xf3428293 addi t0,t0,24
+0x800000d0 0xf3428293 addi t0,t0,0
   # R t0 (x5) = 0xcc
   # W t0 (x5) = 0x0
-0x800000d4 0x00028e63 beq x0,t0,-204
+0x800000d4 0x00028e63 beq x0,t0,0
   # R t0 (x5) = 0x0
   # R zero (x0) = 0x0
 0x800000f0 0x30005073 csrrwi x0,mstatus,0
@@ -106,7 +106,7 @@ Done.
   # W mstatus (csr 0x300) = 0x0
 0x800000f4 0x00002537 lui a0,0x2000
   # W a0 (x10) = 0x2000
-0x800000f8 0x80050513 addi a0,a0,28
+0x800000f8 0x80050513 addi a0,a0,0
   # R a0 (x10) = 0x2000
   # W a0 (x10) = 0x1800
 0x800000fc 0x30052073 csrrs x0,mstatus
@@ -115,7 +115,7 @@ Done.
   # W mstatus (csr 0x300) = 0x1800
 0x80000100 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000100
-0x80000104 0x01428293 addi t0,t0,-2048
+0x80000104 0x01428293 addi t0,t0,0
   # R t0 (x5) = 0x80000100
   # W t0 (x5) = 0x80000114
 0x80000108 0x34129073 csrrw x0,mepc,t0
@@ -135,57 +135,57 @@ Done.
   # R zero (x0) = 0x0
   # R mscratch (csr 0x340) = 0x3
   # W a0 (x10) = 0x3
-0x8000011c 0x00300e93 addi t4,x0,20
+0x8000011c 0x00300e93 addi t4,x0,0
   # R zero (x0) = 0x0
   # W t4 (x29) = 0x3
-0x80000120 0x00200193 addi gp,x0,3
+0x80000120 0x00200193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x2
-0x80000124 0x17d51063 bne t4,a0,2
+0x80000124 0x17d51063 bne t4,a0,0
   # R a0 (x10) = 0x3
   # R t4 (x29) = 0x3
 0x80000128 0x3400f5f3 csrrci a1,mscratch,1
   # R mscratch (csr 0x340) = 0x3
   # W a1 (x11) = 0x3
   # W mscratch (csr 0x340) = 0x2
-0x8000012c 0x00300e93 addi t4,x0,2
+0x8000012c 0x00300e93 addi t4,x0,0
   # R zero (x0) = 0x0
   # W t4 (x29) = 0x3
-0x80000130 0x00300193 addi gp,x0,3
+0x80000130 0x00300193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x3
-0x80000134 0x15d59863 bne t4,a1,3
+0x80000134 0x15d59863 bne t4,a1,0
   # R a1 (x11) = 0x3
   # R t4 (x29) = 0x3
 0x80000138 0x34026673 csrrsi a2,mscratch,4
   # R mscratch (csr 0x340) = 0x2
   # W a2 (x12) = 0x2
   # W mscratch (csr 0x340) = 0x6
-0x8000013c 0x00200e93 addi t4,x0,3
+0x8000013c 0x00200e93 addi t4,x0,0
   # R zero (x0) = 0x0
   # W t4 (x29) = 0x2
-0x80000140 0x00400193 addi gp,x0,2
+0x80000140 0x00400193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x4
-0x80000144 0x15d61063 bne t4,a2,4
+0x80000144 0x15d61063 bne t4,a2,0
   # R a2 (x12) = 0x2
   # R t4 (x29) = 0x2
 0x80000148 0x340156f3 csrrwi a3,mscratch,2
   # R mscratch (csr 0x340) = 0x6
   # W a3 (x13) = 0x6
   # W mscratch (csr 0x340) = 0x2
-0x8000014c 0x00600e93 addi t4,x0,4
+0x8000014c 0x00600e93 addi t4,x0,0
   # R zero (x0) = 0x0
   # W t4 (x29) = 0x6
-0x80000150 0x00500193 addi gp,x0,6
+0x80000150 0x00500193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x5
-0x80000154 0x13d69863 bne t4,a3,5
+0x80000154 0x13d69863 bne t4,a3,0
   # R a3 (x13) = 0x6
   # R t4 (x29) = 0x6
 0x80000158 0x0bad2537 lui a0,0xbad2000
   # W a0 (x10) = 0xbad2000
-0x8000015c 0xdea50513 addi a0,a0,5
+0x8000015c 0xdea50513 addi a0,a0,0
   # R a0 (x10) = 0xbad2000
   # W a0 (x10) = 0xbad1dea
 0x80000160 0x340515f3 csrrw a1,mscratch,a0
@@ -193,18 +193,18 @@ Done.
   # R mscratch (csr 0x340) = 0x2
   # W a1 (x11) = 0x2
   # W mscratch (csr 0x340) = 0xbad1dea
-0x80000164 0x00200e93 addi t4,x0,-534
+0x80000164 0x00200e93 addi t4,x0,0
   # R zero (x0) = 0x0
   # W t4 (x29) = 0x2
-0x80000168 0x00600193 addi gp,x0,2
+0x80000168 0x00600193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x6
-0x8000016c 0x11d59c63 bne t4,a1,6
+0x8000016c 0x11d59c63 bne t4,a1,0
   # R a1 (x11) = 0x2
   # R t4 (x29) = 0x2
 0x80000170 0x00002537 lui a0,0x2000
   # W a0 (x10) = 0x2000
-0x80000174 0xdea50513 addi a0,a0,6
+0x80000174 0xdea50513 addi a0,a0,0
   # R a0 (x10) = 0x2000
   # W a0 (x10) = 0x1dea
 0x80000178 0x34053573 csrrc a0,mscratch,a0
@@ -214,18 +214,18 @@ Done.
   # W mscratch (csr 0x340) = 0xbad0000
 0x8000017c 0x0bad2eb7 lui t4,0xbad2000
   # W t4 (x29) = 0xbad2000
-0x80000180 0xdeae8e93 addi t4,t4,-534
+0x80000180 0xdeae8e93 addi t4,t4,0
   # R t4 (x29) = 0xbad2000
   # W t4 (x29) = 0xbad1dea
-0x80000184 0x00700193 addi gp,x0,-534
+0x80000184 0x00700193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x7
-0x80000188 0x0fd51e63 bne t4,a0,7
+0x80000188 0x0fd51e63 bne t4,a0,0
   # R a0 (x10) = 0xbad1dea
   # R t4 (x29) = 0xbad1dea
 0x8000018c 0x0000c537 lui a0,0xc000
   # W a0 (x10) = 0xc000
-0x80000190 0xeef50513 addi a0,a0,7
+0x80000190 0xeef50513 addi a0,a0,0
   # R a0 (x10) = 0xc000
   # W a0 (x10) = 0xbeef
 0x80000194 0x34052573 csrrs a0,mscratch
@@ -235,10 +235,10 @@ Done.
   # W mscratch (csr 0x340) = 0xbadbeef
 0x80000198 0x0bad0eb7 lui t4,0xbad0000
   # W t4 (x29) = 0xbad0000
-0x8000019c 0x00800193 addi gp,x0,-273
+0x8000019c 0x00800193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x8
-0x800001a0 0x0fd51263 bne t4,a0,8
+0x800001a0 0x0fd51263 bne t4,a0,0
   # R a0 (x10) = 0xbad0000
   # R t4 (x29) = 0xbad0000
 0x800001a4 0x34002573 csrrs a0,mscratch
@@ -247,13 +247,13 @@ Done.
   # W a0 (x10) = 0xbadbeef
 0x800001a8 0x0badceb7 lui t4,0xbadc000
   # W t4 (x29) = 0xbadc000
-0x800001ac 0xeefe8e93 addi t4,t4,8
+0x800001ac 0xeefe8e93 addi t4,t4,0
   # R t4 (x29) = 0xbadc000
   # W t4 (x29) = 0xbadbeef
-0x800001b0 0x00900193 addi gp,x0,-273
+0x800001b0 0x00900193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x9
-0x800001b4 0x0dd51863 bne t4,a0,9
+0x800001b4 0x0dd51863 bne t4,a0,0
   # R a0 (x10) = 0xbadbeef
   # R t4 (x29) = 0xbadbeef
 0x800001b8 0x34005573 csrrwi a0,mscratch,0
@@ -264,13 +264,13 @@ Done.
   # R mscratch (csr 0x340) = 0x0
   # W a0 (x10) = 0x0
   # W mscratch (csr 0x340) = 0xf
-0x800001c0 0x00000e93 addi t4,x0,9
+0x800001c0 0x00000e93 addi t4,x0,0
   # R zero (x0) = 0x0
   # W t4 (x29) = 0x0
 0x800001c4 0x00f00193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0xf
-0x800001c8 0x0bd51e63 bne t4,a0,15
+0x800001c8 0x0bd51e63 bne t4,a0,0
   # R a0 (x10) = 0x0
   # R t4 (x29) = 0x0
 0x800001cc 0x34001073 csrrw x0,mscratch,x0
@@ -281,41 +281,41 @@ Done.
   # R zero (x0) = 0x0
   # R mscratch (csr 0x340) = 0x0
   # W a0 (x10) = 0x0
-0x800001d4 0x00000e93 addi t4,x0,15
+0x800001d4 0x00000e93 addi t4,x0,0
   # R zero (x0) = 0x0
   # W t4 (x29) = 0x0
 0x800001d8 0x01000193 addi gp,x0,0
   # R zero (x0) = 0x0
   # W gp (x3) = 0x10
-0x800001dc 0x0bd51463 bne t4,a0,16
+0x800001dc 0x0bd51463 bne t4,a0,0
   # R a0 (x10) = 0x0
   # R t4 (x29) = 0x0
 0x800001e0 0x30102573 csrrs a0,misa
   # R zero (x0) = 0x0
-  # R misa (csr 0x301) = 0x40101100
-  # W a0 (x10) = 0x40101100
-0x800001e4 0x02057513 andi a0,a0,16
-  # R a0 (x10) = 0x40101100
+  # R misa (csr 0x301) = 0x40101104
+  # W a0 (x10) = 0x40101104
+0x800001e4 0x02057513 andi a0,a0,0
+  # R a0 (x10) = 0x40101104
   # W a0 (x10) = 0x0
-0x800001e8 0x02050863 beq x0,a0,32
+0x800001e8 0x02050863 beq x0,a0,0
   # R a0 (x10) = 0x0
   # R zero (x0) = 0x0
 0x80000218 0x30102573 csrrs a0,misa
   # R zero (x0) = 0x0
-  # R misa (csr 0x301) = 0x40101100
-  # W a0 (x10) = 0x40101100
+  # R misa (csr 0x301) = 0x40101104
+  # W a0 (x10) = 0x40101104
 0x8000021c 0x01455513 srli a0,a0,20
-  # R a0 (x10) = 0x40101100
+  # R a0 (x10) = 0x40101104
   # W a0 (x10) = 0x401
-0x80000220 0x00157513 andi a0,a0,48
+0x80000220 0x00157513 andi a0,a0,0
   # R a0 (x10) = 0x401
   # W a0 (x10) = 0x1
-0x80000224 0x04050463 beq x0,a0,1
+0x80000224 0x04050463 beq x0,a0,0
   # R a0 (x10) = 0x1
   # R zero (x0) = 0x0
 0x80000228 0x000022b7 lui t0,0x2000
   # W t0 (x5) = 0x2000
-0x8000022c 0x80028293 addi t0,t0,1
+0x8000022c 0x80028293 addi t0,t0,0
   # R t0 (x5) = 0x2000
   # W t0 (x5) = 0x1800
 0x80000230 0x3002b073 csrrc x0,mstatus,t0
@@ -324,7 +324,7 @@ Done.
   # W mstatus (csr 0x300) = 0x80
 0x80000234 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000234
-0x80000238 0x01028293 addi t0,t0,-2048
+0x80000238 0x01028293 addi t0,t0,0
   # R t0 (x5) = 0x80000234
   # W t0 (x5) = 0x80000244
 0x8000023c 0x34129073 csrrw x0,mepc,t0
@@ -333,13 +333,13 @@ Done.
   # W mepc (csr 0x341) = 0x80000244
 0x80000240 0x30200073 mret
   # W mstatus (csr 0x300) = 0x88
-0x80000244 0x0ff00513 addi a0,x0,16
+0x80000244 0x0ff00513 addi a0,x0,0
   # R zero (x0) = 0x0
   # W a0 (x10) = 0xff
 0x80000248 0xc0001573 csrrw a0,rdcycle,x0
   # R zero (x0) = 0x0
-  # R rdcycle (csr 0xc00) = 0x6a
-  # W a0 (x10) = 0x6a
+  # R rdcycle (csr 0xc00) = 0x0
+  # W a0 (x10) = 0x0
   # W mcause (csr 0x342) = 0x2
   # W mtval (csr 0x343) = 0x0
   # W mstatus (csr 0x300) = 0x80
@@ -348,70 +348,70 @@ Done.
   # R zero (x0) = 0x0
   # R mcause (csr 0x342) = 0x2
   # W t5 (x30) = 0x2
-0x80000008 0x00800f93 addi t6,x0,255
+0x80000008 0x00800f93 addi t6,x0,0
   # R zero (x0) = 0x0
   # W t6 (x31) = 0x8
-0x8000000c 0x03ff0a63 beq t6,t5,8
+0x8000000c 0x03ff0a63 beq t6,t5,0
   # R t5 (x30) = 0x2
   # R t6 (x31) = 0x8
-0x80000010 0x00900f93 addi t6,x0,8
+0x80000010 0x00900f93 addi t6,x0,0
   # R zero (x0) = 0x0
   # W t6 (x31) = 0x9
-0x80000014 0x03ff0663 beq t6,t5,9
+0x80000014 0x03ff0663 beq t6,t5,0
   # R t5 (x30) = 0x2
   # R t6 (x31) = 0x9
-0x80000018 0x00b00f93 addi t6,x0,9
+0x80000018 0x00b00f93 addi t6,x0,0
   # R zero (x0) = 0x0
   # W t6 (x31) = 0xb
-0x8000001c 0x03ff0263 beq t6,t5,11
+0x8000001c 0x03ff0263 beq t6,t5,0
   # R t5 (x30) = 0x2
   # R t6 (x31) = 0xb
 0x80000020 0x00000f17 auipc t5,0x0
   # W t5 (x30) = 0x80000020
-0x80000024 0x294f0f13 addi t5,t5,11
+0x80000024 0x294f0f13 addi t5,t5,0
   # R t5 (x30) = 0x80000020
   # W t5 (x30) = 0x800002b4
-0x80000028 0x000f0463 beq x0,t5,660
+0x80000028 0x000f0463 beq x0,t5,0
   # R t5 (x30) = 0x800002b4
   # R zero (x0) = 0x0
-0x8000002c 0x000f0067 jalr x0,t5,660
+0x8000002c 0x000f0067 jalr x0,t5,0
   # R t5 (x30) = 0x800002b4
 0x800002b4 0x00900293 addi t0,x0,0
   # R zero (x0) = 0x0
   # W t0 (x5) = 0x9
-0x800002b8 0x0051e663 bltu t0,gp,9
+0x800002b8 0x0051e663 bltu t0,gp,0
   # R gp (x3) = 0x10
   # R t0 (x5) = 0x9
-0x800002bc 0x00b00293 addi t0,x0,9
+0x800002bc 0x00b00293 addi t0,x0,0
   # R zero (x0) = 0x0
   # W t0 (x5) = 0xb
-0x800002c0 0x0232f263 bgeu gp,t0,11
+0x800002c0 0x0232f263 bgeu gp,t0,0
   # R t0 (x5) = 0xb
   # R gp (x3) = 0x10
 0x800002c4 0x342022f3 csrrs t0,mcause
   # R zero (x0) = 0x0
   # R mcause (csr 0x342) = 0x2
   # W t0 (x5) = 0x2
-0x800002c8 0x00800313 addi t1,x0,11
+0x800002c8 0x00800313 addi t1,x0,0
   # R zero (x0) = 0x0
   # W t1 (x6) = 0x8
-0x800002cc 0xfa629ce3 bne t1,t0,8
+0x800002cc 0xfa629ce3 bne t1,t0,0
   # R t0 (x5) = 0x2
   # R t1 (x6) = 0x8
 0x80000284 0x0ff0000f fence x0,0xff00000
-0x80000288 0x00018063 beq x0,gp,-72
+0x80000288 0x00018063 beq x0,gp,0
   # R gp (x3) = 0x10
   # R zero (x0) = 0x0
 0x8000028c 0x00119193 slli gp,gp,1
   # R gp (x3) = 0x10
   # W gp (x3) = 0x20
-0x80000290 0x0011e193 ori gp,gp,-72
+0x80000290 0x0011e193 ori gp,gp,0
   # R gp (x3) = 0x20
   # W gp (x3) = 0x21
-0x80000294 0x05d00893 addi a7,x0,1
+0x80000294 0x05d00893 addi a7,x0,0
   # R zero (x0) = 0x0
   # W a7 (x17) = 0x5d
-0x80000298 0x00018513 addi a0,gp,93
+0x80000298 0x00018513 addi a0,gp,0
   # R gp (x3) = 0x21
   # W a0 (x10) = 0x21
 0x8000029c 0x00000073 ecall x0,0x0
@@ -421,8 +421,8 @@ Done.
   # W mepc (csr 0x341) = 0x8000029c
 Simulation ended, rcode: 0
 
-Elapsed time: 1.442 ms.
-simulation rate: 91539 instructions per second.
+Elapsed time: 1.343 ms.
+simulation rate: 98287 instructions per second.
 
 Test signature file: test.signature
 
