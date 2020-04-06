@@ -10,27 +10,19 @@
 
 class RiscvInstruction {
 public:
-  RiscvInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : encoding(_encoding), state(_state), memory(_memory),
+  RiscvInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding, int _instr_size)
+    : encoding(_encoding), instr_size(_instr_size), state(_state), memory(_memory),
      load_store(false),jal(false),uaui(false),unsigned_sign_extension(false),shift(false),
      csrs(false), csrr(false), csri(false), trap(false) {
    instr_pc = state->PC();
-   next_pc = instr_pc + InstrSize;
+   next_pc = instr_pc + instr_size;
    OPCODE;
  };
   virtual ~RiscvInstruction() {};
  
-  const int InstrSize = 4;       // instruction size in bytes
-  const int AccessSize = 4;      // memory access size
-  const bool Endianness = false; // true for big-endian
-
   virtual void Execute(bool verbose) {
     Decode();
-    if (verbose) {
-      char tbuf[128];
-      sprintf(tbuf,"0x%08x 0x%08x %s",instr_pc,encoding,Disassembly().c_str());
-      std::cout << tbuf << std::endl;
-    }
+    Display(verbose);       
     try {
        Step();
        AdvancePC();
@@ -39,16 +31,29 @@ public:
     }
   };
 
+  void Display(bool verbose) {
+    if (verbose) {
+      char tbuf[128];
+      if (instr_size == 2)
+        sprintf(tbuf,"0x%08x 0x%04x %s",instr_pc,encoding,Disassembly().c_str());
+      else
+        sprintf(tbuf,"0x%08x 0x%08x %s",instr_pc,encoding,Disassembly().c_str());
+      std::cout << tbuf << std::endl;
+    }
+  }
+  
   virtual void Decode() = 0;   // decode instruction encoding
   virtual void Step() = 0;     // execute the instruction
   
   // after instruction executes, update simulator state:
   virtual void Writeback(RiscvState *_state,Memory *_memory,bool show_updates);
 
-  void SetPC(unsigned int branch_pc) {
+  void SetPC(unsigned long long branch_pc, int alignment = 4) {
     // allow no misaligned branch target...
-    // (All instructions assumed to be aligned to 4 byte boundary)
-    if ( (branch_pc & 0x3) != 0) {
+    // if compressed (instr) extension align to two bytes, else specified alignment...
+    unsigned long long alignment_mask = state->CompressedExtensionEnabled() ? 1 : alignment - 1;
+    //printf("# branch pc: 0x%08llx alignment: %d mask: 0x%08llx\n",branch_pc,alignment,alignment_mask);
+    if ( (branch_pc & alignment_mask) != 0) {
       state->RecordMisalignedAddress(branch_pc);
       throw INSTRUCTION_ADDRESS_MISALIGNED;
     }
@@ -128,6 +133,7 @@ public:
 protected:
   unsigned char mbuf[80];               // hold bytes read-from/written-to memory
   unsigned int encoding;                // instruction encoding read from memory
+  int instr_size;                       // instruction size in bytes
   unsigned int opcode;                  //     "       main opcode
   char disassembly[256];                // record disassembly
   RiscvState *state;                    // register state
@@ -164,7 +170,7 @@ protected:
 class UnknownInstruction : public RiscvInstruction {
  public:
   UnknownInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,4) { };
   ~UnknownInstruction() {};  
   void Decode() {};
   std::string Disassembly() {
@@ -190,7 +196,7 @@ class UnknownInstruction : public RiscvInstruction {
 class RtypeInstruction : public RiscvInstruction {
  public:
   RtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,4) { };
   ~RtypeInstruction() {};  
   virtual void Decode() { _FUNCT7; _RS2; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
@@ -206,7 +212,7 @@ class RtypeInstruction : public RiscvInstruction {
 class ItypeInstruction : public RiscvInstruction {
  public:
   ItypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,4) { };
   ~ItypeInstruction() {};
   virtual void Decode() { _ITYPE_IMM; _RS1; _FUNCT3; _RD; };
   virtual std::string Disassembly() {
@@ -236,7 +242,7 @@ class ItypeInstruction : public RiscvInstruction {
 class StypeInstruction : public RiscvInstruction {
  public:
   StypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,4) { };
   ~StypeInstruction() {};  
   virtual void Decode() { _STYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
@@ -251,7 +257,7 @@ class StypeInstruction : public RiscvInstruction {
 class BtypeInstruction : public RiscvInstruction {
  public:
   BtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,4) { };
   ~BtypeInstruction() {};
   virtual void Decode() { _BTYPE_IMM; _RS2; _RS1; _FUNCT3; };
   virtual std::string Disassembly() {
@@ -266,7 +272,7 @@ class BtypeInstruction : public RiscvInstruction {
 class UtypeInstruction : public RiscvInstruction {
  public:
   UtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,4) { };
   ~UtypeInstruction() {};  
   virtual void Decode() { _UTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
@@ -284,7 +290,7 @@ class UtypeInstruction : public RiscvInstruction {
 class JtypeInstruction : public RiscvInstruction {
  public:
   JtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,4) { };
   ~JtypeInstruction() {};  
   virtual void Decode() { _JTYPE_IMM; _RD; };
   virtual std::string Disassembly() {
@@ -319,7 +325,7 @@ class JtypeInstruction : public RiscvInstruction {
 class CRtypeInstruction : public RiscvInstruction {
  public:
   CRtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CRtypeInstruction() {};  
   virtual void Decode() { _FUNCT4; _RD_RS1; _RS2; _OP; };
   virtual std::string Disassembly() {
@@ -332,7 +338,7 @@ class CRtypeInstruction : public RiscvInstruction {
 class CItypeInstruction : public RiscvInstruction {
  public:
   CItypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CItypeInstruction() {};  
   virtual void Decode() { _FUNCT3; _IMM_CI; _RD_RS1; _OP; };
   virtual std::string Disassembly() {
@@ -345,7 +351,7 @@ class CItypeInstruction : public RiscvInstruction {
 class CSStypeInstruction : public RiscvInstruction {
  public:
   CSStypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CSStypeInstruction() {};  
   virtual void Decode() { _FUNCT3; _IMM_CSS; _RS2; _OP; };
   virtual std::string Disassembly() {
@@ -358,7 +364,7 @@ class CSStypeInstruction : public RiscvInstruction {
 class CIWtypeInstruction : public RiscvInstruction {
  public:
   CIWtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CIWtypeInstruction() {};  
   virtual void Decode() { _FUNCT3; _IMM_CIW; _RD3; _OP; };
   virtual std::string Disassembly() {
@@ -371,7 +377,7 @@ class CIWtypeInstruction : public RiscvInstruction {
 class CLtypeInstruction : public RiscvInstruction {
  public:
   CLtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CLtypeInstruction() {};  
   virtual void Decode() { _FUNCT3; _IMM_CL; _RS1_3; _RD3; _OP; };
   virtual std::string Disassembly() {
@@ -384,7 +390,7 @@ class CLtypeInstruction : public RiscvInstruction {
 class CStypeInstruction : public RiscvInstruction {
  public:
   CStypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CStypeInstruction() {};  
   virtual void Decode() { _FUNCT3; _IMM_CL; _RS1_3; _RS2_3; _OP; };
   virtual std::string Disassembly() {
@@ -397,7 +403,7 @@ class CStypeInstruction : public RiscvInstruction {
 class CBtypeInstruction : public RiscvInstruction {
  public:
   CBtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CBtypeInstruction() {};  
   virtual void Decode() { _FUNCT3; _CB_OFFSET; _RS1_3; _OP; };
   virtual std::string Disassembly() {
@@ -410,7 +416,7 @@ class CBtypeInstruction : public RiscvInstruction {
 class CJtypeInstruction : public RiscvInstruction {
  public:
   CJtypeInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding)
-    : RiscvInstruction(_state,_memory,_encoding) { };
+    : RiscvInstruction(_state,_memory,_encoding,2) { };
   ~CJtypeInstruction() {};  
   virtual void Decode() { _FUNCT3; _CJ_TARGET;  _OP; };
   virtual std::string Disassembly() {
@@ -430,7 +436,10 @@ class RiscvInstructionFactory {
   RiscvInstructionFactory() {};
   ~RiscvInstructionFactory() {};
 
-  static RiscvInstruction * NewInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding);
+  static RiscvInstruction * NewInstruction(RiscvState *_state,Memory *_memory,unsigned int _encoding,bool compressed=false);
+  
+ private:
+  static RiscvInstruction * NewInstruction16(RiscvState *_state,Memory *_memory,unsigned int _encoding);
 };
 
 #endif

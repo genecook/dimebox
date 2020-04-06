@@ -262,24 +262,24 @@ void C_SW::Step() {
   MEMORY_WRITE( RS1() + IMM() * 4, 4, RS2() );
 }
 void C_J::Step() {
-  SetPC( PC() + SIGN_EXTEND_IMM(11) );
+  SetPC( PC() + SIGN_EXTEND_IMM(11), 2 );
 }
 void C_JAL::Step() {
-  SetPC( PC() + SIGN_EXTEND_IMM(11) );
+  SetPC( PC() + SIGN_EXTEND_IMM(11), 2 );
   RD( PC() + 2 );
 }
 void C_JR::Step() {
-  SetPC( RS1() );
+  SetPC( RS1(), 2 );
 }
 void C_JALR::Step() {
-  SetPC( RS1() );
+  SetPC( RS1(), 2 );
   RD( PC() + 2 );
 }
 void C_BEQZ::Step() {
-  SetPC( PC() + (RS1() == 0 ? SIGN_EXTEND_IMM(8) : 2)); 
+  SetPC( PC() + (RS1() == 0 ? SIGN_EXTEND_IMM(8) : 2), 2 ); 
 }
 void C_BNEZ::Step() {
-  SetPC( PC() + (RS1() != 0 ? SIGN_EXTEND_IMM(8) : 2)); 
+  SetPC( PC() + (RS1() != 0 ? SIGN_EXTEND_IMM(8) : 2), 2 ); 
 }
 void C_LI::Step() {
   if (rd == 0)

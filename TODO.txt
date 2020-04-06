@@ -53,13 +53,15 @@ dimebox tasks (in no particular order)
  * Archive dimebox generated test images from ISA tests. implement 'resim' script.
    Add 'test' target to cmake. -DONE.
 
+ * Correct instruction disassembly - add code to encode immediate based on instr sub-class.
+ 
  * Implement Compressed Instruction set:
    --add code to instr class generator script for compressed instrs. --DONE.
    --add (compressed) instruction class definitions. --DONE.
    --implement Step method for each compressed instruction supported. --DONE.
    --review new instr class defs, defines for correctness.
-   --add code to allow half-word aligned PC.
-   --enhance instruction 'cracker' for compressed instrs.
+   --add code to allow half-word aligned PC. --DONE.
+   --enhance instruction 'cracker' for compressed instrs. --DONE.
    --expand test 'harness' to include tests for compressed instrs.
    --debug/test of compressed instrs.
    

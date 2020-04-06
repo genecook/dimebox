@@ -5,16 +5,32 @@
 
 class RiscvState : public State {
 public:
+  // misa - 32 bits
+  //     31:30 - MXL - 01 (XLEN is 32 bits)
+  //     bit  0 - A atomic extension
+  //          2 - C compressed extension
+  //          3 - D double-precision floating pt
+  //          5 - F single-precision     "
+  //	    8 - I RV32I base ISA
+  //	   12 - M Integer multiply/divide extension
+  //	   20 - U user mode
+
+  static const unsigned int DEFINED_MISA_VALUE = 0x40101104; // 32 bits, user mode supported, rv32i + rv32m + rvc
+
+  static const unsigned int MISA_MASK = 0x4; // allow C bit to be set/cleared, for compatibility reasons
+  
   RiscvState() : State() {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(0);
     _machine_state = MACHINE_MODE; // defaults to machine mode, normal power mode
+    SetMISA(DEFINED_MISA_VALUE); 
   };
   
   RiscvState(SimConfig *sim_cfg) : State(sim_cfg) {
     for (auto i = 0; i < 32; i++) X[i].Value(0);
     SetPC(sim_cfg->ResetAddress());
     _machine_state = MACHINE_MODE; // defaults to machine mode, normal power mode
+    SetMISA(DEFINED_MISA_VALUE); 
     // at this time, no other registers are initialized
   };
   
@@ -91,16 +107,6 @@ public:
   
   std::string CSR_NAME(int csr);
 
-  // misa - 32 bits
-  //     31:30 - MXL - 01 (XLEN is 32 bits)
-  //     bit  0 - A atomic extension
-  //          3 - D double-precision floating pt
-  //          5 - F single-precision     "
-  //	    8 - I RV32I base ISA
-  //	   12 - M Integer multiply/divide extension
-  //	   20 - U user mode
-
-  static const unsigned int MISA      = 0x40101100; // 32 bits, user mode supported, rv32i + rv32m
   static const unsigned int MVENDORID = 0;          // non-commercial so no vendor ID,
   static const unsigned int MARCHID   = 0;          //       "              machine arch. ID,
   static const unsigned int MIMPID    = 0;          //                        machine implementation
@@ -130,7 +136,33 @@ public:
     _SATP.Value(rval); 
     if (show_updates) ShowCSRAccess("satp",0x180,rval,true);
   };
+
+  unsigned long long MISA() { return _MISA.Value(); };
   
+  void SetMISA(unsigned long long rval) {
+    bool unused_bits_set = (rval & ~DEFINED_MISA_VALUE) != 0;
+
+    if (unused_bits_set && show_updates)
+      ShowComment("Ignoring attempt to set unsupported bits of MISA");
+    
+    rval = rval & DEFINED_MISA_VALUE;  // set/clear no bits other than whats supported
+
+    // if misa C (compressed instructions) is set, and current PC is misaligned,
+    // do not allow C bit to be cleared...
+
+    if ( ((MISA() & 4) == 4) && ((PC() & 0x3) != 0) ) {
+      ShowComment("Ignoring attempt to clear MISA.C bit since current PC is not word-aligned.");
+      rval |= 4;
+    }
+    
+    _MISA.Value(rval);
+    if (show_updates) ShowCSRAccess("misa",0x301,rval,true);
+  };
+
+  bool CompressedExtensionEnabled() {
+    return (MISA() & 4) == 4;
+  };
+
   unsigned long long MSTATUS() {
     return _MSTATUS.Value() & 0x807fffff; // bits 23..30 = WPRI
   };
@@ -321,6 +353,8 @@ private:
   ControlRegister _SATP;
   AddressRegister _PMPADDR0;
   AddressRegister _PMPCFG0;
+
+  ControlRegister _MISA;
   ControlRegister _MEDELEG;
   ControlRegister _MIDELEG;
   ControlRegister _MIE;

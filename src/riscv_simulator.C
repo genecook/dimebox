@@ -156,10 +156,24 @@ void RiscvSimulator::StepCore(RiscvState *core) {
     unsigned char buf[4];
     unsigned int encoding;
   } opcode;
-     
+
+  RiscvInstruction *instr = NULL;
+  opcode.encoding = 0;
+  
   try {
-     memory.ReadMemory(&state_updates,pc,false,false,4,true,opcode.buf,false,false);
-     memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
+     // compressed instruction?..
+     memory.ReadMemory(&state_updates,pc,false,false,2,true,opcode.buf,false,false);
+     memory.ApplyEndianness(opcode.buf,opcode.buf,false,2,2);
+     
+     instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding,true);
+
+     // not compressed instruction ('normal' case)?...
+     if (instr->InstrName() == "?") {
+       memory.ReadMemory(&state_updates,pc,false,false,4,true,opcode.buf,false,false);
+       memory.ApplyEndianness(opcode.buf,opcode.buf,false,4,4);
+       
+       instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
+     }     
   } catch(SIM_EXCEPTIONS sim_exception) {
      std::cerr << "Problems reading memory at (PC) 0x" << std::hex << pc << std::dec << "???" << std::endl;
      rcode = -1;
@@ -171,8 +185,6 @@ void RiscvSimulator::StepCore(RiscvState *core) {
     return;
   }
 
-  RiscvInstruction *instr = RiscvInstructionFactory::NewInstruction(&state_updates,&memory,opcode.encoding);
-	
   instr->Execute(sim_cfg->ShowDisassembly());
   instr->Writeback(core,&memory,sim_cfg->ShowUpdates());
   

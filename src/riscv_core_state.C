@@ -22,6 +22,7 @@ void RiscvState::Update(RiscvState *rhs) {
     if (MEDELEG() != rhs->MEDELEG()) SetMEDELEG(rhs->MEDELEG());
     if (MIDELEG() != rhs->MIDELEG()) SetMIDELEG(rhs->MIDELEG());
     if (MIE() != rhs->MIE()) SetMIE(rhs->MIE());
+    if (MISA() != rhs->MISA()) SetMISA(rhs->MISA());
     if (MTVEC() != rhs->MTVEC()) SetMTVEC(rhs->MTVEC());
     if (MCOUNTEREN() != rhs->MCOUNTEREN()) SetMCOUNTEREN(rhs->MCOUNTEREN());
     if (MSTATUSH() != rhs->MSTATUSH()) SetMSTATUSH(rhs->MSTATUSH());
@@ -139,7 +140,7 @@ unsigned long long RiscvState::CSR(unsigned int csr,unsigned int privilege_level
     case 0x180: rval = SATP(); break;
 
     case 0x300: rval = MSTATUS(); break;
-    case 0x301: rval = MISA; break;
+    case 0x301: rval = MISA(); break;
     case 0x302: rval = MEDELEG(); break;
     case 0x303: rval = MIDELEG(); break;
     case 0x304: rval = MIE(); break;
@@ -204,6 +205,7 @@ void RiscvState::SetCSR(unsigned int csr,unsigned int privilege_level, unsigned 
 		
     case 0x300: SetMSTATUS(rval); break;
       
+    case 0x301: SetMISA(rval); break;
     case 0x302: SetMEDELEG(rval); break;
     case 0x303: SetMIDELEG(rval); break;
     case 0x304: SetMIE(rval); break;
@@ -410,7 +412,8 @@ void RiscvState::ProcessException(SIM_EXCEPTIONS sim_exception, unsigned int opc
     // return from interrupt or exception...
     case PROCESS_MRET:
       PopPrivilegeLevel();
-      SetPC ( MEPC() );
+      SetPC ( CompressedExtensionEnabled() ? MEPC() : MEPC() & ~0x3 ); // ignore low order 2 bits if
+                                                                       //  compressed extension not enabled(?)
       break;
 
     // env call from user or machine mode...
