@@ -9,7 +9,7 @@ Loading test from ELF file '/home/genec/Desktop/riscv/riscv-tests/isa/rv32ui-p-a
 elf reader initialized...
 total # of sections: 7
 Done.
-0x80000000 0x04c0006f jal x0,0x80000000
+0x80000000 0x04c0006f jal x0,0x8000004c
 0x8000004c 0xf1402573 csrrs a0,mhartid
   # R zero (x0) = 0x0
   # R mhartid (csr 0xf14) = 0x0
@@ -19,7 +19,7 @@ Done.
   # R zero (x0) = 0x0
 0x80000054 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000054
-0x80000058 0x01028293 addi t0,t0,0
+0x80000058 0x01028293 addi t0,t0,16
   # R t0 (x5) = 0x80000054
   # W t0 (x5) = 0x80000064
 0x8000005c 0x30529073 csrrw x0,mtvec,t0
@@ -31,7 +31,7 @@ Done.
   # W satp (csr 0x180) = 0x0
 0x80000064 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000064
-0x80000068 0x02028293 addi t0,t0,0
+0x80000068 0x02028293 addi t0,t0,32
   # R t0 (x5) = 0x80000064
   # W t0 (x5) = 0x80000084
 0x8000006c 0x30529073 csrrw x0,mtvec,t0
@@ -40,14 +40,14 @@ Done.
   # W mtvec (csr 0x305) = 0x80000084
 0x80000070 0x800002b7 lui t0,0x80000000
   # W t0 (x5) = 0x80000000
-0x80000074 0xfff28293 addi t0,t0,0
+0x80000074 0xfff28293 addi t0,t0,-1
   # R t0 (x5) = 0x80000000
   # W t0 (x5) = 0x7fffffff
 0x80000078 0x3b029073 csrrw x0,pmpaddr0,t0
   # R t0 (x5) = 0x7fffffff
   # R pmpaddr0 (csr 0x3b0) = 0x0
   # W pmpaddr0 (csr 0x3b0) = 0x7fffffff
-0x8000007c 0x01f00293 addi t0,x0,0
+0x8000007c 0x01f00293 addi t0,x0,31
   # R zero (x0) = 0x0
   # W t0 (x5) = 0x1f
 0x80000080 0x3a029073 csrrw x0,pmpcfg0,t0
@@ -56,7 +56,7 @@ Done.
   # W pmpcfg0 (csr 0x3a0) = 0x1f
 0x80000084 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x80000084
-0x80000088 0x01828293 addi t0,t0,0
+0x80000088 0x01828293 addi t0,t0,24
   # R t0 (x5) = 0x80000084
   # W t0 (x5) = 0x8000009c
 0x8000008c 0x30529073 csrrw x0,mtvec,t0
@@ -77,28 +77,28 @@ Done.
   # W gp (x3) = 0x0
 0x800000a0 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x800000a0
-0x800000a4 0xf6428293 addi t0,t0,0
+0x800000a4 0xf6428293 addi t0,t0,-156
   # R t0 (x5) = 0x800000a0
   # W t0 (x5) = 0x80000004
 0x800000a8 0x30529073 csrrw x0,mtvec,t0
   # R t0 (x5) = 0x80000004
   # R mtvec (csr 0x305) = 0x8000009c
   # W mtvec (csr 0x305) = 0x80000004
-0x800000ac 0x00100513 addi a0,x0,0
+0x800000ac 0x00100513 addi a0,x0,1
   # R zero (x0) = 0x0
   # W a0 (x10) = 0x1
 0x800000b0 0x01f51513 slli a0,a0,31
   # R a0 (x10) = 0x1
   # W a0 (x10) = 0x80000000
-0x800000b4 0x00054c63 blt x0,a0,0
+0x800000b4 0x00054c63 blt x0,a0,24
   # R a0 (x10) = 0x80000000
   # R zero (x0) = 0x0
 0x800000cc 0x80000297 auipc t0,0x80000000
   # W t0 (x5) = 0xcc
-0x800000d0 0xf3428293 addi t0,t0,0
+0x800000d0 0xf3428293 addi t0,t0,-204
   # R t0 (x5) = 0xcc
   # W t0 (x5) = 0x0
-0x800000d4 0x00028e63 beq x0,t0,0
+0x800000d4 0x00028e63 beq x0,t0,28
   # R t0 (x5) = 0x0
   # R zero (x0) = 0x0
 0x800000f0 0x30005073 csrrwi x0,mstatus,0
@@ -106,7 +106,7 @@ Done.
   # W mstatus (csr 0x300) = 0x0
 0x800000f4 0x00000297 auipc t0,0x0
   # W t0 (x5) = 0x800000f4
-0x800000f8 0x01428293 addi t0,t0,0
+0x800000f8 0x01428293 addi t0,t0,20
   # R t0 (x5) = 0x800000f4
   # W t0 (x5) = 0x80000108
 0x800000fc 0x34129073 csrrw x0,mepc,t0
@@ -121,10 +121,10 @@ Done.
   # W mstatus (csr 0x300) = 0x80
 0x80000108 0x00002517 auipc a0,0x2000
   # W a0 (x10) = 0x80002108
-0x8000010c 0x71c50513 addi a0,a0,0
+0x8000010c 0x71c50513 addi a0,a0,1820
   # R a0 (x10) = 0x80002108
   # W a0 (x10) = 0x80002824
-0x80000110 0x004005ef jal a1,0x80000110
+0x80000110 0x004005ef jal a1,0x80000114
   # W a1 (x11) = 0x80000114
 0x80000114 0x40b50533 sub a0,a0,a1
   # R a0 (x10) = 0x80002824
@@ -132,21 +132,21 @@ Done.
   # W a0 (x10) = 0x2710
 0x80000118 0x00002eb7 lui t4,0x2000
   # W t4 (x29) = 0x2000
-0x8000011c 0x710e8e93 addi t4,t4,0
+0x8000011c 0x710e8e93 addi t4,t4,1808
   # R t4 (x29) = 0x2000
   # W t4 (x29) = 0x2710
-0x80000120 0x00200193 addi gp,x0,0
+0x80000120 0x00200193 addi gp,x0,2
   # R zero (x0) = 0x0
   # W gp (x3) = 0x2
-0x80000124 0x03d51463 bne t4,a0,0
+0x80000124 0x03d51463 bne t4,a0,40
   # R a0 (x10) = 0x2710
   # R t4 (x29) = 0x2710
 0x80000128 0xffffe517 auipc a0,0xffffe000
   # W a0 (x10) = 0x7fffe128
-0x8000012c 0x8fc50513 addi a0,a0,0
+0x8000012c 0x8fc50513 addi a0,a0,-1796
   # R a0 (x10) = 0x7fffe128
   # W a0 (x10) = 0x7fffda24
-0x80000130 0x004005ef jal a1,0x80000130
+0x80000130 0x004005ef jal a1,0x80000134
   # W a1 (x11) = 0x80000134
 0x80000134 0x40b50533 sub a0,a0,a1
   # R a0 (x10) = 0x7fffda24
@@ -154,23 +154,23 @@ Done.
   # W a0 (x10) = 0xffffd8f0
 0x80000138 0xffffeeb7 lui t4,0xffffe000
   # W t4 (x29) = 0xffffe000
-0x8000013c 0x8f0e8e93 addi t4,t4,0
+0x8000013c 0x8f0e8e93 addi t4,t4,-1808
   # R t4 (x29) = 0xffffe000
   # W t4 (x29) = 0xffffd8f0
-0x80000140 0x00300193 addi gp,x0,0
+0x80000140 0x00300193 addi gp,x0,3
   # R zero (x0) = 0x0
   # W gp (x3) = 0x3
-0x80000144 0x01d51463 bne t4,a0,0
+0x80000144 0x01d51463 bne t4,a0,8
   # R a0 (x10) = 0xffffd8f0
   # R t4 (x29) = 0xffffd8f0
-0x80000148 0x02301063 bne gp,x0,0
+0x80000148 0x02301063 bne gp,x0,32
   # R zero (x0) = 0x0
   # R gp (x3) = 0x3
 0x80000168 0x0ff0000f fence x0,0xff00000
-0x8000016c 0x00100193 addi gp,x0,0
+0x8000016c 0x00100193 addi gp,x0,1
   # R zero (x0) = 0x0
   # W gp (x3) = 0x1
-0x80000170 0x05d00893 addi a7,x0,0
+0x80000170 0x05d00893 addi a7,x0,93
   # R zero (x0) = 0x0
   # W a7 (x17) = 0x5d
 0x80000174 0x00000513 addi a0,x0,0
@@ -183,8 +183,8 @@ Done.
   # W mepc (csr 0x341) = 0x80000178
 Simulation ended, rcode: 0
 
-Elapsed time: 0.761 ms.
-simulation rate: 77529 instructions per second.
+Elapsed time: 0.614 ms.
+simulation rate: 96091 instructions per second.
 
 Test signature file: test.signature
 
